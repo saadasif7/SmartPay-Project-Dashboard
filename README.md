@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Voice Command Dashboard
 
 ## Developer
@@ -31,3 +32,7 @@ Future Features
 - Export PDF
 - Export Excel
 - Login System
+=======
+# SmartPay-Project-Dashboard
+SmartPay Project  Dashboard
+>>>>>>> 432b5c262fd66261f669f2d7d0e8dcbda0a48ac4
