@@ -12,6 +12,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
+from reportlab.platypus import Image
+from utils.pdf_report import generate_executive_pdf
 
 def speak(text):
 
@@ -1834,100 +1836,26 @@ elif page == "Export":
             use_container_width=True
         ):
 
-            pdf_file = "SmartPay_Executive_Report.pdf"
+            pdf = generate_executive_pdf(df)
 
-            doc = SimpleDocTemplate(pdf_file)
-
-            styles = getSampleStyleSheet()
-
-            elements = []
-
-            elements.append(
-                Paragraph(
-                    "<b>SMARTPAY PROJECT DASHBOARD</b>",
-                    styles["Title"]
-                )
+            st.download_button(
+                "⬇ Download Executive PDF",
+                data=pdf,
+                file_name="SmartPay_Executive_Report.pdf",
+                mime="application/pdf",
+                use_container_width=True
             )
-
-            elements.append(
-                Paragraph(
-                    "Digital Banking Group",
-                    styles["Heading2"]
-                )
-            )
-
-            elements.append(
-                Paragraph(
-                    "National Bank of Pakistan",
-                    styles["Heading2"]
-                )
-            )
-
-            elements.append(
-                Paragraph(
-                    f"Generated: {datetime.now().strftime('%d %B %Y %I:%M %p')}",
-                    styles["Normal"]
-                )
-            )
-
-            elements.append(
-                Paragraph("<br/>", styles["Normal"])
-            )
-
-            data = [list(df.columns)]
-
-            data += df.values.tolist()
-
-            table = Table(data)
-
-            table.setStyle(
-                TableStyle([
-
-                    ('BACKGROUND',(0,0),(-1,0),colors.darkgreen),
-
-                    ('TEXTCOLOR',(0,0),(-1,0),colors.white),
-
-                    ('GRID',(0,0),(-1,-1),1,colors.grey),
-
-                    ('BACKGROUND',(0,1),(-1,-1),colors.beige),
-
-                    ('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),
-
-                    ('BOTTOMPADDING',(0,0),(-1,0),10)
-
-                ])
-            )
-
-            elements.append(table)
-
-            doc.build(elements)
-
-            with open(pdf_file, "rb") as pdf:
-
-                st.download_button(
-
-                    "⬇ Download Executive PDF",
-
-                    pdf,
-
-                    file_name=pdf_file,
-
-                    mime="application/pdf",
-
-                    use_container_width=True
-
-                )
 
             st.success("Executive PDF Generated Successfully.")
 
-            st.markdown("---")
+        st.markdown("---")
 
     st.subheader("Report Preview")
 
     st.dataframe(
         df.head(10),
         use_container_width=True,
-        hide_index=True
+         hide_index=True
     )
 
     st.success(
