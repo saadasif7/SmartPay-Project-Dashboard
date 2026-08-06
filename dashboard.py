@@ -1,7 +1,7 @@
 import streamlit as st
 import plotly.express as px
 from datetime import datetime
-from utils.excel_reader import load_data
+from utils.excel_reader import load_data, get_weather
 from utils.voice import listen
 import streamlit.components.v1 as components
 from rapidfuzz import process, fuzz
@@ -14,6 +14,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
 from utils.pdf_report import generate_executive_pdf
+import requests
+from datetime import datetime
 
 def speak(text):
 
@@ -393,94 +395,104 @@ df["Status"] = (
 # =====================================================
 # SIDEBAR
 # =====================================================
-# ==========================================
-# SIDEBAR CSS
-# ==========================================
 
 st.markdown("""
 <style>
 
-/* Sidebar Background */
+/* =========================
+   Sidebar
+========================= */
+
 section[data-testid="stSidebar"]{
     background:#006747;
 }
 
-/* Radio label */
-section[data-testid="stSidebar"] label{
-    color:white !important;
-    font-weight:600;
+/* Navigation title */
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] p{
+    color:white;
 }
 
-/* Remove white background */
+/* Radio Labels */
 div[role="radiogroup"] label{
     background:transparent !important;
     border:none !important;
-    box-shadow:none !important;
-}
-
-/* Selected button */
-div[role="radiogroup"] label[data-baseweb="radio"]{
-    border-radius:12px;
+    border-radius:10px;
     padding:10px 12px;
-    margin-bottom:8px;
-}
-
-div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked){
-    background:#0A8F5B !important;
+    margin-bottom:6px;
     color:white !important;
+    font-weight:600;
+    transition:.2s;
 }
 
 /* Hover */
 div[role="radiogroup"] label:hover{
-    background:#0C7C53 !important;
+    background:#0B8758 !important;
 }
 
-/* Hide radio circles */
+/* Selected */
+div[role="radiogroup"] label:has(input:checked){
+    background:#0FA968 !important;
+    color:white !important;
+}
+
+/* Hide Radio Circle */
 div[role="radiogroup"] input{
-    display:none;
+    display:none !important;
+}
+
+/* Hide Empty Header Space */
+section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]{
+    padding-top:.4rem;
 }
 
 </style>
 """, unsafe_allow_html=True)
-# Logo
+
+# =====================================================
+# LOGO
+# =====================================================
+
 st.sidebar.image(
     "smartpay_logo/smartpay_logo.png",
     use_container_width=True
 )
 
-# Title
+# =====================================================
+# TITLE
+# =====================================================
+
 st.sidebar.markdown("""
 <h2 style="
 text-align:center;
 color:white;
-margin-top:10px;
-margin-bottom:0;
-font-weight:700;">
-SmartPay
+margin-bottom:0;">
+🏦 SmartPay
 </h2>
 
 <p style="
 text-align:center;
 color:#D1FAE5;
-font-size:15px;
-margin-top:5px;">
+margin-top:2px;
+margin-bottom:8px;">
 Project Dashboard
 </p>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 
-# Navigation
-st.sidebar.markdown("""
-<h3 style="
-color:white;
-margin-bottom:10px;">
-Navigation
-</h3>
-""", unsafe_allow_html=True)
+# =====================================================
+# NAVIGATION
+# =====================================================
+
+st.sidebar.markdown(
+    "<h4 style='color:white;'>Navigation</h4>",
+    unsafe_allow_html=True
+)
 
 page = st.sidebar.radio(
-    "",
+    "Menu",
     [
         "Dashboard",
         "Projects",
@@ -495,34 +507,45 @@ page = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-# Information Box
+# =====================================================
+# INFORMATION
+# =====================================================
+
 st.sidebar.markdown("""
 <div style="
-background:rgba(255,255,255,.10);
-padding:15px;
+background:rgba(255,255,255,.12);
+padding:12px;
 border-radius:12px;
 color:white;
-font-size:14px;">
+font-size:14px;
+line-height:1.5;">
 
 <b>Department</b><br>
 Digital Banking Group
 
-<br><br>
+<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
 
 <b>Organization</b><br>
 National Bank of Pakistan
 
-<br><br>
+<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
 
 <b>Version</b><br>
 2.0
+
+<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
+
+<b>Developer</b><br>
+Muhammad Saad Asif
 
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-st.sidebar.success("Developed By\n\nMuhammad Saad Asif")
+st.sidebar.caption(
+    "© 2026 SmartPay Dashboard"
+)
 # =====================================================
 # DASHBOARD
 # =====================================================
@@ -533,15 +556,21 @@ if page == "Dashboard":
     # Header
     # ==========================================
 
-    left, right = st.columns([5,1])
+    city, temp, weather = get_weather()
+
+    left, center, right = st.columns([5, 2, 2])
+
+    # ==========================================
+    # LEFT - DASHBOARD TITLE
+    # ==========================================
 
     with left:
 
-        st.markdown(f"""
+        st.markdown("""
         <div style="
         background:white;
         border-radius:18px;
-        padding:35px;
+        padding:30px;
         border:1px solid #E5E7EB;
         box-shadow:0 8px 18px rgba(0,0,0,.08);">
 
@@ -549,20 +578,57 @@ if page == "Dashboard":
         color:#006747;
         margin:0;
         font-size:42px;
-        font-weight:700;
-        font-family:Segoe UI;">
+        font-weight:700;">
         SmartPay Project Dashboard
         </h1>
 
         <p style="
-        margin-top:12px;
         color:#6B7280;
+        margin-top:10px;
         font-size:18px;">
         Digital Banking Group | National Bank of Pakistan
         </p>
 
+        <small style="color:#9CA3AF;">
+        Enterprise Project Monitoring System
+        </small>
+
         </div>
         """, unsafe_allow_html=True)
+
+
+    # ==========================================
+    # CENTER - WEATHER
+    # ==========================================
+
+    with center:
+
+        st.markdown(f"""
+        <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        text-align:center;
+        border:1px solid #E5E7EB;
+        box-shadow:0 8px 18px rgba(0,0,0,.08);">
+
+        <h3 style="margin:0;">🌤 {city}</h3>
+
+        <h1 style="margin:8px 0;color:#006747;">
+        {temp}°C
+        </h1>
+
+        <p style="color:gray;margin:0;">
+        {weather}
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    # ==========================================
+    # RIGHT - DATE & TIME
+    # ==========================================
 
     with right:
 
@@ -571,11 +637,13 @@ if page == "Dashboard":
         background:white;
         border-radius:18px;
         padding:20px;
-        border:1px solid #E5E7EB;
         text-align:center;
+        border:1px solid #E5E7EB;
         box-shadow:0 8px 18px rgba(0,0,0,.08);">
 
-        <h4 style="color:#006747;margin:0;">Today</h4>
+        <h4 style="color:#006747;margin:0;">
+        Today
+        </h4>
 
         <h2 style="margin-top:10px;">
         {datetime.now().strftime("%d %b %Y")}
@@ -583,7 +651,7 @@ if page == "Dashboard":
 
         <hr>
 
-        <h3 style="margin-top:5px;">
+        <h3>
         {datetime.now().strftime("%I:%M %p")}
         </h3>
 
@@ -591,17 +659,31 @@ if page == "Dashboard":
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     # ==========================================
     # KPI
     # ==========================================
 
-    total_projects = len(df)
-    live_projects = len(df[df["Status"].str.upper()=="LIVE"])
-    uat_projects = len(df[df["Status"].str.upper()=="UAT"])
-    sit_projects = len(df[df["Status"].str.upper()=="SIT"])
+    status = df["Status"].astype(str).str.upper().str.strip()
 
-    c1,c2,c3,c4 = st.columns(4)
+    total_projects = len(df)
+
+    scoping_projects = len(df[status == "UNDER SCOPING"])
+
+    development_projects = len(df[status == "UNDER DEVELOPMENT"])
+
+    uat_projects = len(df[status == "UAT"])
+
+    review_projects = len(df[status == "IS REVIEW"])
+
+    cmc_projects = len(df[status == "CMC"])
+
+    live_projects = len(df[status == "LIVE"])
+
+    c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+
+    # ===========================
+    # Total Projects
+    # ===========================
 
     with c1:
 
@@ -609,18 +691,22 @@ if page == "Dashboard":
         <div style="
         background:white;
         border-radius:18px;
-        padding:22px;
+        padding:20px;
         border-top:6px solid #006747;
         box-shadow:0 6px 18px rgba(0,0,0,.08);">
 
         <h5 style="color:gray;">Total Projects</h5>
 
-        <h1 style="color:#006747;font-size:42px;">
+        <h1 style="color:#006747;font-size:38px;">
         {total_projects}
         </h1>
 
         </div>
         """, unsafe_allow_html=True)
+
+    # ===========================
+    # Under Scoping
+    # ===========================
 
     with c2:
 
@@ -628,18 +714,22 @@ if page == "Dashboard":
         <div style="
         background:white;
         border-radius:18px;
-        padding:22px;
-        border-top:6px solid #00C853;
+        padding:20px;
+        border-top:6px solid #8E24AA;
         box-shadow:0 6px 18px rgba(0,0,0,.08);">
 
-        <h5 style="color:gray;">LIVE</h5>
+        <h5 style="color:gray;">Scoping</h5>
 
-        <h1 style="color:#00C853;font-size:42px;">
-        {live_projects}
+        <h1 style="color:#8E24AA;font-size:38px;">
+        {scoping_projects}
         </h1>
 
         </div>
         """, unsafe_allow_html=True)
+
+    # ===========================
+    # Under Development
+    # ===========================
 
     with c3:
 
@@ -647,18 +737,22 @@ if page == "Dashboard":
         <div style="
         background:white;
         border-radius:18px;
-        padding:22px;
-        border-top:6px solid #F9A825;
+        padding:20px;
+        border-top:6px solid #FF9800;
         box-shadow:0 6px 18px rgba(0,0,0,.08);">
 
-        <h5 style="color:gray;">UAT</h5>
+        <h5 style="color:gray;">Development</h5>
 
-        <h1 style="color:#F9A825;font-size:42px;">
-        {uat_projects}
+        <h1 style="color:#FF9800;font-size:38px;">
+        {development_projects}
         </h1>
 
         </div>
         """, unsafe_allow_html=True)
+
+    # ===========================
+    # UAT
+    # ===========================
 
     with c4:
 
@@ -666,21 +760,89 @@ if page == "Dashboard":
         <div style="
         background:white;
         border-radius:18px;
-        padding:22px;
-        border-top:6px solid #2196F3;
+        padding:20px;
+        border-top:6px solid #F9A825;
         box-shadow:0 6px 18px rgba(0,0,0,.08);">
 
-        <h5 style="color:gray;">SIT</h5>
+        <h5 style="color:gray;">UAT</h5>
 
-        <h1 style="color:#2196F3;font-size:42px;">
-        {sit_projects}
+        <h1 style="color:#F9A825;font-size:38px;">
+        {uat_projects}
+        </h1>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ===========================
+    # IS Review
+    # ===========================
+
+    with c5:
+
+        st.markdown(f"""
+        <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        border-top:6px solid #00ACC1;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);">
+
+        <h5 style="color:gray;">IS Review</h5>
+
+        <h1 style="color:#00ACC1;font-size:38px;">
+        {review_projects}
+        </h1>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ===========================
+    # CMC
+    # ===========================
+
+    with c6:
+
+        st.markdown(f"""
+        <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        border-top:6px solid #3949AB;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);">
+
+        <h5 style="color:gray;">CMC</h5>
+
+        <h1 style="color:#3949AB;font-size:38px;">
+        {cmc_projects}
+        </h1>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ===========================
+    # LIVE
+    # ===========================
+
+    with c7:
+
+        st.markdown(f"""
+        <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        border-top:6px solid #00C853;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);">
+
+        <h5 style="color:gray;">LIVE</h5>
+
+        <h1 style="color:#00C853;font-size:38px;">
+        {live_projects}
         </h1>
 
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     # ==========================================
     # Allocation Summary
     # ==========================================
@@ -937,37 +1099,47 @@ elif page == "Projects":
     # Status Summary
     # ==========================================
 
-    s1, s2, s3, s4 = st.columns(4)
+    s1, s2, s3, s4, s5, s6 = st.columns(6)
 
     s1.metric(
         "Live",
         len(filtered_df[
-            filtered_df["Status"].str.upper()=="LIVE"
+            filtered_df["Status"].str.upper() == "LIVE"
         ])
     )
 
     s2.metric(
         "UAT",
         len(filtered_df[
-            filtered_df["Status"].str.upper()=="UAT"
+            filtered_df["Status"].str.upper() == "UAT"
         ])
     )
 
     s3.metric(
-        "SIT",
+        "Development",
         len(filtered_df[
-            filtered_df["Status"].str.upper()=="SIT"
+            filtered_df["Status"].str.upper() == "UNDER DEVELOPMENT"
         ])
     )
 
     s4.metric(
-        "Development",
+        "IS Review",
         len(filtered_df[
-            filtered_df["Status"].str.contains(
-                "Development",
-                case=False,
-                na=False
-            )
+            filtered_df["Status"].str.upper() == "IS REVIEW"
+        ])
+    )
+
+    s5.metric(
+        "CMC",
+        len(filtered_df[
+            filtered_df["Status"].str.upper() == "CMC"
+        ])
+    )
+
+    s6.metric(
+        "Scoping",
+        len(filtered_df[
+            filtered_df["Status"].str.upper() == "UNDER SCOPING"
         ])
     )
 
@@ -1031,14 +1203,44 @@ elif page == "Analytics":
             analytics_df["Status"] == selected_status
         ]
 
+    analytics_df["Status"] = (
+        analytics_df["Status"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+    )
+
+    status_order = [
+        "LIVE",
+        "UAT",
+        "UNDER DEVELOPMENT",
+        "IS REVIEW",
+        "CMC",
+        "UNDER SCOPING"
+    ]
+
+    color_map = {
+        "LIVE": "#00C853",
+        "UAT": "#F9A825",
+        "UNDER DEVELOPMENT": "#FF9800",
+        "IS REVIEW": "#00ACC1",
+        "CMC": "#3949AB",
+        "UNDER SCOPING": "#8E24AA"
+    }
+
     # ======================================
-    # GRAPH 1
-    # PROJECTS BY STATUS
+    # GRAPH 1 - STATUS
     # ======================================
 
     st.subheader("Projects by Status")
 
-    status_count = analytics_df["Status"].value_counts().reset_index()
+    status_count = (
+        analytics_df["Status"]
+        .value_counts()
+        .reindex(status_order, fill_value=0)
+        .reset_index()
+    )
+
     status_count.columns = ["Status", "Projects"]
 
     fig1 = px.bar(
@@ -1047,21 +1249,21 @@ elif page == "Analytics":
         y="Projects",
         text="Projects",
         color="Status",
-        color_discrete_sequence=px.colors.qualitative.Set2
+        color_discrete_map=color_map
     )
 
     fig1.update_layout(
         height=450,
+        title="Project Status Distribution",
         title_x=0.5
     )
 
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width="stretch")
 
     st.markdown("---")
 
     # ======================================
-    # GRAPH 2
-    # TEAM PERFORMANCE
+    # GRAPH 2 - TEAM PERFORMANCE
     # ======================================
 
     st.subheader("Projects by Team Member")
@@ -1087,13 +1289,12 @@ elif page == "Analytics":
 
     fig2.update_layout(height=450)
 
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
     st.markdown("---")
 
     # ======================================
-    # GRAPH 3
-    # SELECTED PERSON STATUS
+    # GRAPH 3 - PERSON STATUS
     # ======================================
 
     if selected_allocation != "All":
@@ -1102,13 +1303,14 @@ elif page == "Analytics":
             f"{selected_allocation} Project Status Breakdown"
         )
 
-        person_df = df[
-            df["Allocation"] == selected_allocation
+        person_df = analytics_df[
+            analytics_df["Allocation"] == selected_allocation
         ]
 
         person_status = (
             person_df["Status"]
             .value_counts()
+            .reindex(status_order, fill_value=0)
             .reset_index()
         )
 
@@ -1121,18 +1323,19 @@ elif page == "Analytics":
             person_status,
             names="Status",
             values="Projects",
-            hole=.45
+            hole=0.45,
+            color="Status",
+            color_discrete_map=color_map
         )
 
         fig3.update_layout(height=450)
 
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width="stretch")
 
         st.markdown("---")
 
         # ======================================
-        # GRAPH 4
-        # PROJECT NAMES
+        # GRAPH 4 - PROJECT LIST
         # ======================================
 
         st.subheader(
@@ -1163,17 +1366,13 @@ elif page == "Analytics":
             xaxis_tickangle=-35
         )
 
-        st.plotly_chart(
-            fig4,
-            use_container_width=True
-        )
+        st.plotly_chart(fig4, width="stretch")
 
         st.dataframe(
             person_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
-
 # =====================================================
 # PROJECT TIMELINE
 # =====================================================
@@ -1364,7 +1563,10 @@ elif page == "Team Performance":
 
     st.markdown("---")
 
+    # ==========================
     # Team Member Filter
+    # ==========================
+
     member = st.selectbox(
         "Select Team Member",
         ["All"] + sorted(df["Allocation"].dropna().unique())
@@ -1375,21 +1577,29 @@ elif page == "Team Performance":
     if member != "All":
         team_df = team_df[team_df["Allocation"] == member]
 
+    status = team_df["Status"].astype(str).str.upper().str.strip()
+
     # ==========================
     # KPI Cards
     # ==========================
 
     total = len(team_df)
-    live = len(team_df[team_df["Status"].str.upper()=="LIVE"])
-    uat = len(team_df[team_df["Status"].str.upper()=="UAT"])
-    sit = len(team_df[team_df["Status"].str.upper()=="SIT"])
+    live = len(team_df[status == "LIVE"])
+    uat = len(team_df[status == "UAT"])
+    development = len(team_df[status == "UNDER DEVELOPMENT"])
+    review = len(team_df[status == "IS REVIEW"])
+    cmc = len(team_df[status == "CMC"])
+    scoping = len(team_df[status == "UNDER SCOPING"])
 
-    c1,c2,c3,c4 = st.columns(4)
+    c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 
-    c1.metric("Total Projects", total)
+    c1.metric("Total", total)
     c2.metric("Live", live)
     c3.metric("UAT", uat)
-    c4.metric("SIT", sit)
+    c4.metric("Development", development)
+    c5.metric("Review", review)
+    c6.metric("CMC", cmc)
+    c7.metric("Under Scoping", scoping)
 
     st.markdown("---")
 
@@ -1405,7 +1615,7 @@ elif page == "Team Performance":
         .reset_index()
     )
 
-    status_df.columns=["Status","Projects"]
+    status_df.columns = ["Status", "Projects"]
 
     fig = px.bar(
         status_df,
@@ -1416,7 +1626,7 @@ elif page == "Team Performance":
         title="Status Distribution"
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # ==========================
     # Projects by Team
@@ -1432,7 +1642,7 @@ elif page == "Team Performance":
             .reset_index()
         )
 
-        allocation_df.columns=["Allocation","Projects"]
+        allocation_df.columns = ["Allocation", "Projects"]
 
         fig2 = px.bar(
             allocation_df,
@@ -1443,7 +1653,7 @@ elif page == "Team Performance":
             title="Projects Assigned to Team Members"
         )
 
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width="stretch")
 
     else:
 
@@ -1451,10 +1661,10 @@ elif page == "Team Performance":
 
         st.dataframe(
             team_df[
-                ["Mandate","Status","Allocation"]
+                ["Mandate", "Status", "Allocation"]
             ],
             hide_index=True,
-            use_container_width=True
+            width="stretch"
         )
 
     st.markdown("---")
@@ -1469,7 +1679,7 @@ elif page == "Team Performance":
         .reset_index()
     )
 
-    top.columns=["Member","Projects"]
+    top.columns = ["Member", "Projects"]
 
     winner = top.iloc[0]
 
