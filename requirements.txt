@@ -5,3 +5,4 @@ plotly
 SpeechRecognition
 rapidfuzz
 pyttsx3
+streamlit-mic-recorder
