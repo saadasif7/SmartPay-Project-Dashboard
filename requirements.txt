@@ -6,3 +6,4 @@ SpeechRecognition
 rapidfuzz
 pyttsx3
 streamlit-mic-recorder
+reportlab
