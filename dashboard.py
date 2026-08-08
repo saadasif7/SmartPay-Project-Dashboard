@@ -673,7 +673,7 @@ if page == "Dashboard":
         background:linear-gradient(180deg,#ffffff,#f8fbff);
         border-radius:24px;
         padding:25px;
-        width:105%;
+        width:109%;
         min-height:230px;
         text-align:center;
         border:1px solid #E5E7EB;
