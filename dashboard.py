@@ -195,43 +195,6 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("""
-<style>
-/* Force dashboard light theme */
-html, body, [data-testid="stAppViewContainer"] {
-    background-color: #FFFFFF !important;
-    color: #111827 !important;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #FFFFFF !important;
-    color: #111827 !important;
-}
-
-[data-testid="stHeader"] {
-    background-color: #FFFFFF !important;
-}
-
-[data-testid="stToolbar"] {
-    background-color: #FFFFFF !important;
-}
-
-/* Keep Streamlit text visible */
-.stMarkdown,
-.stText,
-label,
-p,
-span,
-div {
-    color: #111827;
-}
-
-/* Keep headings green */
-h1, h2, h3, h4, h5, h6 {
-    color: #006747 !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
@@ -710,11 +673,13 @@ if page == "Dashboard":
         background:linear-gradient(180deg,#ffffff,#f8fbff);
         border-radius:24px;
         padding:25px;
+        width:105%;
         min-height:230px;
         text-align:center;
         border:1px solid #E5E7EB;
         box-shadow:0 14px 35px rgba(0,0,0,.10);
-        font-family:Segoe UI;">
+        font-family:Segoe UI;
+        box-sizing:border-box;">
 
         <div style="
         color:#006747;
@@ -1001,7 +966,7 @@ if page == "Dashboard":
 
 
     # =====================================================
-    # TEAM SUMMARY
+    # TEAM SUMMARY - VIP
     # =====================================================
 
     st.markdown("""
@@ -1015,6 +980,7 @@ if page == "Dashboard":
     </h2>
     """, unsafe_allow_html=True)
 
+
     summary = (
         df.groupby("Allocation")
         .agg(
@@ -1025,25 +991,136 @@ if page == "Dashboard":
         .reset_index()
     )
 
+
+    # -----------------------------
+    # TEAM SUMMARY TABLE CSS
+    # -----------------------------
+
     st.markdown("""
-    <div style="
-    background:white;
-    border-radius:24px;
-    padding:15px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 12px 30px rgba(0,0,0,.08);">
-    </div>
+    <style>
+
+    .vip-summary-wrapper {
+        background: #FFFFFF;
+        border: 1px solid #DDE5E1;
+        border-radius: 18px;
+        padding: 6px;
+        box-shadow: 0 8px 25px rgba(0,103,71,0.08);
+        overflow: hidden;
+    }
+
+    .vip-summary-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+    .vip-summary-table thead th {
+        background: #006747;
+        color: #FFFFFF;
+        padding: 15px 16px;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .vip-summary-table thead th:first-child {
+        border-top-left-radius: 12px;
+    }
+
+    .vip-summary-table thead th:last-child {
+        border-top-right-radius: 12px;
+    }
+
+    .vip-summary-table tbody td {
+        padding: 15px 16px;
+        color: #1F2937;
+        border-bottom: 1px solid #E5E7EB;
+        background: #FFFFFF;
+    }
+
+    .vip-summary-table tbody tr:nth-child(even) td {
+        background: #F8FAFC;
+    }
+
+    .vip-summary-table tbody tr:hover td {
+        background: #ECFDF5;
+    }
+
+    .team-name {
+        color: #006747 !important;
+        font-weight: 800;
+    }
+
+    .total-count {
+        background: #F0FDF4;
+        color: #006747 !important;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .live-count {
+        background: #DCFCE7;
+        color: #166534 !important;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .uat-count {
+        background: #FEF3C7;
+        color: #92400E !important;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    </style>
     """, unsafe_allow_html=True)
 
-    st.dataframe(
-        summary,
-        width="stretch",
-        hide_index=True
+
+    # -----------------------------
+    # FORMAT SUMMARY
+    # -----------------------------
+
+    summary_display = summary.copy()
+
+    summary_display["Allocation"] = summary_display["Allocation"].apply(
+        lambda x: f'<span class="team-name">👤 {x}</span>'
+    )
+
+    summary_display["Total"] = summary_display["Total"].apply(
+        lambda x: f'<span class="total-count">{x}</span>'
+    )
+
+    summary_display["Live"] = summary_display["Live"].apply(
+        lambda x: f'<span class="live-count">🟢 {x}</span>'
+    )
+
+    summary_display["UAT"] = summary_display["UAT"].apply(
+        lambda x: f'<span class="uat-count">🟡 {x}</span>'
+    )
+
+
+    summary_html = summary_display.to_html(
+        index=False,
+        escape=False,
+        classes="vip-summary-table"
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="vip-summary-wrapper">
+            {summary_html}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
     # =====================================================
-    # SMART SEARCH
+    # SMART SEARCH - VIP PROJECT TABLE
     # =====================================================
 
     st.markdown("""
@@ -1051,17 +1128,19 @@ if page == "Dashboard":
     color:#006747;
     font-size:34px;
     font-weight:700;
-    margin-top:30px;
+    margin-top:35px;
     margin-bottom:20px;">
     🔍 Smart Search
     </h2>
     """, unsafe_allow_html=True)
 
+
     project = st.text_input(
-        "",
+        "Search Project",
         placeholder="🔍 Search Project...",
         label_visibility="collapsed"
     )
+
 
     if project:
 
@@ -1073,19 +1152,109 @@ if page == "Dashboard":
             )
         ]
 
+
         if result.empty:
 
             st.error("❌ Project not found.")
 
+
         else:
 
-            st.success(f"✅ {len(result)} Project(s) Found")
+            st.markdown(
+                f"""
+                <div style="
+                background:#ECFDF5;
+                border:1px solid #A7F3D0;
+                border-left:6px solid #006747;
+                padding:14px 18px;
+                border-radius:12px;
+                margin-bottom:15px;
+                color:#006747;
+                font-weight:700;
+                font-size:15px;">
+                ✅ {len(result)} Project(s) Found
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            # =================================================
+            # VIP SEARCH RESULT TABLE
+            # =================================================
+
+            st.markdown("""
+            <div style="
+            background:#FFFFFF;
+            border-radius:18px;
+            padding:6px;
+            border:1px solid #DDE5E1;
+            box-shadow:0 8px 25px rgba(0,103,71,0.08);
+            margin-bottom:20px;">
+            """, unsafe_allow_html=True)
+
 
             st.dataframe(
                 result,
                 width="stretch",
-                hide_index=True
+                hide_index=True,
+                height=400
             )
+
+
+            st.markdown(
+                "</div>",
+                unsafe_allow_html=True
+            )
+
+
+            # =================================================
+            # SEARCH SUMMARY
+            # =================================================
+
+            total_found = len(result)
+
+            live_found = len(
+                result[
+                    result["Status"]
+                    .astype(str)
+                    .str.upper()
+                    == "LIVE"
+                ]
+            )
+
+            uat_found = len(
+                result[
+                    result["Status"]
+                    .astype(str)
+                    .str.upper()
+                    == "UAT"
+                ]
+            )
+
+            c1, c2, c3 = st.columns(3)
+
+
+            with c1:
+                st.metric(
+                    "📋 Projects Found",
+                    total_found
+                )
+
+
+            with c2:
+                st.metric(
+                    "🟢 Live",
+                    live_found
+                )
+
+
+            with c3:
+                st.metric(
+                    "🟡 UAT",
+                    uat_found
+                )
+
 
     st.markdown("<br>", unsafe_allow_html=True)
 # =====================================================
@@ -1300,23 +1469,201 @@ elif page == "Projects":
     st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # PROJECT TABLE
+    # PROJECT TABLE - VIP STYLE
     # =====================================================
 
     st.markdown("""
     <h2 style="
     color:#006747;
     font-size:30px;
-    font-weight:700;">
+    font-weight:700;
+    margin-bottom:18px;">
     📋 Project Details
     </h2>
     """, unsafe_allow_html=True)
 
-    st.dataframe(
-        filtered_df,
-        width="stretch",
-        hide_index=True,
-        height=700
+
+    # -----------------------------
+    # VIP TABLE CSS
+    # -----------------------------
+
+    st.markdown("""
+    <style>
+
+    .project-table-wrapper {
+        background: #FFFFFF;
+        border: 1px solid #DDE5E1;
+        border-radius: 16px;
+        padding: 6px;
+        box-shadow: 0 6px 20px rgba(0,103,71,0.08);
+        overflow: hidden;
+    }
+
+    .project-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+    .project-table thead th {
+        background: #006747;
+        color: white;
+        font-weight: 700;
+        padding: 14px 12px;
+        text-align: left;
+        border: none;
+    }
+
+    .project-table thead th:first-child {
+        border-top-left-radius: 11px;
+    }
+
+    .project-table thead th:last-child {
+        border-top-right-radius: 11px;
+    }
+
+    .project-table tbody td {
+        padding: 13px 12px;
+        color: #1F2937;
+        border-bottom: 1px solid #E5E7EB;
+        background: #FFFFFF;
+    }
+
+    .project-table tbody tr:nth-child(even) td {
+        background: #F8FAFC;
+    }
+
+    .project-table tbody tr:hover td {
+        background: #ECFDF5;
+    }
+
+    .project-name {
+        font-weight: 700;
+        color: #006747 !important;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-live {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    .status-uat {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .status-development {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+
+    .status-review {
+        background: #CCFBF1;
+        color: #115E59;
+    }
+
+    .status-cmc {
+        background: #EDE9FE;
+        color: #5B21B6;
+    }
+
+    .status-scoping {
+        background: #F3E8FF;
+        color: #7E22CE;
+    }
+
+    .status-default {
+        background: #F3F4F6;
+        color: #374151;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # -----------------------------
+    # CREATE VIP TABLE
+    # -----------------------------
+
+    display_df = filtered_df.copy()
+
+
+    def status_badge(status):
+
+        status = str(status).strip()
+        status_upper = status.upper()
+
+        if status_upper == "LIVE":
+            css = "status-live"
+
+        elif status_upper == "UAT":
+            css = "status-uat"
+
+        elif status_upper in [
+            "DEVELOPMENT",
+            "UNDER DEVELOPMENT",
+            "SIT"
+        ]:
+            css = "status-development"
+
+        elif status_upper == "IS REVIEW":
+            css = "status-review"
+
+        elif status_upper == "CMC":
+            css = "status-cmc"
+
+        elif status_upper in [
+            "SCOPING",
+            "UNDER SCOPING"
+        ]:
+            css = "status-scoping"
+
+        else:
+            css = "status-default"
+
+        return f'<span class="status-badge {css}">{status}</span>'
+
+
+    # Status ko badge mein convert karo
+    if "Status" in display_df.columns:
+        display_df["Status"] = display_df["Status"].apply(status_badge)
+
+
+    # Project/Mandate name ko highlight karo
+    if "Mandate" in display_df.columns:
+        display_df["Mandate"] = display_df["Mandate"].apply(
+            lambda x: f'<span class="project-name">📁 {x}</span>'
+        )
+
+
+    # -----------------------------
+    # HTML TABLE
+    # -----------------------------
+
+    table_html = display_df.to_html(
+        index=False,
+        escape=False,
+        classes="project-table"
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="project-table-wrapper">
+            {table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 # =====================================================
 # ANALYTICS
@@ -1644,171 +1991,320 @@ elif page == "Analytics":
 
     if selected_allocation != "All":
 
-        left, right = st.columns([2,3])
+        # ==========================================
+        # PERSON DATA
+        # ==========================================
 
-        with left:
+        person_df = analytics_df[
+            analytics_df["Allocation"] == selected_allocation
+        ].copy()
 
-            st.markdown(f"""
+        # ==========================================
+        # PIE CHART - TOP
+        # ==========================================
+
+        st.markdown(
+            f"""
             <h2 style="
             color:#006747;
-            font-size:28px;">
+            font-size:28px;
+            margin-bottom:5px;">
             🥧 {selected_allocation}
             </h2>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
 
-            person_df = analytics_df[
-                analytics_df["Allocation"] == selected_allocation
-            ]
+        person_status = (
+            person_df["Status"]
+            .value_counts()
+            .reindex(status_order, fill_value=0)
+            .reset_index()
+        )
 
-            person_status = (
-                person_df["Status"]
-                .value_counts()
-                .reindex(status_order, fill_value=0)
-                .reset_index()
-            )
+        person_status.columns = [
+            "Status",
+            "Projects"
+        ]
 
-            person_status.columns = [
-                "Status",
-                "Projects"
-            ]
+        fig3 = px.pie(
+            person_status,
+            names="Status",
+            values="Projects",
+            hole=.55,
+            color="Status",
+            color_discrete_map=color_map
+        )
 
-            fig3 = px.pie(
-                person_status,
-                names="Status",
-                values="Projects",
-                hole=.55,
-                color="Status",
-                color_discrete_map=color_map
-            )
+        fig3.update_layout(
+            height=430,
+            template="plotly_white",
+            plot_bgcolor="white",
+            paper_bgcolor="white",
 
-            fig3.update_layout(
-                height=430,
-                template="plotly_white",
-                plot_bgcolor="white",
-                paper_bgcolor="white",
+            font=dict(
+                color="#111827",
+                size=13
+            ),
 
+            legend=dict(
                 font=dict(
-                    color="#111827",
-                    size=13
-                ),
-
-                legend=dict(
-                    font=dict(
-                        color="#374151",
-                        size=12
-                    )
-                ),
-
-                margin=dict(
-                    l=20,
-                    r=20,
-                    t=20,
-                    b=20
+                    color="#374151",
+                    size=12
                 )
+            ),
+
+            margin=dict(
+                l=20,
+                r=20,
+                t=10,
+                b=10
             )
-            fig3.update_traces(
-                textfont=dict(
-                    color="white",
-                    size=13
-                )
+        )
+
+        fig3.update_traces(
+            textfont=dict(
+                color="white",
+                size=13
             )
+        )
 
-            st.plotly_chart(fig3, width="stretch")
+        st.plotly_chart(
+            fig3,
+            width="stretch"
+        )
 
-        with right:
+        # ==========================================
+        # PROJECT STATUS PROGRESS - BELOW PIE
+        # ==========================================
 
-            st.markdown(f"""
+        st.markdown(
+            """
             <h2 style="
             color:#006747;
-            font-size:28px;">
-            📋 Projects Assigned
+            font-size:28px;
+            margin-top:10px;
+            margin-bottom:20px;">
+            📊 Project Status Progress
             </h2>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
 
-            mandate_count = (
-                person_df["Mandate"]
-                .value_counts()
-                .reset_index()
+        status_stages = [
+            "SCOPING",
+            "DEVELOPMENT",
+            "UAT",
+            "IS REVIEW",
+            "CMC",
+            "LIVE"
+        ]
+
+        status_progress = {
+            "SCOPING": 1,
+            "UNDER SCOPING": 1,
+            "DEVELOPMENT": 2,
+            "UNDER DEVELOPMENT": 2,
+            "SIT": 2,
+            "UAT": 3,
+            "IS REVIEW": 4,
+            "CMC": 5,
+            "LIVE": 6
+        }
+
+        for _, row in person_df.iterrows():
+
+            project_name = str(row["Mandate"])
+            current_status = str(row["Status"]).strip().upper()
+
+            current_stage = status_progress.get(
+                current_status,
+                1
             )
 
-            mandate_count.columns = [
-                "Project",
-                "Count"
-            ]
-
-            fig4 = px.bar(
-                mandate_count,
-                x="Project",
-                y="Count",
-                text="Count",
-                color="Count",
-                color_continuous_scale="Greens"
+            progress_percent = int(
+                (current_stage / 6) * 100
             )
 
-            fig4.update_layout(
-                height=500,
-                template="plotly_white",
-                plot_bgcolor="white",
-                paper_bgcolor="white",
-                coloraxis_showscale=False,
+            # ==================================
+            # STATUS COLORS
+            # ==================================
 
-                font=dict(
-                    color="#111827",
-                    size=13
-                ),
+            if current_status == "LIVE":
 
-                xaxis=dict(
-                    title="",
-                    tickangle=-35,
-                    tickfont=dict(
-                        color="#374151",
-                        size=10
-                    ),
-                    showgrid=False,
-                    zeroline=False
-                ),
+                status_bg = "#DCFCE7"
+                status_color = "#166534"
 
-                yaxis=dict(
-                    title="Projects",
-                    title_font=dict(
-                        color="#374151",
-                        size=13
-                    ),
-                    tickfont=dict(
-                        color="#374151",
-                        size=11
-                    ),
-                    gridcolor="#E5E7EB",
-                    zeroline=False
-                ),
+            elif current_status == "UAT":
 
-                margin=dict(
-                    l=50,
-                    r=25,
-                    t=20,
-                    b=130
-                )
-            )
-            fig4.update_traces(
-                textposition="outside",
-                textfont=dict(
-                    color="#111827",
-                    size=12
-                ),
-                marker_line_width=0
-            )
+                status_bg = "#FEF3C7"
+                status_color = "#92400E"
 
-            st.plotly_chart(fig4, width="stretch")
+            elif current_status in [
+                "DEVELOPMENT",
+                "UNDER DEVELOPMENT",
+                "SIT"
+            ]:
 
-        st.markdown("<br>", unsafe_allow_html=True)
+                status_bg = "#DBEAFE"
+                status_color = "#1E40AF"
 
-        st.markdown("""
-        <h2 style="
-        color:#006747;
-        font-size:28px;">
-        📄 Project Details
-        </h2>
-        """, unsafe_allow_html=True)
+            else:
+
+                status_bg = "#F3F4F6"
+                status_color = "#374151"
+
+            # ==================================
+            # PROJECT CARD
+            # ==================================
+
+            card_html = f"""
+    <div style="
+    background:#FFFFFF;
+    border:1px solid #E5E7EB;
+    border-radius:16px;
+    padding:18px 20px;
+    margin-bottom:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.06);
+    ">
+
+    <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:15px;
+    ">
+
+    <div style="
+    color:#111827;
+    font-size:16px;
+    font-weight:700;
+    flex:1;
+    line-height:1.4;
+    word-break:break-word;
+    ">
+    📁 {project_name}
+    </div>
+
+    <div style="
+    background:{status_bg};
+    color:{status_color};
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:800;
+    white-space:nowrap;
+    flex-shrink:0;
+    ">
+    {current_status}
+    </div>
+
+    </div>
+
+    <div style="
+    width:100%;
+    height:8px;
+    background:#E5E7EB;
+    border-radius:10px;
+    overflow:hidden;
+    ">
+
+    <div style="
+    width:{progress_percent}%;
+    height:100%;
+    background:#006747;
+    border-radius:10px;
+    ">
+    </div>
+
+    </div>
+
+    </div>
+    """
+
+            st.html(card_html)
+
+            # ==================================
+            # STATUS STEPS
+            # ==================================
+
+            steps_html = """
+    <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin:0 0 28px 0;
+    padding:0 5px;
+    ">
+    """
+
+            for i, stage in enumerate(status_stages, start=1):
+
+                if i <= current_stage:
+
+                    dot_color = "#006747"
+                    text_color = "#006747"
+
+                else:
+
+                    dot_color = "#D1D5DB"
+                    text_color = "#9CA3AF"
+
+                steps_html += f"""
+    <div style="
+    flex:1;
+    text-align:center;
+    ">
+
+    <div style="
+    width:10px;
+    height:10px;
+    background:{dot_color};
+    border-radius:50%;
+    margin:auto;
+    ">
+    </div>
+
+    <div style="
+    margin-top:6px;
+    color:{text_color};
+    font-size:9px;
+    font-weight:700;
+    white-space:nowrap;
+    ">
+    {stage}
+    </div>
+
+    </div>
+    """
+
+            steps_html += """
+    </div>
+    """
+
+            st.html(steps_html)
+
+        # ==========================================
+        # PROJECT DETAILS
+        # ==========================================
+
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """
+            <h2 style="
+            color:#006747;
+            font-size:28px;
+            margin-bottom:15px;">
+            📄 Project Details
+            </h2>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.dataframe(
             person_df,
@@ -2672,32 +3168,115 @@ elif page == "Team Performance":
     else:
 
         # ==========================================
-        # SELECTED MEMBER PROJECTS
+        # SELECTED MEMBER PROJECTS - VIP
         # ==========================================
 
         st.markdown(f"""
         <h2 style="
-            color:#006747;
-            font-size:30px;">
-            📋 {member} — Project Portfolio
+        color:#006747;
+        font-size:30px;
+        font-weight:700;
+        margin-top:25px;
+        margin-bottom:15px;">
+        📋 {member} — Project Portfolio
         </h2>
         """, unsafe_allow_html=True)
 
 
-        st.dataframe(
-            team_df[
-                [
-                    "Mandate",
-                    "Status",
-                    "Allocation"
-                ]
-            ],
-            hide_index=True,
-            width="stretch"
+        # ==========================================
+        # PREPARE MEMBER DATA
+        # ==========================================
+
+        member_display_df = team_df[
+            [
+                "Mandate",
+                "Status",
+                "Allocation"
+            ]
+        ].copy()
+
+
+        # ==========================================
+        # STATUS BADGE
+        # ==========================================
+
+        def member_status_badge(status):
+
+            status = str(status).strip()
+            status_upper = status.upper()
+
+            if status_upper == "LIVE":
+                css = "status-live"
+
+            elif status_upper == "UAT":
+                css = "status-uat"
+
+            elif status_upper in [
+                "DEVELOPMENT",
+                "UNDER DEVELOPMENT",
+                "SIT"
+            ]:
+                css = "status-development"
+
+            elif status_upper == "IS REVIEW":
+                css = "status-review"
+
+            elif status_upper == "CMC":
+                css = "status-cmc"
+
+            elif status_upper in [
+                "SCOPING",
+                "UNDER SCOPING"
+            ]:
+                css = "status-scoping"
+
+            else:
+                css = "status-default"
+
+            return f'<span class="status-badge {css}">{status}</span>'
+
+
+        # ==========================================
+        # APPLY VIP FORMATTING
+        # ==========================================
+
+        member_display_df["Status"] = (
+            member_display_df["Status"]
+            .apply(member_status_badge)
         )
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        member_display_df["Mandate"] = (
+            member_display_df["Mandate"]
+            .apply(
+                lambda x:
+                f'<span class="project-name">📁 {x}</span>'
+            )
+        )
+
+
+        # ==========================================
+        # CREATE VIP HTML TABLE
+        # ==========================================
+
+        member_table_html = member_display_df.to_html(
+            index=False,
+            escape=False,
+            classes="project-table"
+        )
+
+
+        st.markdown(
+            f"""
+            <div class="project-table-wrapper">
+                {member_table_html}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        st.markdown("<br>", unsafe_allow_html=True)
 
 
     # ==========================================
@@ -3849,26 +4428,105 @@ elif page == "Export":
 
 
     # ==========================================
-    # FULL DATA TABLE PREVIEW
+    # FULL DATA TABLE PREVIEW - VIP
     # ==========================================
 
     st.markdown("""
     <h3 style="
-        color:#006747;
-        font-size:20px;
-        margin-top:20px;">
-        📊 Project Data Table
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:25px;
+    margin-bottom:15px;">
+    📊 Project Data Table
     </h3>
     """, unsafe_allow_html=True)
 
 
-    st.dataframe(
-        df,
-        use_container_width=True,
-        hide_index=True
+    # Copy data
+    display_preview = df.copy()
+
+
+    # ==========================================
+    # STATUS BADGES
+    # ==========================================
+
+    def preview_status_badge(status):
+
+        status = str(status).strip()
+        status_upper = status.upper()
+
+        if status_upper == "LIVE":
+            css = "status-live"
+
+        elif status_upper == "UAT":
+            css = "status-uat"
+
+        elif status_upper in [
+            "DEVELOPMENT",
+            "UNDER DEVELOPMENT",
+            "SIT"
+        ]:
+            css = "status-development"
+
+        elif status_upper == "IS REVIEW":
+            css = "status-review"
+
+        elif status_upper == "CMC":
+            css = "status-cmc"
+
+        elif status_upper in [
+            "SCOPING",
+            "UNDER SCOPING"
+        ]:
+            css = "status-scoping"
+
+        else:
+            css = "status-default"
+
+        return f'<span class="status-badge {css}">{status}</span>'
+
+
+    # Status
+    if "Status" in display_preview.columns:
+
+        display_preview["Status"] = (
+            display_preview["Status"]
+            .apply(preview_status_badge)
+        )
+
+
+    # Project name
+    if "Mandate" in display_preview.columns:
+
+        display_preview["Mandate"] = (
+            display_preview["Mandate"]
+            .apply(
+                lambda x:
+                f'<span class="project-name">📁 {x}</span>'
+            )
+        )
+
+
+    # ==========================================
+    # CREATE HTML TABLE
+    # ==========================================
+
+    preview_table_html = display_preview.to_html(
+        index=False,
+        escape=False,
+        classes="project-table"
     )
 
 
+    st.markdown(
+        f"""
+        <div class="project-table-wrapper">
+            {preview_table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     # ==========================================
     # FINAL STATUS
     # ==========================================
