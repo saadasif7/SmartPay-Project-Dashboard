@@ -197,6 +197,44 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+/* Force dashboard light theme */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #FFFFFF !important;
+    color: #111827 !important;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #FFFFFF !important;
+    color: #111827 !important;
+}
+
+[data-testid="stHeader"] {
+    background-color: #FFFFFF !important;
+}
+
+[data-testid="stToolbar"] {
+    background-color: #FFFFFF !important;
+}
+
+/* Keep Streamlit text visible */
+.stMarkdown,
+.stText,
+label,
+p,
+span,
+div {
+    color: #111827;
+}
+
+/* Keep headings green */
+h1, h2, h3, h4, h5, h6 {
+    color: #006747 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
 
 /* ===========================
    Main App
