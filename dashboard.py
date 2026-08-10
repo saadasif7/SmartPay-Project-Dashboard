@@ -509,6 +509,41 @@ page = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
+# ==========================================
+# RESET SEARCH + SCROLL WHEN PAGE CHANGES
+# ==========================================
+
+if "previous_page" not in st.session_state:
+    st.session_state.previous_page = page
+
+elif st.session_state.previous_page != page:
+
+    # Search / filter reset
+    for key in [
+        "project_search",
+        "project",
+        "search",
+        "search_project",
+        "selected_project",
+        "selected_member"
+    ]:
+        if key in st.session_state:
+            del st.session_state[key]
+
+    # New page remember
+    st.session_state.previous_page = page
+
+    # Scroll to top
+    # Scroll position reset
+    st.markdown("""
+    <script>
+    window.parent.scrollTo(0, 0);
+    window.parent.document.documentElement.scrollTop = 0;
+    window.parent.document.body.scrollTop = 0;
+    </script>
+    """, unsafe_allow_html=True)
+
+    st.rerun()
 
 # =====================================================
 # INFORMATION
@@ -1078,30 +1113,214 @@ if page == "Dashboard":
 
     </style>
     """, unsafe_allow_html=True)
+    # =====================================================
+    # TEAM SUMMARY
+    # =====================================================
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:34px;
+    font-weight:700;
+    margin-top:30px;
+    margin-bottom:20px;">
+    📋 Team Summary
+    </h2>
+    """, unsafe_allow_html=True)
 
 
-    # -----------------------------
+    # =====================================================
+    # CREATE SUMMARY
+    # =====================================================
+
+    summary = (
+        df.groupby("Allocation")
+        .agg(
+
+            # Total Projects
+            Total=("Mandate", "count"),
+
+            # SCOPING
+            Scoping=("Status", lambda x:
+                x.astype(str)
+                .str.strip()
+                .str.upper()
+                .isin([
+                    "SCOPING",
+                    "UNDER SCOPING"
+                ])
+                .sum()
+            ),
+
+            # DEVELOPMENT
+            Development=("Status", lambda x:
+                x.astype(str)
+                .str.strip()
+                .str.upper()
+                .isin([
+                    "DEVELOPMENT",
+                    "UNDER DEVELOPMENT",
+                    "SIT"
+                ])
+                .sum()
+            ),
+
+            # UAT
+            UAT=("Status", lambda x:
+                (
+                    x.astype(str)
+                    .str.strip()
+                    .str.upper()
+                    == "UAT"
+                ).sum()
+            ),
+
+            # IS REVIEW
+            IS_Review=("Status", lambda x:
+                (
+                    x.astype(str)
+                    .str.strip()
+                    .str.upper()
+                    == "IS REVIEW"
+                ).sum()
+            ),
+
+            # CMC
+            CMC=("Status", lambda x:
+                (
+                    x.astype(str)
+                    .str.strip()
+                    .str.upper()
+                    == "CMC"
+                ).sum()
+            ),
+
+            # LIVE
+            Live=("Status", lambda x:
+                (
+                    x.astype(str)
+                    .str.strip()
+                    .str.upper()
+                    == "LIVE"
+                ).sum()
+            )
+        )
+        .reset_index()
+    )
+
+
+    # =====================================================
+    # RENAME COLUMN
+    # =====================================================
+
+    summary.rename(
+        columns={
+            "IS_Review": "IS Review"
+        },
+        inplace=True
+    )
+
+
+    # =====================================================
+    # EXACT COLUMN ORDER
+    # =====================================================
+
+    summary = summary[
+        [
+            "Allocation",
+            "Total",
+            "Scoping",
+            "Development",
+            "UAT",
+            "IS Review",
+            "CMC",
+            "Live"
+        ]
+    ]
+
+
+    # =====================================================
     # FORMAT SUMMARY
-    # -----------------------------
+    # =====================================================
 
     summary_display = summary.copy()
 
-    summary_display["Allocation"] = summary_display["Allocation"].apply(
-        lambda x: f'<span class="team-name">👤 {x}</span>'
+
+    # Allocation
+    summary_display["Allocation"] = summary_display[
+        "Allocation"
+    ].apply(
+        lambda x:
+        f'<span class="team-name">👤 {x}</span>'
     )
 
-    summary_display["Total"] = summary_display["Total"].apply(
-        lambda x: f'<span class="total-count">{x}</span>'
+
+    # Total
+    summary_display["Total"] = summary_display[
+        "Total"
+    ].apply(
+        lambda x:
+        f'<span class="total-count">{x}</span>'
     )
 
-    summary_display["Live"] = summary_display["Live"].apply(
-        lambda x: f'<span class="live-count">🟢 {x}</span>'
+
+    # Scoping
+    summary_display["Scoping"] = summary_display[
+        "Scoping"
+    ].apply(
+        lambda x:
+        f'<span class="scoping-count">🟠 {x}</span>'
     )
 
-    summary_display["UAT"] = summary_display["UAT"].apply(
-        lambda x: f'<span class="uat-count">🟡 {x}</span>'
+
+    # Development
+    summary_display["Development"] = summary_display[
+        "Development"
+    ].apply(
+        lambda x:
+        f'<span class="development-count">🔵 {x}</span>'
     )
 
+
+    # UAT
+    summary_display["UAT"] = summary_display[
+        "UAT"
+    ].apply(
+        lambda x:
+        f'<span class="uat-count">🟡 {x}</span>'
+    )
+
+
+    # IS Review
+    summary_display["IS Review"] = summary_display[
+        "IS Review"
+    ].apply(
+        lambda x:
+        f'<span class="review-count">🔷 {x}</span>'
+    )
+
+
+    # CMC
+    summary_display["CMC"] = summary_display[
+        "CMC"
+    ].apply(
+        lambda x:
+        f'<span class="cmc-count">🟣 {x}</span>'
+    )
+
+
+    # Live
+    summary_display["Live"] = summary_display[
+        "Live"
+    ].apply(
+        lambda x:
+        f'<span class="live-count">🟢 {x}</span>'
+    )
+
+
+    # =====================================================
+    # CREATE HTML TABLE
+    # =====================================================
 
     summary_html = summary_display.to_html(
         index=False,
@@ -1109,6 +1328,10 @@ if page == "Dashboard":
         classes="vip-summary-table"
     )
 
+
+    # =====================================================
+    # DISPLAY VIP TABLE
+    # =====================================================
 
     st.markdown(
         f"""
@@ -1120,6 +1343,7 @@ if page == "Dashboard":
     )
 
 
+    st.markdown("<br>", unsafe_allow_html=True)
     # =====================================================
     # SMART SEARCH - VIP PROJECT TABLE
     # =====================================================
@@ -1139,7 +1363,8 @@ if page == "Dashboard":
     project = st.text_input(
         "Search Project",
         placeholder="🔍 Search Project...",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="project_search"
     )
 
 
@@ -1597,7 +1822,14 @@ elif page == "Projects":
     # -----------------------------
 
     display_df = filtered_df.copy()
+    for col in ["Date", "Live Date"]:
+        if col in display_df.columns:
+            display_df[col] = pd.to_datetime(
+                display_df[col],
+                errors="coerce"
+            ).dt.strftime("%Y-%m-%d")
 
+            display_df[col] = display_df[col].fillna("TBD")
 
     def status_badge(status):
 
