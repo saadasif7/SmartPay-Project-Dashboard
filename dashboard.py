@@ -500,9 +500,10 @@ page = st.sidebar.radio(
         "Projects",
         "Analytics",
         "Project Timeline",
-        "Team Performance",
-        "Voice Search",
+      
         "Export"
+        #"Team Performance",
+        #"Voice Search",
     ],
     label_visibility="collapsed"
 )
@@ -2809,1137 +2810,1137 @@ elif page == "Project Timeline":
 
             for _, project in member_df.iterrows():
                 show_timeline(project)
-# =====================================================
-# TEAM PERFORMANCE
-# =====================================================
-
-elif page == "Team Performance":
-
-    # ==========================================
-    # HEADER
-    # ==========================================
-
-    st.html("""
-    <div style="
-        background:linear-gradient(180deg,#ffffff,#f8fbff);
-        border-radius:24px;
-        padding:28px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        margin-bottom:20px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
-        <div style="
-            color:#006747;
-            font-size:14px;
-            font-weight:700;
-            letter-spacing:2px;
-            margin-bottom:8px;">
-            SMARTPAY PROJECT MANAGEMENT
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:40px;
-            font-weight:700;">
-            Team Performance
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:17px;
-            margin-top:10px;">
-            Monitor team workload, project distribution and delivery progress.
-        </div>
-
-    </div>
-    """)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
-    # ==========================================
-    # TEAM MEMBER FILTER
-    # ==========================================
-
-    st.markdown("""
-    <h2 style="
-        color:#006747;
-        font-size:28px;
-        margin-bottom:12px;">
-        👤 Team Member
-    </h2>
-    """, unsafe_allow_html=True)
-
-    member = st.selectbox(
-        "Select Team Member",
-        ["All"] + sorted(
-            df["Allocation"]
-            .dropna()
-            .astype(str)
-            .unique()
-        )
-    )
-
-    team_df = df.copy()
-
-    if member != "All":
-        team_df = team_df[
-            team_df["Allocation"].astype(str) == member
-        ]
-
-
-    # ==========================================
-    # CLEAN STATUS
-    # ==========================================
-
-    team_df["Status_Clean"] = (
-        team_df["Status"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-        .replace({
-            "SIT": "UNDER DEVELOPMENT",
-            "DEVELOPMENT": "UNDER DEVELOPMENT",
-            "SCOPING": "UNDER SCOPING",
-            "IS  REVIEW": "IS REVIEW"
-        })
-    )
-
-    status = team_df["Status_Clean"]
-
-
-    # ==========================================
-    # KPI VALUES
-    # ==========================================
+# # =====================================================
+# # TEAM PERFORMANCE
+# # =====================================================
+
+# elif page == "Team Performance":
+
+#     # ==========================================
+#     # HEADER
+#     # ==========================================
+
+#     st.html("""
+#     <div style="
+#         background:linear-gradient(180deg,#ffffff,#f8fbff);
+#         border-radius:24px;
+#         padding:28px;
+#         border:1px solid #E5E7EB;
+#         box-shadow:0 14px 35px rgba(0,0,0,.10);
+#         margin-bottom:20px;
+#         font-family:Segoe UI,Arial,sans-serif;">
+
+#         <div style="
+#             color:#006747;
+#             font-size:14px;
+#             font-weight:700;
+#             letter-spacing:2px;
+#             margin-bottom:8px;">
+#             SMARTPAY PROJECT MANAGEMENT
+#         </div>
+
+#         <div style="
+#             color:#006747;
+#             font-size:40px;
+#             font-weight:700;">
+#             Team Performance
+#         </div>
+
+#         <div style="
+#             color:#6B7280;
+#             font-size:17px;
+#             margin-top:10px;">
+#             Monitor team workload, project distribution and delivery progress.
+#         </div>
+
+#     </div>
+#     """)
+
+#     st.markdown("<br>", unsafe_allow_html=True)
+
+
+#     # ==========================================
+#     # TEAM MEMBER FILTER
+#     # ==========================================
+
+#     st.markdown("""
+#     <h2 style="
+#         color:#006747;
+#         font-size:28px;
+#         margin-bottom:12px;">
+#         👤 Team Member
+#     </h2>
+#     """, unsafe_allow_html=True)
+
+#     member = st.selectbox(
+#         "Select Team Member",
+#         ["All"] + sorted(
+#             df["Allocation"]
+#             .dropna()
+#             .astype(str)
+#             .unique()
+#         )
+#     )
+
+#     team_df = df.copy()
+
+#     if member != "All":
+#         team_df = team_df[
+#             team_df["Allocation"].astype(str) == member
+#         ]
+
+
+#     # ==========================================
+#     # CLEAN STATUS
+#     # ==========================================
+
+#     team_df["Status_Clean"] = (
+#         team_df["Status"]
+#         .astype(str)
+#         .str.upper()
+#         .str.strip()
+#         .replace({
+#             "SIT": "UNDER DEVELOPMENT",
+#             "DEVELOPMENT": "UNDER DEVELOPMENT",
+#             "SCOPING": "UNDER SCOPING",
+#             "IS  REVIEW": "IS REVIEW"
+#         })
+#     )
+
+#     status = team_df["Status_Clean"]
+
+
+#     # ==========================================
+#     # KPI VALUES
+#     # ==========================================
 
-    total = len(team_df)
-    live = len(team_df[status == "LIVE"])
-    uat = len(team_df[status == "UAT"])
-    development = len(team_df[status == "UNDER DEVELOPMENT"])
-    review = len(team_df[status == "IS REVIEW"])
-    cmc = len(team_df[status == "CMC"])
-    scoping = len(team_df[status == "UNDER SCOPING"])
+#     total = len(team_df)
+#     live = len(team_df[status == "LIVE"])
+#     uat = len(team_df[status == "UAT"])
+#     development = len(team_df[status == "UNDER DEVELOPMENT"])
+#     review = len(team_df[status == "IS REVIEW"])
+#     cmc = len(team_df[status == "CMC"])
+#     scoping = len(team_df[status == "UNDER SCOPING"])
 
 
-    # ==========================
-    # KPI CARDS
-    # ==========================
+#     # ==========================
+#     # KPI CARDS
+#     # ==========================
 
-    k1, k2, k3, k4, k5, k6, k7 = st.columns(7)
+#     k1, k2, k3, k4, k5, k6, k7 = st.columns(7)
 
-    with k1:
-        st.metric("Total", total)
-
-    with k2:
-        st.metric("Live", live)
-
-    with k3:
-        st.metric("UAT", uat)
-
-    with k4:
-        st.metric("Development", development)
-
-    with k5:
-        st.metric("IS Review", review)
-
-    with k6:
-        st.metric("CMC", cmc)
-
-    with k7:
-        st.metric("Scoping", scoping)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ==========================================
-    # PROJECT STATUS DISTRIBUTION
-    # ==========================================
-
-    st.markdown("""
-    <h2 style="
-        color:#006747;
-        font-size:30px;">
-        📊 Project Status Distribution
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-    status_order = [
-        "LIVE",
-        "UAT",
-        "UNDER DEVELOPMENT",
-        "IS REVIEW",
-        "CMC",
-        "UNDER SCOPING"
-    ]
-
-
-    color_map = {
-        "LIVE": "#00C853",
-        "UAT": "#F9A825",
-        "UNDER DEVELOPMENT": "#FF9800",
-        "IS REVIEW": "#00ACC1",
-        "CMC": "#3949AB",
-        "UNDER SCOPING": "#8E24AA"
-    }
-
-
-    status_df = (
-        team_df["Status_Clean"]
-        .value_counts()
-        .reindex(status_order, fill_value=0)
-        .reset_index()
-    )
-
-    status_df.columns = [
-        "Status",
-        "Projects"
-    ]
-
-
-    fig1 = px.bar(
-        status_df,
-        x="Status",
-        y="Projects",
-        text="Projects",
-        color="Status",
-        color_discrete_map=color_map
-    )
-
-
-    # ==========================================
-    # CHART DESIGN + DARK MODE FIX
-    # ==========================================
-
-    fig1.update_layout(
-        height=500,
-
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-
-        showlegend=False,
-
-        font=dict(
-            color="#111827",
-            family="Segoe UI, Arial"
-        ),
-
-        xaxis=dict(
-            title="",
-            tickangle=0,
-            tickfont=dict(
-                size=11,
-                color="#111827"
-            ),
-            automargin=True
-        ),
-
-        yaxis=dict(
-            title="Projects",
-            title_font=dict(
-                color="#111827"
-            ),
-            tickfont=dict(
-                color="#111827"
-            ),
-            gridcolor="#E5E7EB"
-        ),
-
-        margin=dict(
-            l=30,
-            r=30,
-            t=30,
-            b=100
-        )
-    )
-
-
-    fig1.update_traces(
-        textposition="outside",
-        textfont=dict(
-            color="#111827",
-            size=13
-        ),
-        marker_line_width=0
-    )
-
-
-    st.plotly_chart(
-        fig1,
-        width="stretch"
-    )
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
-    # ==========================================
-    # TEAM WORKLOAD
-    # ==========================================
-
-    if member == "All":
-
-        st.markdown("""
-        <h2 style="
-            color:#006747;
-            font-size:30px;">
-            👥 Team Workload
-        </h2>
-        """, unsafe_allow_html=True)
-
-
-        allocation_df = (
-            df["Allocation"]
-            .value_counts()
-            .reset_index()
-        )
-
-        allocation_df.columns = [
-            "Allocation",
-            "Projects"
-        ]
-
-
-        fig2 = px.bar(
-            allocation_df,
-            x="Allocation",
-            y="Projects",
-            text="Projects",
-            color="Projects",
-            color_continuous_scale="Greens"
-        )
-
-
-        fig2.update_layout(
-            height=500,
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-
-            font=dict(
-                color="#111827",
-                family="Segoe UI, Arial"
-            ),
-
-            coloraxis_showscale=False,
-
-            xaxis=dict(
-                title="",
-                tickfont=dict(
-                    color="#111827"
-                )
-            ),
-
-            yaxis=dict(
-                title="Projects",
-                title_font=dict(
-                    color="#111827"
-                ),
-                tickfont=dict(
-                    color="#111827"
-                ),
-                gridcolor="#E5E7EB"
-            ),
-
-            margin=dict(
-                l=20,
-                r=20,
-                t=25,
-                b=30
-            )
-        )
-
-
-        fig2.update_traces(
-            textposition="outside",
-            textfont=dict(
-                color="#111827",
-                size=13
-            ),
-            marker_line_width=0
-        )
-
-
-        st.plotly_chart(
-            fig2,
-            width="stretch"
-        )
-
-
-    else:
-
-        # ==========================================
-        # SELECTED MEMBER PROJECTS - VIP
-        # ==========================================
-
-        st.markdown(f"""
-        <h2 style="
-        color:#006747;
-        font-size:30px;
-        font-weight:700;
-        margin-top:25px;
-        margin-bottom:15px;">
-        📋 {member} — Project Portfolio
-        </h2>
-        """, unsafe_allow_html=True)
-
-
-        # ==========================================
-        # PREPARE MEMBER DATA
-        # ==========================================
-
-        member_display_df = team_df[
-            [
-                "Mandate",
-                "Status",
-                "Allocation"
-            ]
-        ].copy()
-
-
-        # ==========================================
-        # STATUS BADGE
-        # ==========================================
-
-        def member_status_badge(status):
-
-            status = str(status).strip()
-            status_upper = status.upper()
-
-            if status_upper == "LIVE":
-                css = "status-live"
-
-            elif status_upper == "UAT":
-                css = "status-uat"
-
-            elif status_upper in [
-                "DEVELOPMENT",
-                "UNDER DEVELOPMENT",
-                "SIT"
-            ]:
-                css = "status-development"
-
-            elif status_upper == "IS REVIEW":
-                css = "status-review"
-
-            elif status_upper == "CMC":
-                css = "status-cmc"
-
-            elif status_upper in [
-                "SCOPING",
-                "UNDER SCOPING"
-            ]:
-                css = "status-scoping"
-
-            else:
-                css = "status-default"
-
-            return f'<span class="status-badge {css}">{status}</span>'
-
-
-        # ==========================================
-        # APPLY VIP FORMATTING
-        # ==========================================
-
-        member_display_df["Status"] = (
-            member_display_df["Status"]
-            .apply(member_status_badge)
-        )
-
-
-        member_display_df["Mandate"] = (
-            member_display_df["Mandate"]
-            .apply(
-                lambda x:
-                f'<span class="project-name">📁 {x}</span>'
-            )
-        )
-
-
-        # ==========================================
-        # CREATE VIP HTML TABLE
-        # ==========================================
-
-        member_table_html = member_display_df.to_html(
-            index=False,
-            escape=False,
-            classes="project-table"
-        )
-
-
-        st.markdown(
-            f"""
-            <div class="project-table-wrapper">
-                {member_table_html}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-
-    # ==========================================
-    # TOP WORKLOAD
-    # ==========================================
-
-    st.markdown("""
-    <h2 style="
-        color:#006747;
-        font-size:30px;">
-        🏆 Team Workload Leader
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-    top = (
-        df["Allocation"]
-        .value_counts()
-        .reset_index()
-    )
-
-    top.columns = [
-        "Member",
-        "Projects"
-    ]
-
-
-    if not top.empty:
-
-        winner = top.iloc[0]
-
-
-        st.html(f"""
-        <div style="
-            background:linear-gradient(
-                135deg,
-                #ffffff,
-                #f1f8f5
-            );
-            border-radius:22px;
-            padding:24px;
-            border:1px solid #D1FAE5;
-            border-left:7px solid #006747;
-            box-shadow:0 10px 28px rgba(0,0,0,.08);
-            font-family:Segoe UI,Arial,sans-serif;">
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                font-weight:600;
-                text-transform:uppercase;
-                letter-spacing:1px;">
-                Highest Project Workload
-            </div>
-
-            <div style="
-                color:#006747;
-                font-size:28px;
-                font-weight:700;
-                margin-top:8px;">
-                🏆 {winner["Member"]}
-            </div>
-
-            <div style="
-                color:#111827;
-                font-size:17px;
-                margin-top:5px;">
-                Currently handling
-                <b>{winner["Projects"]}</b>
-                project(s)
-            </div>
-
-        </div>
-        """)
-# =====================================================
-# VOICE SEARCH
-# =====================================================
-
-elif page == "Voice Search":
-
-    # ==========================================
-    # VIP HEADER
-    # ==========================================
-
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f4fbf8);
-        border-radius:24px;
-        padding:30px;
-        border:1px solid #DDEBE5;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        margin-bottom:22px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
-        <div style="
-            color:#006747;
-            font-size:14px;
-            font-weight:700;
-            letter-spacing:2px;
-            margin-bottom:8px;">
-            SMARTPAY INTELLIGENT SEARCH
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:40px;
-            font-weight:700;">
-            🎤 Voice Search
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:17px;
-            margin-top:10px;">
-            Find SmartPay projects instantly using your voice.
-        </div>
-
-    </div>
-    """)
-
-    # ==========================================
-    # HOW TO SEARCH
-    # ==========================================
-
-    st.html("""
-    <div style="
-        background:white;
-        border-radius:20px;
-        padding:22px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.06);
-        margin-bottom:22px;">
-
-        <div style="
-            color:#006747;
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:8px;">
-            🎙️ How to Search
-        </div>
-
-        <div style="
-            color:#4B5563;
-            font-size:15px;
-            line-height:1.7;">
-            Speak a <b>Project Name</b>, <b>Team Member</b>,
-            <b>Status</b>, <b>Category</b> or say
-            <b>"Show All Projects"</b>.
-        </div>
-
-    </div>
-    """)
-
-    # ==========================================
-    # VOICE COMMAND GUIDE
-    # ==========================================
-
-    st.markdown("""
-    <h2 style="
-        color:#006747;
-        font-size:28px;
-        margin-bottom:15px;">
-        💡 Voice Commands
-    </h2>
-    """, unsafe_allow_html=True)
-
-    vc1, vc2, vc3, vc4 = st.columns(4)
-
-    with vc1:
-
-        st.html("""
-        <div style="
-            background:#F0FDF4;
-            border:1px solid #BBF7D0;
-            border-radius:18px;
-            padding:20px;
-            min-height:125px;">
-
-            <div style="font-size:25px;">
-                🟢
-            </div>
-
-            <div style="
-                color:#166534;
-                font-weight:700;
-                margin-top:8px;">
-                Live Projects
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                margin-top:5px;">
-                Say: <b>Live</b>
-            </div>
-
-        </div>
-        """)
-
-    with vc2:
-
-        st.html("""
-        <div style="
-            background:#FFFBEB;
-            border:1px solid #FDE68A;
-            border-radius:18px;
-            padding:20px;
-            min-height:125px;">
-
-            <div style="font-size:25px;">
-                🟡
-            </div>
-
-            <div style="
-                color:#92400E;
-                font-weight:700;
-                margin-top:8px;">
-                UAT Projects
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                margin-top:5px;">
-                Say: <b>UAT</b>
-            </div>
-
-        </div>
-        """)
-
-    with vc3:
-
-        st.html("""
-        <div style="
-            background:#EFF6FF;
-            border:1px solid #BFDBFE;
-            border-radius:18px;
-            padding:20px;
-            min-height:125px;">
-
-            <div style="font-size:25px;">
-                🔎
-            </div>
-
-            <div style="
-                color:#1D4ED8;
-                font-weight:700;
-                margin-top:8px;">
-                Project Search
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                margin-top:5px;">
-                Say the <b>project name</b>
-            </div>
-
-        </div>
-        """)
-
-    with vc4:
-
-        st.html("""
-        <div style="
-            background:#F5F3FF;
-            border:1px solid #DDD6FE;
-            border-radius:18px;
-            padding:20px;
-            min-height:125px;">
-
-            <div style="font-size:25px;">
-                👥
-            </div>
-
-            <div style="
-                color:#5B21B6;
-                font-weight:700;
-                margin-top:8px;">
-                Team Search
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                margin-top:5px;">
-                Say the <b>team member</b>
-            </div>
-
-        </div>
-        """)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ==========================================
-    # MICROPHONE AREA
-    # ==========================================
-
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#006747,#00875A);
-        border-radius:22px;
-        padding:25px;
-        text-align:center;
-        color:white;
-        box-shadow:0 12px 30px rgba(0,103,71,.20);
-        margin-bottom:20px;">
-
-        <div style="
-            font-size:42px;">
-            🎤
-        </div>
-
-        <div style="
-            font-size:22px;
-            font-weight:700;
-            margin-top:8px;">
-            Speak Your Command
-        </div>
-
-        <div style="
-            font-size:14px;
-            opacity:.9;
-            margin-top:6px;">
-            Use your microphone to search SmartPay projects
-        </div>
-
-    </div>
-    """)
-
-    # =====================================================
-    # ORIGINAL VOICE CODE — DO NOT CHANGE
-    # =====================================================
-
-    voice_text = listen()
-
-    st.write("Raw Voice :", repr(voice_text))
-
-    voice_text = normalize_voice(str(voice_text))
-
-    st.write("Normalized :", voice_text)
-
-    if voice_text:
-
-        voice_text = voice_text.lower().strip()
-
-        st.success(
-            f"🎤 You said: {voice_text}"
-        )
-
-        speak(
-            f"You said {voice_text}"
-        )
-
-        # =========================================
-        # SMART COMMANDS
-        # =========================================
-
-        if voice_text == "all":
-
-            result = df.copy()
-
-        elif voice_text == "live":
-
-            result = df[
-                df["Status"]
-                .astype(str)
-                .str.lower() == "live"
-            ]
-
-        elif voice_text == "uat":
-
-            result = df[
-                df["Status"]
-                .astype(str)
-                .str.lower() == "uat"
-            ]
-
-        elif voice_text == "sit":
-
-            result = df[
-                df["Status"]
-                .astype(str)
-                .str.lower() == "sit"
-            ]
-
-        elif voice_text == "under development":
-
-            result = df[
-                df["Status"]
-                .astype(str)
-                .str.lower() == "under development"
-            ]
-
-        else:
-
-            search_cols = [
-                "Mandate",
-                "Allocation",
-                "Status",
-                "Category",
-                "Update"
-            ]
-
-            result = df[
-                df.apply(
-                    lambda row: any(
-                        voice_text in str(
-                            row[col]
-                        ).lower()
-                        for col in search_cols
-                    ),
-                    axis=1
-                )
-            ]
-
-            # =========================================
-            # FUZZY SEARCH
-            # =========================================
-
-            if result.empty:
-
-                search_values = []
-
-                for col in search_cols:
-
-                    search_values.extend(
-                        df[col]
-                        .dropna()
-                        .astype(str)
-                        .tolist()
-                    )
-
-                match = process.extractOne(
-                    voice_text,
-                    search_values,
-                    scorer=fuzz.token_sort_ratio
-                )
-
-                if match and match[1] >= 70:
-
-                    matched = match[0].lower()
-
-                    result = df[
-                        df.apply(
-                            lambda row: any(
-                                matched in str(
-                                    row[col]
-                                ).lower()
-                                for col in search_cols
-                            ),
-                            axis=1
-                        )
-                    ]
-
-        # =========================================
-        # RESULT
-        # =========================================
-
-        if result.empty:
-
-            st.error(
-                "❌ No Project Found"
-            )
-
-            speak(
-                "Sorry. No matching project found."
-            )
-
-        else:
-
-            st.success(
-                f"✅ {len(result)} Project(s) Found"
-            )
-
-            st.metric(
-                "Total Results",
-                len(result)
-            )
-
-            # =========================================
-            # SINGLE RESULT
-            # =========================================
-
-            if len(result) == 1:
-
-                first = result.iloc[0]
-
-                status = str(
-                    first["Status"]
-                ).upper()
-
-                if status == "LIVE":
-
-                    badge = "#16A34A"
-
-                elif status == "UAT":
-
-                    badge = "#F59E0B"
-
-                elif status == "SIT":
-
-                    badge = "#2563EB"
-
-                else:
-
-                    badge = "#6B7280"
-
-                st.markdown(
-                    f"""
-                    <div style="
-                    background:white;
-                    border-radius:18px;
-                    padding:25px;
-                    border-left:8px solid {badge};
-                    box-shadow:0 8px 18px rgba(0,0,0,.08);
-                    margin-bottom:20px;">
-
-                    <h2 style="
-                    color:#006747;
-                    margin-top:0;">
-                    {first['Mandate']}
-                    </h2>
-
-                    <table style="
-                    width:100%;
-                    font-size:16px;">
-
-                    <tr>
-                    <td><b>Status</b></td>
-                    <td>{first['Status']}</td>
-                    </tr>
-
-                    <tr>
-                    <td><b>Owner</b></td>
-                    <td>{first['Allocation']}</td>
-                    </tr>
-
-                    <tr>
-                    <td><b>Category</b></td>
-                    <td>{first['Category']}</td>
-                    </tr>
-
-                    <tr>
-                    <td><b>Latest Update</b></td>
-                    <td>{first['Update']}</td>
-                    </tr>
-
-                    </table>
-
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                response = (
-                    f"{first['Mandate']} is currently "
-                    f"{first['Status']} and allocated to "
-                    f"{first['Allocation']}. "
-                    f"Latest update is "
-                    f"{first['Update']}."
-                )
-
-            # =========================================
-            # MULTIPLE RESULTS
-            # =========================================
-
-            else:
-
-                st.dataframe(
-                    result,
-                    use_container_width=True,
-                    hide_index=True
-                )
-
-                st.markdown(
-                    "### 📋 Projects Found"
-                )
-
-                c1, c2, c3 = st.columns(3)
-
-                with c1:
-
-                    st.metric(
-                        "Projects",
-                        len(result)
-                    )
-
-                with c2:
-
-                    st.metric(
-                        "Owners",
-                        result["Allocation"].nunique()
-                    )
-
-                with c3:
-
-                    st.metric(
-                        "Live",
-                        len(
-                            result[
-                                result["Status"]
-                                .astype(str)
-                                .str.upper() == "LIVE"
-                            ]
-                        )
-                    )
-
-                for _, row in result.iterrows():
-
-                    st.markdown(
-                        f"""
-                        <div style="
-                        background:white;
-                        padding:18px;
-                        border-radius:15px;
-                        margin-bottom:12px;
-                        border:1px solid #E5E7EB;
-                        box-shadow:0 4px 10px rgba(0,0,0,.06);">
-
-                        <h4 style="
-                        color:#006747;
-                        margin:0;">
-                        {row['Mandate']}
-                        </h4>
-
-                        <p style="
-                        margin-top:8px;">
-
-                        <b>Owner:</b>
-                        {row['Allocation']}<br>
-
-                        <b>Status:</b>
-                        {row['Status']}<br>
-
-                        <b>Category:</b>
-                        {row['Category']}
-
-                        </p>
-
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                names = ", ".join(
-                    result["Mandate"]
-                    .astype(str)
-                    .tolist()
-                )
-
-                response = (
-                    f"{len(result)} projects found. "
-                    f"The projects are {names}."
-                )
-
-            # =========================================
-            # VOICE RESPONSE
-            # =========================================
-
-            st.info(response)
-
-            speak(response)
+#     with k1:
+#         st.metric("Total", total)
+
+#     with k2:
+#         st.metric("Live", live)
+
+#     with k3:
+#         st.metric("UAT", uat)
+
+#     with k4:
+#         st.metric("Development", development)
+
+#     with k5:
+#         st.metric("IS Review", review)
+
+#     with k6:
+#         st.metric("CMC", cmc)
+
+#     with k7:
+#         st.metric("Scoping", scoping)
+
+#     st.markdown("<br>", unsafe_allow_html=True)
+
+#     # ==========================================
+#     # PROJECT STATUS DISTRIBUTION
+#     # ==========================================
+
+#     st.markdown("""
+#     <h2 style="
+#         color:#006747;
+#         font-size:30px;">
+#         📊 Project Status Distribution
+#     </h2>
+#     """, unsafe_allow_html=True)
+
+
+#     status_order = [
+#         "LIVE",
+#         "UAT",
+#         "UNDER DEVELOPMENT",
+#         "IS REVIEW",
+#         "CMC",
+#         "UNDER SCOPING"
+#     ]
+
+
+#     color_map = {
+#         "LIVE": "#00C853",
+#         "UAT": "#F9A825",
+#         "UNDER DEVELOPMENT": "#FF9800",
+#         "IS REVIEW": "#00ACC1",
+#         "CMC": "#3949AB",
+#         "UNDER SCOPING": "#8E24AA"
+#     }
+
+
+#     status_df = (
+#         team_df["Status_Clean"]
+#         .value_counts()
+#         .reindex(status_order, fill_value=0)
+#         .reset_index()
+#     )
+
+#     status_df.columns = [
+#         "Status",
+#         "Projects"
+#     ]
+
+
+#     fig1 = px.bar(
+#         status_df,
+#         x="Status",
+#         y="Projects",
+#         text="Projects",
+#         color="Status",
+#         color_discrete_map=color_map
+#     )
+
+
+#     # ==========================================
+#     # CHART DESIGN + DARK MODE FIX
+#     # ==========================================
+
+#     fig1.update_layout(
+#         height=500,
+
+#         plot_bgcolor="white",
+#         paper_bgcolor="white",
+
+#         showlegend=False,
+
+#         font=dict(
+#             color="#111827",
+#             family="Segoe UI, Arial"
+#         ),
+
+#         xaxis=dict(
+#             title="",
+#             tickangle=0,
+#             tickfont=dict(
+#                 size=11,
+#                 color="#111827"
+#             ),
+#             automargin=True
+#         ),
+
+#         yaxis=dict(
+#             title="Projects",
+#             title_font=dict(
+#                 color="#111827"
+#             ),
+#             tickfont=dict(
+#                 color="#111827"
+#             ),
+#             gridcolor="#E5E7EB"
+#         ),
+
+#         margin=dict(
+#             l=30,
+#             r=30,
+#             t=30,
+#             b=100
+#         )
+#     )
+
+
+#     fig1.update_traces(
+#         textposition="outside",
+#         textfont=dict(
+#             color="#111827",
+#             size=13
+#         ),
+#         marker_line_width=0
+#     )
+
+
+#     st.plotly_chart(
+#         fig1,
+#         width="stretch"
+#     )
+
+
+#     st.markdown("<br>", unsafe_allow_html=True)
+
+
+#     # ==========================================
+#     # TEAM WORKLOAD
+#     # ==========================================
+
+#     if member == "All":
+
+#         st.markdown("""
+#         <h2 style="
+#             color:#006747;
+#             font-size:30px;">
+#             👥 Team Workload
+#         </h2>
+#         """, unsafe_allow_html=True)
+
+
+#         allocation_df = (
+#             df["Allocation"]
+#             .value_counts()
+#             .reset_index()
+#         )
+
+#         allocation_df.columns = [
+#             "Allocation",
+#             "Projects"
+#         ]
+
+
+#         fig2 = px.bar(
+#             allocation_df,
+#             x="Allocation",
+#             y="Projects",
+#             text="Projects",
+#             color="Projects",
+#             color_continuous_scale="Greens"
+#         )
+
+
+#         fig2.update_layout(
+#             height=500,
+#             plot_bgcolor="white",
+#             paper_bgcolor="white",
+
+#             font=dict(
+#                 color="#111827",
+#                 family="Segoe UI, Arial"
+#             ),
+
+#             coloraxis_showscale=False,
+
+#             xaxis=dict(
+#                 title="",
+#                 tickfont=dict(
+#                     color="#111827"
+#                 )
+#             ),
+
+#             yaxis=dict(
+#                 title="Projects",
+#                 title_font=dict(
+#                     color="#111827"
+#                 ),
+#                 tickfont=dict(
+#                     color="#111827"
+#                 ),
+#                 gridcolor="#E5E7EB"
+#             ),
+
+#             margin=dict(
+#                 l=20,
+#                 r=20,
+#                 t=25,
+#                 b=30
+#             )
+#         )
+
+
+#         fig2.update_traces(
+#             textposition="outside",
+#             textfont=dict(
+#                 color="#111827",
+#                 size=13
+#             ),
+#             marker_line_width=0
+#         )
+
+
+#         st.plotly_chart(
+#             fig2,
+#             width="stretch"
+#         )
+
+
+#     else:
+
+#         # ==========================================
+#         # SELECTED MEMBER PROJECTS - VIP
+#         # ==========================================
+
+#         st.markdown(f"""
+#         <h2 style="
+#         color:#006747;
+#         font-size:30px;
+#         font-weight:700;
+#         margin-top:25px;
+#         margin-bottom:15px;">
+#         📋 {member} — Project Portfolio
+#         </h2>
+#         """, unsafe_allow_html=True)
+
+
+#         # ==========================================
+#         # PREPARE MEMBER DATA
+#         # ==========================================
+
+#         member_display_df = team_df[
+#             [
+#                 "Mandate",
+#                 "Status",
+#                 "Allocation"
+#             ]
+#         ].copy()
+
+
+#         # ==========================================
+#         # STATUS BADGE
+#         # ==========================================
+
+#         def member_status_badge(status):
+
+#             status = str(status).strip()
+#             status_upper = status.upper()
+
+#             if status_upper == "LIVE":
+#                 css = "status-live"
+
+#             elif status_upper == "UAT":
+#                 css = "status-uat"
+
+#             elif status_upper in [
+#                 "DEVELOPMENT",
+#                 "UNDER DEVELOPMENT",
+#                 "SIT"
+#             ]:
+#                 css = "status-development"
+
+#             elif status_upper == "IS REVIEW":
+#                 css = "status-review"
+
+#             elif status_upper == "CMC":
+#                 css = "status-cmc"
+
+#             elif status_upper in [
+#                 "SCOPING",
+#                 "UNDER SCOPING"
+#             ]:
+#                 css = "status-scoping"
+
+#             else:
+#                 css = "status-default"
+
+#             return f'<span class="status-badge {css}">{status}</span>'
+
+
+#         # ==========================================
+#         # APPLY VIP FORMATTING
+#         # ==========================================
+
+#         member_display_df["Status"] = (
+#             member_display_df["Status"]
+#             .apply(member_status_badge)
+#         )
+
+
+#         member_display_df["Mandate"] = (
+#             member_display_df["Mandate"]
+#             .apply(
+#                 lambda x:
+#                 f'<span class="project-name">📁 {x}</span>'
+#             )
+#         )
+
+
+#         # ==========================================
+#         # CREATE VIP HTML TABLE
+#         # ==========================================
+
+#         member_table_html = member_display_df.to_html(
+#             index=False,
+#             escape=False,
+#             classes="project-table"
+#         )
+
+
+#         st.markdown(
+#             f"""
+#             <div class="project-table-wrapper">
+#                 {member_table_html}
+#             </div>
+#             """,
+#             unsafe_allow_html=True
+#         )
+
+
+#         st.markdown("<br>", unsafe_allow_html=True)
+
+
+#     # ==========================================
+#     # TOP WORKLOAD
+#     # ==========================================
+
+#     st.markdown("""
+#     <h2 style="
+#         color:#006747;
+#         font-size:30px;">
+#         🏆 Team Workload Leader
+#     </h2>
+#     """, unsafe_allow_html=True)
+
+
+#     top = (
+#         df["Allocation"]
+#         .value_counts()
+#         .reset_index()
+#     )
+
+#     top.columns = [
+#         "Member",
+#         "Projects"
+#     ]
+
+
+#     if not top.empty:
+
+#         winner = top.iloc[0]
+
+
+#         st.html(f"""
+#         <div style="
+#             background:linear-gradient(
+#                 135deg,
+#                 #ffffff,
+#                 #f1f8f5
+#             );
+#             border-radius:22px;
+#             padding:24px;
+#             border:1px solid #D1FAE5;
+#             border-left:7px solid #006747;
+#             box-shadow:0 10px 28px rgba(0,0,0,.08);
+#             font-family:Segoe UI,Arial,sans-serif;">
+
+#             <div style="
+#                 color:#6B7280;
+#                 font-size:13px;
+#                 font-weight:600;
+#                 text-transform:uppercase;
+#                 letter-spacing:1px;">
+#                 Highest Project Workload
+#             </div>
+
+#             <div style="
+#                 color:#006747;
+#                 font-size:28px;
+#                 font-weight:700;
+#                 margin-top:8px;">
+#                 🏆 {winner["Member"]}
+#             </div>
+
+#             <div style="
+#                 color:#111827;
+#                 font-size:17px;
+#                 margin-top:5px;">
+#                 Currently handling
+#                 <b>{winner["Projects"]}</b>
+#                 project(s)
+#             </div>
+
+#         </div>
+#         """)
+# # =====================================================
+# # VOICE SEARCH
+# # =====================================================
+
+# elif page == "Voice Search":
+
+#     # ==========================================
+#     # VIP HEADER
+#     # ==========================================
+
+#     st.html("""
+#     <div style="
+#         background:linear-gradient(135deg,#ffffff,#f4fbf8);
+#         border-radius:24px;
+#         padding:30px;
+#         border:1px solid #DDEBE5;
+#         box-shadow:0 14px 35px rgba(0,0,0,.10);
+#         margin-bottom:22px;
+#         font-family:Segoe UI,Arial,sans-serif;">
+
+#         <div style="
+#             color:#006747;
+#             font-size:14px;
+#             font-weight:700;
+#             letter-spacing:2px;
+#             margin-bottom:8px;">
+#             SMARTPAY INTELLIGENT SEARCH
+#         </div>
+
+#         <div style="
+#             color:#006747;
+#             font-size:40px;
+#             font-weight:700;">
+#             🎤 Voice Search
+#         </div>
+
+#         <div style="
+#             color:#6B7280;
+#             font-size:17px;
+#             margin-top:10px;">
+#             Find SmartPay projects instantly using your voice.
+#         </div>
+
+#     </div>
+#     """)
+
+#     # ==========================================
+#     # HOW TO SEARCH
+#     # ==========================================
+
+#     st.html("""
+#     <div style="
+#         background:white;
+#         border-radius:20px;
+#         padding:22px;
+#         border:1px solid #E5E7EB;
+#         box-shadow:0 8px 22px rgba(0,0,0,.06);
+#         margin-bottom:22px;">
+
+#         <div style="
+#             color:#006747;
+#             font-size:18px;
+#             font-weight:700;
+#             margin-bottom:8px;">
+#             🎙️ How to Search
+#         </div>
+
+#         <div style="
+#             color:#4B5563;
+#             font-size:15px;
+#             line-height:1.7;">
+#             Speak a <b>Project Name</b>, <b>Team Member</b>,
+#             <b>Status</b>, <b>Category</b> or say
+#             <b>"Show All Projects"</b>.
+#         </div>
+
+#     </div>
+#     """)
+
+#     # ==========================================
+#     # VOICE COMMAND GUIDE
+#     # ==========================================
+
+#     st.markdown("""
+#     <h2 style="
+#         color:#006747;
+#         font-size:28px;
+#         margin-bottom:15px;">
+#         💡 Voice Commands
+#     </h2>
+#     """, unsafe_allow_html=True)
+
+#     vc1, vc2, vc3, vc4 = st.columns(4)
+
+#     with vc1:
+
+#         st.html("""
+#         <div style="
+#             background:#F0FDF4;
+#             border:1px solid #BBF7D0;
+#             border-radius:18px;
+#             padding:20px;
+#             min-height:125px;">
+
+#             <div style="font-size:25px;">
+#                 🟢
+#             </div>
+
+#             <div style="
+#                 color:#166534;
+#                 font-weight:700;
+#                 margin-top:8px;">
+#                 Live Projects
+#             </div>
+
+#             <div style="
+#                 color:#6B7280;
+#                 font-size:13px;
+#                 margin-top:5px;">
+#                 Say: <b>Live</b>
+#             </div>
+
+#         </div>
+#         """)
+
+#     with vc2:
+
+#         st.html("""
+#         <div style="
+#             background:#FFFBEB;
+#             border:1px solid #FDE68A;
+#             border-radius:18px;
+#             padding:20px;
+#             min-height:125px;">
+
+#             <div style="font-size:25px;">
+#                 🟡
+#             </div>
+
+#             <div style="
+#                 color:#92400E;
+#                 font-weight:700;
+#                 margin-top:8px;">
+#                 UAT Projects
+#             </div>
+
+#             <div style="
+#                 color:#6B7280;
+#                 font-size:13px;
+#                 margin-top:5px;">
+#                 Say: <b>UAT</b>
+#             </div>
+
+#         </div>
+#         """)
+
+#     with vc3:
+
+#         st.html("""
+#         <div style="
+#             background:#EFF6FF;
+#             border:1px solid #BFDBFE;
+#             border-radius:18px;
+#             padding:20px;
+#             min-height:125px;">
+
+#             <div style="font-size:25px;">
+#                 🔎
+#             </div>
+
+#             <div style="
+#                 color:#1D4ED8;
+#                 font-weight:700;
+#                 margin-top:8px;">
+#                 Project Search
+#             </div>
+
+#             <div style="
+#                 color:#6B7280;
+#                 font-size:13px;
+#                 margin-top:5px;">
+#                 Say the <b>project name</b>
+#             </div>
+
+#         </div>
+#         """)
+
+#     with vc4:
+
+#         st.html("""
+#         <div style="
+#             background:#F5F3FF;
+#             border:1px solid #DDD6FE;
+#             border-radius:18px;
+#             padding:20px;
+#             min-height:125px;">
+
+#             <div style="font-size:25px;">
+#                 👥
+#             </div>
+
+#             <div style="
+#                 color:#5B21B6;
+#                 font-weight:700;
+#                 margin-top:8px;">
+#                 Team Search
+#             </div>
+
+#             <div style="
+#                 color:#6B7280;
+#                 font-size:13px;
+#                 margin-top:5px;">
+#                 Say the <b>team member</b>
+#             </div>
+
+#         </div>
+#         """)
+
+#     st.markdown("<br>", unsafe_allow_html=True)
+
+#     # ==========================================
+#     # MICROPHONE AREA
+#     # ==========================================
+
+#     st.html("""
+#     <div style="
+#         background:linear-gradient(135deg,#006747,#00875A);
+#         border-radius:22px;
+#         padding:25px;
+#         text-align:center;
+#         color:white;
+#         box-shadow:0 12px 30px rgba(0,103,71,.20);
+#         margin-bottom:20px;">
+
+#         <div style="
+#             font-size:42px;">
+#             🎤
+#         </div>
+
+#         <div style="
+#             font-size:22px;
+#             font-weight:700;
+#             margin-top:8px;">
+#             Speak Your Command
+#         </div>
+
+#         <div style="
+#             font-size:14px;
+#             opacity:.9;
+#             margin-top:6px;">
+#             Use your microphone to search SmartPay projects
+#         </div>
+
+#     </div>
+#     """)
+
+#     # =====================================================
+#     # ORIGINAL VOICE CODE — DO NOT CHANGE
+#     # =====================================================
+
+#     voice_text = listen()
+
+#     st.write("Raw Voice :", repr(voice_text))
+
+#     voice_text = normalize_voice(str(voice_text))
+
+#     st.write("Normalized :", voice_text)
+
+#     if voice_text:
+
+#         voice_text = voice_text.lower().strip()
+
+#         st.success(
+#             f"🎤 You said: {voice_text}"
+#         )
+
+#         speak(
+#             f"You said {voice_text}"
+#         )
+
+#         # =========================================
+#         # SMART COMMANDS
+#         # =========================================
+
+#         if voice_text == "all":
+
+#             result = df.copy()
+
+#         elif voice_text == "live":
+
+#             result = df[
+#                 df["Status"]
+#                 .astype(str)
+#                 .str.lower() == "live"
+#             ]
+
+#         elif voice_text == "uat":
+
+#             result = df[
+#                 df["Status"]
+#                 .astype(str)
+#                 .str.lower() == "uat"
+#             ]
+
+#         elif voice_text == "sit":
+
+#             result = df[
+#                 df["Status"]
+#                 .astype(str)
+#                 .str.lower() == "sit"
+#             ]
+
+#         elif voice_text == "under development":
+
+#             result = df[
+#                 df["Status"]
+#                 .astype(str)
+#                 .str.lower() == "under development"
+#             ]
+
+#         else:
+
+#             search_cols = [
+#                 "Mandate",
+#                 "Allocation",
+#                 "Status",
+#                 "Category",
+#                 "Update"
+#             ]
+
+#             result = df[
+#                 df.apply(
+#                     lambda row: any(
+#                         voice_text in str(
+#                             row[col]
+#                         ).lower()
+#                         for col in search_cols
+#                     ),
+#                     axis=1
+#                 )
+#             ]
+
+#             # =========================================
+#             # FUZZY SEARCH
+#             # =========================================
+
+#             if result.empty:
+
+#                 search_values = []
+
+#                 for col in search_cols:
+
+#                     search_values.extend(
+#                         df[col]
+#                         .dropna()
+#                         .astype(str)
+#                         .tolist()
+#                     )
+
+#                 match = process.extractOne(
+#                     voice_text,
+#                     search_values,
+#                     scorer=fuzz.token_sort_ratio
+#                 )
+
+#                 if match and match[1] >= 70:
+
+#                     matched = match[0].lower()
+
+#                     result = df[
+#                         df.apply(
+#                             lambda row: any(
+#                                 matched in str(
+#                                     row[col]
+#                                 ).lower()
+#                                 for col in search_cols
+#                             ),
+#                             axis=1
+#                         )
+#                     ]
+
+#         # =========================================
+#         # RESULT
+#         # =========================================
+
+#         if result.empty:
+
+#             st.error(
+#                 "❌ No Project Found"
+#             )
+
+#             speak(
+#                 "Sorry. No matching project found."
+#             )
+
+#         else:
+
+#             st.success(
+#                 f"✅ {len(result)} Project(s) Found"
+#             )
+
+#             st.metric(
+#                 "Total Results",
+#                 len(result)
+#             )
+
+#             # =========================================
+#             # SINGLE RESULT
+#             # =========================================
+
+#             if len(result) == 1:
+
+#                 first = result.iloc[0]
+
+#                 status = str(
+#                     first["Status"]
+#                 ).upper()
+
+#                 if status == "LIVE":
+
+#                     badge = "#16A34A"
+
+#                 elif status == "UAT":
+
+#                     badge = "#F59E0B"
+
+#                 elif status == "SIT":
+
+#                     badge = "#2563EB"
+
+#                 else:
+
+#                     badge = "#6B7280"
+
+#                 st.markdown(
+#                     f"""
+#                     <div style="
+#                     background:white;
+#                     border-radius:18px;
+#                     padding:25px;
+#                     border-left:8px solid {badge};
+#                     box-shadow:0 8px 18px rgba(0,0,0,.08);
+#                     margin-bottom:20px;">
+
+#                     <h2 style="
+#                     color:#006747;
+#                     margin-top:0;">
+#                     {first['Mandate']}
+#                     </h2>
+
+#                     <table style="
+#                     width:100%;
+#                     font-size:16px;">
+
+#                     <tr>
+#                     <td><b>Status</b></td>
+#                     <td>{first['Status']}</td>
+#                     </tr>
+
+#                     <tr>
+#                     <td><b>Owner</b></td>
+#                     <td>{first['Allocation']}</td>
+#                     </tr>
+
+#                     <tr>
+#                     <td><b>Category</b></td>
+#                     <td>{first['Category']}</td>
+#                     </tr>
+
+#                     <tr>
+#                     <td><b>Latest Update</b></td>
+#                     <td>{first['Update']}</td>
+#                     </tr>
+
+#                     </table>
+
+#                     </div>
+#                     """,
+#                     unsafe_allow_html=True
+#                 )
+
+#                 response = (
+#                     f"{first['Mandate']} is currently "
+#                     f"{first['Status']} and allocated to "
+#                     f"{first['Allocation']}. "
+#                     f"Latest update is "
+#                     f"{first['Update']}."
+#                 )
+
+#             # =========================================
+#             # MULTIPLE RESULTS
+#             # =========================================
+
+#             else:
+
+#                 st.dataframe(
+#                     result,
+#                     use_container_width=True,
+#                     hide_index=True
+#                 )
+
+#                 st.markdown(
+#                     "### 📋 Projects Found"
+#                 )
+
+#                 c1, c2, c3 = st.columns(3)
+
+#                 with c1:
+
+#                     st.metric(
+#                         "Projects",
+#                         len(result)
+#                     )
+
+#                 with c2:
+
+#                     st.metric(
+#                         "Owners",
+#                         result["Allocation"].nunique()
+#                     )
+
+#                 with c3:
+
+#                     st.metric(
+#                         "Live",
+#                         len(
+#                             result[
+#                                 result["Status"]
+#                                 .astype(str)
+#                                 .str.upper() == "LIVE"
+#                             ]
+#                         )
+#                     )
+
+#                 for _, row in result.iterrows():
+
+#                     st.markdown(
+#                         f"""
+#                         <div style="
+#                         background:white;
+#                         padding:18px;
+#                         border-radius:15px;
+#                         margin-bottom:12px;
+#                         border:1px solid #E5E7EB;
+#                         box-shadow:0 4px 10px rgba(0,0,0,.06);">
+
+#                         <h4 style="
+#                         color:#006747;
+#                         margin:0;">
+#                         {row['Mandate']}
+#                         </h4>
+
+#                         <p style="
+#                         margin-top:8px;">
+
+#                         <b>Owner:</b>
+#                         {row['Allocation']}<br>
+
+#                         <b>Status:</b>
+#                         {row['Status']}<br>
+
+#                         <b>Category:</b>
+#                         {row['Category']}
+
+#                         </p>
+
+#                         </div>
+#                         """,
+#                         unsafe_allow_html=True
+#                     )
+
+#                 names = ", ".join(
+#                     result["Mandate"]
+#                     .astype(str)
+#                     .tolist()
+#                 )
+
+#                 response = (
+#                     f"{len(result)} projects found. "
+#                     f"The projects are {names}."
+#                 )
+
+#             # =========================================
+#             # VOICE RESPONSE
+#             # =========================================
+
+#             st.info(response)
+
+#             speak(response)
 # =====================================================
 # EXPORT
 # =====================================================
