@@ -4592,21 +4592,7 @@ elif page == "BAU Monitoring":
     display_bau = filtered_bau_df.copy()
 
 
-    # Date formatting
-    for col in ["Date", "Live Date"]:
-
-        if col in display_bau.columns:
-
-            display_bau[col] = pd.to_datetime(
-                display_bau[col],
-                errors="coerce"
-            ).dt.strftime("%Y-%m-%d")
-
-            display_bau[col] = (
-                display_bau[col]
-                .fillna("TBD")
-            )
-
+    
 
     # =================================================
     # VIP TABLE CSS
@@ -4707,8 +4693,6 @@ elif page == "BAU Monitoring":
         "Mandate",
         "Allocation",
         "Status",
-        "Date",
-        "Live Date",
         "Category",
         "Update"
     ]
