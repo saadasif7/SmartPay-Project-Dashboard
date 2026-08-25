@@ -500,7 +500,7 @@ page = st.sidebar.radio(
         "Projects",
         "Analytics",
         "Project Timeline",
-      
+        "BAU Monitoring",
         "Export"
         #"Team Performance",
         #"Voice Search",
@@ -787,10 +787,11 @@ if page == "Dashboard":
     review_projects = len(df[status == "IS REVIEW"])
     cmc_projects = len(df[status == "CMC"])
     live_projects = len(df[status == "LIVE"])
+    bau_projects = len(df[status == "BAU"])
 
     # Better spacing for cards
-    c1, c2, c3, c4, c5, c6, c7 = st.columns(
-        [1.25, 1.15, 1.25, 1.0, 1.15, 1.0, 1.0]
+    c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(
+        [1.2, 1.1, 1.2, 1.0, 1.1, 1.0, 1.0, 1.0]
     )
 
     ## ------------------------------------------
@@ -858,6 +859,8 @@ if page == "Dashboard":
 
     with c7:
         vip_card("LIVE", live_projects, "#00C853")
+    with c8:
+        vip_card("BAU", bau_projects, "#607D8B")
 
     st.markdown("<br>", unsafe_allow_html=True)
     # =====================================================
@@ -1630,7 +1633,7 @@ elif page == "Projects":
     # STATUS CARDS
     # =====================================================
 
-    s1,s2,s3,s4,s5,s6 = st.columns(6)
+    s1,s2,s3,s4,s5,s6,s7 = st.columns(7)
 
     def status_card(title,value,color):
 
@@ -1691,6 +1694,16 @@ elif page == "Projects":
         status_card("Scoping",
                     len(filtered_df[filtered_df["Status"].str.upper()=="UNDER SCOPING"]),
                     "#8E24AA")
+    with s7:
+        status_card(
+            "BAU",
+            len(
+                filtered_df[
+                    filtered_df["Status"].str.upper() == "BAU"
+                ]
+            ),
+            "#607D8B"
+        )         
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -2549,7 +2562,18 @@ elif page == "Analytics":
 # =====================================================
 
 elif page == "Project Timeline":
+    # ==========================================
+    # TIMELINE DATA
+    # EXCLUDE BAU PROJECTS
+    # ==========================================
 
+    timeline_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        != "BAU"
+    ].copy()
     # ==========================================
     # HEADER
     # ==========================================
@@ -2694,28 +2718,28 @@ elif page == "Project Timeline":
     if search_type == "Project":
 
         selected = st.selectbox(
-            "Select Project",
-            ["All Projects"] +
-            sorted(
-                df["Mandate"]
-                .dropna()
-                .astype(str)
-                .unique()
-            )
+        "Select Project",
+        ["All Projects"] +
+        sorted(
+            timeline_df["Mandate"]
+            .dropna()
+            .astype(str)
+            .unique()
         )
+    )
 
     else:
 
         selected = st.selectbox(
-            "Select Team Member",
-            ["All Members"] +
-            sorted(
-                df["Allocation"]
-                .dropna()
-                .astype(str)
-                .unique()
-            )
+        "Select Team Member",
+        ["All Members"] +
+        sorted(
+            timeline_df["Allocation"]
+            .dropna()
+            .astype(str)
+            .unique()
         )
+    )
 
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -3010,13 +3034,13 @@ elif page == "Project Timeline":
 
         if selected == "All Projects":
 
-            for _, project in df.iterrows():
+            for _, project in timeline_df.iterrows():
                 show_timeline(project)
 
         else:
 
-            selected_project = df[
-                df["Mandate"].astype(str) == selected
+            selected_project = timeline_df[
+                timeline_df["Mandate"].astype(str) == selected
             ]
 
             if not selected_project.empty:
@@ -3027,13 +3051,13 @@ elif page == "Project Timeline":
 
         if selected == "All Members":
 
-            for _, project in df.iterrows():
+            for _, project in timeline_df.iterrows():
                 show_timeline(project)
 
         else:
 
-            member_df = df[
-                df["Allocation"].astype(str) == selected
+            member_df = timeline_df[
+                timeline_df["Allocation"].astype(str) == selected
             ]
 
             st.success(
@@ -4173,6 +4197,664 @@ elif page == "Project Timeline":
 #             st.info(response)
 
 #             speak(response)
+
+# =====================================================
+# BAU MONITORING
+# =====================================================
+
+elif page == "BAU Monitoring":
+
+    # =================================================
+    # HEADER
+    # =================================================
+
+    st.html("""
+    <div style="
+        background:linear-gradient(135deg,#ffffff,#f7fbf9);
+        border-radius:24px;
+        padding:30px;
+        border:1px solid #E5E7EB;
+        box-shadow:0 14px 35px rgba(0,0,0,.08);
+        margin-bottom:20px;
+        font-family:Segoe UI,Arial,sans-serif;
+    ">
+
+        <div style="
+            color:#006747;
+            font-size:14px;
+            font-weight:700;
+            letter-spacing:2px;
+            margin-bottom:8px;">
+            SMARTPAY BUSINESS AS USUAL
+        </div>
+
+        <div style="
+            color:#006747;
+            font-size:40px;
+            font-weight:800;">
+            🏦 BAU Monitoring
+        </div>
+
+        <div style="
+            color:#6B7280;
+            font-size:17px;
+            margin-top:10px;">
+            Live Business Operations Monitoring, ownership and ongoing updates.
+        </div>
+
+    </div>
+    """)
+
+
+    # =================================================
+    # BAU DATA
+    # =================================================
+
+    bau_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        == "BAU"
+    ].copy()
+
+
+    # =================================================
+    # KPI VALUES
+    # =================================================
+
+    total_bau = len(bau_df)
+
+    bau_members = (
+        bau_df["Allocation"]
+        .dropna()
+        .astype(str)
+        .nunique()
+    )
+
+    bau_updates = (
+        bau_df["Update"]
+        .notna()
+        .sum()
+        if "Update" in bau_df.columns
+        else 0
+    )
+
+    bau_categories = (
+        bau_df["Category"]
+        .dropna()
+        .astype(str)
+        .nunique()
+        if "Category" in bau_df.columns
+        else 0
+    )
+
+
+    # =================================================
+    # KPI CARDS
+    # =================================================
+
+    k1, k2, k3, k4 = st.columns(4)
+
+
+    def bau_card(title, value, color):
+
+        st.html(
+            f"""
+            <div style="
+                background:white;
+                border-radius:20px;
+                padding:22px 16px;
+                height:135px;
+                border-top:7px solid {color};
+                box-shadow:0 8px 22px rgba(0,0,0,.08);
+                display:flex;
+                flex-direction:column;
+                justify-content:space-between;
+                align-items:center;
+                text-align:center;
+            ">
+
+                <div style="
+                    color:#6B7280;
+                    font-size:14px;
+                    font-weight:600;">
+                    {title}
+                </div>
+
+                <div style="
+                    color:{color};
+                    font-size:44px;
+                    font-weight:800;
+                    line-height:1;">
+                    {value}
+                </div>
+
+            </div>
+            """
+        )
+
+
+    with k1:
+        bau_card(
+            "Total BAU Projects",
+            total_bau,
+            "#006747"
+        )
+
+    with k2:
+        bau_card(
+            "Team Members",
+            bau_members,
+            "#3949AB"
+        )
+
+    with k3:
+        bau_card(
+            "Updated Projects",
+            bau_updates,
+            "#F9A825"
+        )
+
+    with k4:
+        bau_card(
+            "Categories",
+            bau_categories,
+            "#00ACC1"
+        )
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    # =================================================
+    # FILTERS
+    # =================================================
+
+    st.markdown("""
+    <h2 style="
+        color:#006747;
+        font-size:28px;
+        font-weight:700;
+        margin-bottom:18px;">
+        🎯 BAU Filters
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    f1, f2 = st.columns(2)
+
+
+    with f1:
+
+        if "Allocation" in bau_df.columns:
+
+            selected_bau_member = st.selectbox(
+                "👤 Team Member",
+                ["All"] +
+                sorted(
+                    bau_df["Allocation"]
+                    .dropna()
+                    .astype(str)
+                    .unique()
+                ),
+                key="bau_member_filter"
+            )
+
+        else:
+
+            selected_bau_member = "All"
+
+
+    with f2:
+
+        if "Category" in bau_df.columns:
+
+            selected_bau_category = st.selectbox(
+                "📂 Category",
+                ["All"] +
+                sorted(
+                    bau_df["Category"]
+                    .dropna()
+                    .astype(str)
+                    .unique()
+                ),
+                key="bau_category_filter"
+            )
+
+        else:
+
+            selected_bau_category = "All"
+
+
+    # =================================================
+    # APPLY FILTERS
+    # =================================================
+
+    filtered_bau_df = bau_df.copy()
+
+
+    if selected_bau_member != "All":
+
+        filtered_bau_df = filtered_bau_df[
+            filtered_bau_df["Allocation"].astype(str)
+            == selected_bau_member
+        ]
+
+
+    if selected_bau_category != "All":
+
+        filtered_bau_df = filtered_bau_df[
+            filtered_bau_df["Category"].astype(str)
+            == selected_bau_category
+        ]
+
+
+    # =================================================
+    # SEARCH
+    # =================================================
+
+    bau_search = st.text_input(
+        "",
+        placeholder="🔍 Search BAU Project...",
+        label_visibility="collapsed",
+        key="bau_project_search"
+    )
+
+
+    if bau_search:
+
+        filtered_bau_df = filtered_bau_df[
+            filtered_bau_df["Mandate"]
+            .astype(str)
+            .str.contains(
+                bau_search,
+                case=False,
+                na=False
+            )
+        ]
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    # =================================================
+    # OWNER SUMMARY
+    # =================================================
+
+    st.markdown("""
+    <h2 style="
+        color:#006747;
+        font-size:28px;
+        font-weight:700;
+        margin-bottom:18px;">
+        👥 BAU Owner Summary
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    owner_summary = (
+        filtered_bau_df
+        .groupby("Allocation")
+        .size()
+        .reset_index(name="Projects")
+        .sort_values(
+            "Projects",
+            ascending=False
+        )
+    )
+
+
+    if owner_summary.empty:
+
+        st.info("No BAU projects found.")
+
+    else:
+
+        owner_cols = st.columns(
+            min(4, len(owner_summary))
+        )
+
+
+        for i, (_, owner) in enumerate(
+            owner_summary.iterrows()
+        ):
+
+            with owner_cols[
+                i % len(owner_cols)
+            ]:
+
+                st.html(
+                    f"""
+                    <div style="
+                        background:linear-gradient(
+                            180deg,
+                            #ffffff,
+                            #f7fbf9
+                        );
+                        border:1px solid #E5E7EB;
+                        border-radius:20px;
+                        padding:18px;
+                        text-align:center;
+                        box-shadow:
+                            0 8px 20px rgba(0,0,0,.06);
+                        margin-bottom:15px;
+                    ">
+
+                        <div style="
+                            font-size:30px;">
+                            👤
+                        </div>
+
+                        <div style="
+                            color:#006747;
+                            font-size:18px;
+                            font-weight:700;
+                            margin-top:6px;">
+                            {owner["Allocation"]}
+                        </div>
+
+                        <div style="
+                            color:#111827;
+                            font-size:38px;
+                            font-weight:800;
+                            margin-top:6px;">
+                            {owner["Projects"]}
+                        </div>
+
+                        <div style="
+                            color:#6B7280;
+                            font-size:13px;">
+                            BAU Projects
+                        </div>
+
+                    </div>
+                    """
+                )
+
+
+    # =================================================
+    # BAU PROJECT TABLE
+    # =================================================
+
+    st.markdown("""
+    <h2 style="
+        color:#006747;
+        font-size:30px;
+        font-weight:700;
+        margin-top:20px;
+        margin-bottom:18px;">
+        📋 BAU Project Portfolio
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    display_bau = filtered_bau_df.copy()
+
+
+    # Date formatting
+    for col in ["Date", "Live Date"]:
+
+        if col in display_bau.columns:
+
+            display_bau[col] = pd.to_datetime(
+                display_bau[col],
+                errors="coerce"
+            ).dt.strftime("%Y-%m-%d")
+
+            display_bau[col] = (
+                display_bau[col]
+                .fillna("TBD")
+            )
+
+
+    # =================================================
+    # VIP TABLE CSS
+    # =================================================
+
+    st.markdown("""
+    <style>
+
+    .bau-table-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:18px;
+        padding:6px;
+        box-shadow:0 8px 25px rgba(0,103,71,.08);
+        overflow-x:auto;
+    }
+
+    .bau-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:14px;
+    }
+
+    .bau-table thead th {
+        background:#006747;
+        color:white;
+        padding:14px 12px;
+        font-weight:700;
+        text-align:left;
+    }
+
+    .bau-table tbody td {
+        padding:13px 12px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
+    }
+
+    .bau-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+    .bau-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+    .bau-project-name {
+        color:#006747 !important;
+        font-weight:700;
+    }
+
+    .bau-status {
+        display:inline-block;
+        padding:5px 12px;
+        border-radius:20px;
+        background:#E8F5E9;
+        color:#166534;
+        font-size:11px;
+        font-weight:800;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =================================================
+    # TABLE FORMATTING
+    # =================================================
+
+    if "Mandate" in display_bau.columns:
+
+        display_bau["Mandate"] = (
+            display_bau["Mandate"]
+            .apply(
+                lambda x:
+                f'<span class="bau-project-name">📁 {x}</span>'
+            )
+        )
+
+
+    if "Status" in display_bau.columns:
+
+        display_bau["Status"] = (
+            display_bau["Status"]
+            .apply(
+                lambda x:
+                '<span class="bau-status">🟢 BAU</span>'
+            )
+        )
+
+
+    # =================================================
+    # SELECT USEFUL COLUMNS
+    # =================================================
+
+    preferred_columns = [
+        "Mandate",
+        "Allocation",
+        "Status",
+        "Date",
+        "Live Date",
+        "Category",
+        "Update"
+    ]
+
+
+    table_columns = [
+        col
+        for col in preferred_columns
+        if col in display_bau.columns
+    ]
+
+
+    if table_columns:
+
+        display_bau = display_bau[
+            table_columns
+        ]
+
+
+    # =================================================
+    # CREATE TABLE
+    # =================================================
+
+    bau_table_html = display_bau.to_html(
+        index=False,
+        escape=False,
+        classes="bau-table"
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="bau-table-wrapper">
+            {bau_table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    # =================================================
+    # RECENT / ONGOING UPDATES
+    # =================================================
+
+    if "Update" in filtered_bau_df.columns:
+
+        st.markdown("""
+        <h2 style="
+            color:#006747;
+            font-size:28px;
+            font-weight:700;
+            margin-top:20px;
+            margin-bottom:18px;">
+            🔄 BAU Monitoring Updates
+        </h2>
+        """, unsafe_allow_html=True)
+
+
+        updates_df = filtered_bau_df[
+            [
+                col
+                for col in [
+                    "Mandate",
+                    "Allocation",
+                    "Update"
+                ]
+                if col in filtered_bau_df.columns
+            ]
+        ].copy()
+
+
+        if not updates_df.empty:
+
+            for _, row in updates_df.iterrows():
+
+                project_name = str(
+                    row.get("Mandate", "")
+                )
+
+                owner_name = str(
+                    row.get("Allocation", "")
+                )
+
+                update_text = str(
+                    row.get(
+                        "Update",
+                        "Business as usual."
+                    )
+                )
+
+
+                st.html(
+                    f"""
+                    <div style="
+                        background:white;
+                        border:1px solid #E5E7EB;
+                        border-left:5px solid #006747;
+                        border-radius:14px;
+                        padding:15px 18px;
+                        margin-bottom:10px;
+                        box-shadow:0 4px 12px rgba(0,0,0,.05);
+                    ">
+
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:15px;
+                        ">
+
+                            <div style="
+                                color:#006747;
+                                font-size:16px;
+                                font-weight:700;">
+                                📁 {project_name}
+                            </div>
+
+                            <div style="
+                                color:#6B7280;
+                                font-size:12px;
+                                font-weight:600;">
+                                👤 {owner_name}
+                            </div>
+
+                        </div>
+
+                        <div style="
+                            color:#374151;
+                            font-size:14px;
+                            margin-top:9px;
+                            line-height:1.5;">
+                            {update_text}
+                        </div>
+
+                    </div>
+                    """
+                )
+
+    else:
+
+        st.info(
+            "No BAU update field is available in the Excel data."
+        )
 # =====================================================
 # EXPORT
 # =====================================================
