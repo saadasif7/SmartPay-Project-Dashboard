@@ -1835,14 +1835,51 @@ elif page == "Projects":
     # -----------------------------
 
     display_df = filtered_df.copy()
-    for col in ["Date", "Live Date"]:
-        if col in display_df.columns:
-            display_df[col] = pd.to_datetime(
-                display_df[col],
-                errors="coerce"
-            ).dt.strftime("%Y-%m-%d")
 
-            display_df[col] = display_df[col].fillna("TBD")
+
+    # ==========================================
+    # DATE FORMAT
+    # ==========================================
+
+    if "Date" in display_df.columns:
+
+        display_df["Date"] = pd.to_datetime(
+            display_df["Date"],
+            errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
+
+
+    # ==========================================
+    # LIVE DATE FORMAT
+    # ==========================================
+
+    if "Live Date" in display_df.columns:
+
+        def format_live_date(value):
+
+            if pd.isna(value):
+                return "TBD"
+
+            value = str(value).strip()
+
+            if value.upper() == "BAU":
+                return "BAU"
+
+            parsed = pd.to_datetime(
+                value,
+                errors="coerce"
+            )
+
+            if pd.notna(parsed):
+                return parsed.strftime("%Y-%m-%d")
+
+            return value
+
+
+        display_df["Live Date"] = (
+            display_df["Live Date"]
+            .apply(format_live_date)
+        )
 
     def status_badge(status):
 
@@ -1916,7 +1953,26 @@ elif page == "Projects":
 # =====================================================
 
 elif page == "Analytics":
+    # ==========================================
+    # ANALYTICS DATA
+    # ==========================================
 
+    analytics_source_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        != "BAU"
+    ].copy()
+
+    bau_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        == "BAU"
+    ].copy()
+    
     st.markdown("""
     <div style="
     background:linear-gradient(180deg,#ffffff,#f8fbff);
@@ -2358,7 +2414,19 @@ elif page == "Analytics":
             "LIVE": 6
         }
 
-        for _, row in person_df.iterrows():
+        # ==========================================
+        # REMOVE BAU PROJECTS
+        # ==========================================
+
+        project_df = person_df[
+            person_df["Status"].astype(str).str.strip().str.upper() != "BAU"
+        ].copy()
+
+        # ==========================================
+        # SHOW ONLY NON-BAU PROJECTS
+        # ==========================================
+
+        for _, row in project_df.iterrows():
 
             project_name = str(row["Mandate"])
             current_status = str(row["Status"]).strip().upper()
@@ -2405,69 +2473,69 @@ elif page == "Analytics":
             # ==================================
 
             card_html = f"""
-    <div style="
-    background:#FFFFFF;
-    border:1px solid #E5E7EB;
-    border-radius:16px;
-    padding:18px 20px;
-    margin-bottom:6px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.06);
-    ">
+            <div style="
+            background:#FFFFFF;
+            border:1px solid #E5E7EB;
+            border-radius:16px;
+            padding:18px 20px;
+            margin-bottom:6px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.06);
+            ">
 
-    <div style="
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    margin-bottom:15px;
-    ">
+            <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:20px;
+            margin-bottom:15px;
+            ">
 
-    <div style="
-    color:#111827;
-    font-size:16px;
-    font-weight:700;
-    flex:1;
-    line-height:1.4;
-    word-break:break-word;
-    ">
-    📁 {project_name}
-    </div>
+            <div style="
+            color:#111827;
+            font-size:16px;
+            font-weight:700;
+            flex:1;
+            line-height:1.4;
+            word-break:break-word;
+            ">
+            📁 {project_name}
+            </div>
 
-    <div style="
-    background:{status_bg};
-    color:{status_color};
-    padding:6px 12px;
-    border-radius:20px;
-    font-size:10px;
-    font-weight:800;
-    white-space:nowrap;
-    flex-shrink:0;
-    ">
-    {current_status}
-    </div>
+            <div style="
+            background:{status_bg};
+            color:{status_color};
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:10px;
+            font-weight:800;
+            white-space:nowrap;
+            flex-shrink:0;
+            ">
+            {current_status}
+            </div>
 
-    </div>
+            </div>
 
-    <div style="
-    width:100%;
-    height:8px;
-    background:#E5E7EB;
-    border-radius:10px;
-    overflow:hidden;
-    ">
+            <div style="
+            width:100%;
+            height:8px;
+            background:#E5E7EB;
+            border-radius:10px;
+            overflow:hidden;
+            ">
 
-    <div style="
-    width:{progress_percent}%;
-    height:100%;
-    background:#006747;
-    border-radius:10px;
-    ">
-    </div>
+            <div style="
+            width:{progress_percent}%;
+            height:100%;
+            background:#006747;
+            border-radius:10px;
+            ">
+            </div>
 
-    </div>
+            </div>
 
-    </div>
-    """
+            </div>
+            """
 
             st.html(card_html)
 
@@ -2476,14 +2544,14 @@ elif page == "Analytics":
             # ==================================
 
             steps_html = """
-    <div style="
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin:0 0 28px 0;
-    padding:0 5px;
-    ">
-    """
+            <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            margin:0 0 28px 0;
+            padding:0 5px;
+            ">
+            """
 
             for i, stage in enumerate(status_stages, start=1):
 
@@ -2498,64 +2566,243 @@ elif page == "Analytics":
                     text_color = "#9CA3AF"
 
                 steps_html += f"""
-    <div style="
-    flex:1;
-    text-align:center;
-    ">
+            <div style="
+            flex:1;
+            text-align:center;
+            ">
 
-    <div style="
-    width:10px;
-    height:10px;
-    background:{dot_color};
-    border-radius:50%;
-    margin:auto;
-    ">
-    </div>
+            <div style="
+            width:10px;
+            height:10px;
+            background:{dot_color};
+            border-radius:50%;
+            margin:auto;
+            ">
+            </div>
 
-    <div style="
-    margin-top:6px;
-    color:{text_color};
-    font-size:9px;
-    font-weight:700;
-    white-space:nowrap;
-    ">
-    {stage}
-    </div>
+            <div style="
+            margin-top:6px;
+            color:{text_color};
+            font-size:9px;
+            font-weight:700;
+            white-space:nowrap;
+            ">
+            {stage}
+            </div>
 
-    </div>
-    """
+            </div>
+            """
 
             steps_html += """
-    </div>
-    """
+            </div>
+            """
 
             st.html(steps_html)
-
         # ==========================================
         # PROJECT DETAILS
         # ==========================================
 
-        st.markdown(
-            "<br>",
-            unsafe_allow_html=True
-        )
+        display_person_df = person_df.copy()
 
-        st.markdown(
-            """
-            <h2 style="
-            color:#006747;
-            font-size:28px;
-            margin-bottom:15px;">
-            📄 Project Details
-            </h2>
-            """,
-            unsafe_allow_html=True
-        )
+
+        # ------------------------------------------
+        # DATE FORMAT
+        # ------------------------------------------
+
+        for col in ["Date", "Live Date"]:
+
+            if col in display_person_df.columns:
+
+                original = display_person_df[col].copy()
+
+                parsed = pd.to_datetime(
+                    original,
+                    errors="coerce"
+                )
+
+                formatted = parsed.dt.strftime(
+                    "%Y-%m-%d"
+                )
+
+                # Keep text like BAU
+                display_person_df[col] = formatted.where(
+                    parsed.notna(),
+                    original.astype(str)
+                )
+
+                # Blank values
+                display_person_df[col] = display_person_df[col].replace(
+                    ["nan", "NaT", "", "None"],
+                    "TBD"
+                )
+
 
         st.dataframe(
-            person_df,
+            display_person_df,
             width="stretch",
             hide_index=True
+        )
+    # =====================================================
+    # BAU MONITORING ANALYTICS
+    # =====================================================
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:30px;
+    font-weight:700;
+    margin-top:25px;">
+    🏦 BAU Monitoring
+    </h2>
+
+    <p style="
+    color:#6B7280;
+    font-size:16px;
+    margin-bottom:20px;">
+    Business as Usual projects are monitored separately from delivery projects.
+    </p>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # BAU DATA
+    # =====================================================
+
+    bau_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        == "BAU"
+    ].copy()
+
+
+    # =====================================================
+    # BAU KPI
+    # =====================================================
+
+    bau_total = len(bau_df)
+
+    bau_owners = (
+        bau_df["Allocation"]
+        .dropna()
+        .astype(str)
+        .nunique()
+    )
+
+    bau_updates = (
+        bau_df["Update"]
+        .notna()
+        .sum()
+        if "Update" in bau_df.columns
+        else 0
+    )
+
+
+    b1, b2, b3 = st.columns(3)
+
+
+    with b1:
+        analytics_card(
+            "BAU Projects",
+            bau_total,
+            "#607D8B"
+        )
+
+    with b2:
+        analytics_card(
+            "BAU Owners",
+            bau_owners,
+            "#3949AB"
+        )
+
+    with b3:
+        analytics_card(
+            "BAU Updates",
+            bau_updates,
+            "#00897B"
+        )
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    # =====================================================
+    # BAU PROJECTS BY OWNER
+    # =====================================================
+
+    if not bau_df.empty:
+
+        st.markdown("""
+        <h2 style="
+        color:#006747;
+        font-size:26px;
+        font-weight:700;">
+        👥 BAU Projects by Owner
+        </h2>
+        """, unsafe_allow_html=True)
+
+
+        bau_owner_count = (
+            bau_df["Allocation"]
+            .astype(str)
+            .value_counts()
+            .reset_index()
+        )
+
+        bau_owner_count.columns = [
+            "Allocation",
+            "Projects"
+        ]
+
+
+        fig_bau = px.bar(
+            bau_owner_count,
+            x="Allocation",
+            y="Projects",
+            text="Projects",
+            color="Projects",
+            color_continuous_scale="Greens"
+        )
+
+
+        fig_bau.update_traces(
+            textposition="outside",
+            marker_line_width=0
+        )
+
+
+        fig_bau.update_layout(
+            height=450,
+            template="plotly_white",
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            coloraxis_showscale=False,
+
+            xaxis=dict(
+                title="",
+                showgrid=False
+            ),
+
+            yaxis=dict(
+                title="BAU Projects",
+                gridcolor="#E5E7EB"
+            ),
+
+            margin=dict(
+                l=50,
+                r=30,
+                t=20,
+                b=60
+            )
+        )
+
+
+        st.plotly_chart(
+            fig_bau,
+            width="stretch"
         )
 # =====================================================
 # PROJECT TIMELINE
