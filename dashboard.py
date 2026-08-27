@@ -846,20 +846,17 @@ if page == "Dashboard":
         vip_card("Scoping", scoping_projects, "#8E24AA")
 
     with c3:
-        vip_card("Development", development_projects, "#FF9800")
-
-    with c4:
         vip_card("UAT", uat_projects, "#F9A825")
 
-    with c5:
+    with c4:
         vip_card("IS Review", review_projects, "#00ACC1")
 
-    with c6:
+    with c5:
         vip_card("CMC", cmc_projects, "#3949AB")
 
-    with c7:
+    with c6:
         vip_card("LIVE", live_projects, "#00C853")
-    with c8:
+    with c7:
         vip_card("BAU", bau_projects, "#607D8B")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1116,20 +1113,7 @@ if page == "Dashboard":
 
     </style>
     """, unsafe_allow_html=True)
-    # =====================================================
-    # TEAM SUMMARY
-    # =====================================================
-
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:34px;
-    font-weight:700;
-    margin-top:30px;
-    margin-bottom:20px;">
-    📋 Team Summary
-    </h2>
-    """, unsafe_allow_html=True)
+  
 
 
     # =====================================================
@@ -1233,7 +1217,6 @@ if page == "Dashboard":
             "Allocation",
             "Total",
             "Scoping",
-            "Development",
             "UAT",
             "IS Review",
             "CMC",
@@ -1276,13 +1259,7 @@ if page == "Dashboard":
     )
 
 
-    # Development
-    summary_display["Development"] = summary_display[
-        "Development"
-    ].apply(
-        lambda x:
-        f'<span class="development-count">🔵 {x}</span>'
-    )
+
 
 
     # UAT
@@ -1630,83 +1607,478 @@ elif page == "Projects":
     st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # STATUS CARDS
+    # VIP CLICKABLE KPI CARDS
     # =====================================================
 
-    s1,s2,s3,s4,s5,s6,s7 = st.columns(7)
+    # -----------------------------------------
+    # STATUS CLEAN
+    # -----------------------------------------
 
-    def status_card(title,value,color):
+    status_clean = (
+        filtered_df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
 
-        st.markdown(f"""
-        <div style="
-        background:white;
-        border-radius:20px;
-        padding:20px;
-        border-top:7px solid {color};
-        text-align:center;
-        box-shadow:0 8px 20px rgba(0,0,0,.08);
-        min-height:120px;">
 
-        <div style="
-        color:#6B7280;
-        font-size:15px;
-        font-weight:600;">
-        {title}
-        </div>
+    # -----------------------------------------
+    # COUNTS
+    # -----------------------------------------
 
-        <div style="
-        margin-top:10px;
-        color:{color};
-        font-size:40px;
-        font-weight:700;">
-        {value}
-        </div>
+    all_count = len(filtered_df)
 
-        </div>
-        """, unsafe_allow_html=True)
+    scoping_count = status_clean.isin(
+        ["SCOPING", "UNDER SCOPING"]
+    ).sum()
 
-    with s1:
-        status_card("LIVE",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="LIVE"]),
-                    "#00C853")
+    development_count = status_clean.isin(
+        ["DEVELOPMENT", "UNDER DEVELOPMENT", "SIT"]
+    ).sum()
 
-    with s2:
-        status_card("UAT",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="UAT"]),
-                    "#F9A825")
+    uat_count = (
+        status_clean == "UAT"
+    ).sum()
 
-    with s3:
-        status_card("Development",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="UNDER DEVELOPMENT"]),
-                    "#FF9800")
+    review_count = (
+        status_clean == "IS REVIEW"
+    ).sum()
 
-    with s4:
-        status_card("IS Review",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="IS REVIEW"]),
-                    "#00ACC1")
+    cmc_count = (
+        status_clean == "CMC"
+    ).sum()
 
-    with s5:
-        status_card("CMC",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="CMC"]),
-                    "#3949AB")
+    live_count = (
+        status_clean == "LIVE"
+    ).sum()
 
-    with s6:
-        status_card("Scoping",
-                    len(filtered_df[filtered_df["Status"].str.upper()=="UNDER SCOPING"]),
-                    "#8E24AA")
-    with s7:
-        status_card(
-            "BAU",
-            len(
-                filtered_df[
-                    filtered_df["Status"].str.upper() == "BAU"
-                ]
-            ),
-            "#607D8B"
-        )         
+    bau_count = (
+        status_clean == "BAU"
+    ).sum()
+
+
+    # =====================================================
+    # =====================================================
+    # VIP CARD CSS
+    # =====================================================
+
+    st.markdown("""
+    <style>
+
+    /* -----------------------------------------
+    KPI CARD CONTAINER
+    ----------------------------------------- */
+
+    .st-key-status_kpis div[data-testid="stButton"] {
+        width:100%;
+    }
+
+
+    /* -----------------------------------------
+    BASE CARD
+    ----------------------------------------- */
+
+    .st-key-status_kpis div[data-testid="stButton"] button {
+
+        width:100% !important;
+        min-height:125px !important;
+
+        background:#FFFFFF !important;
+
+        border:1px solid #E5E7EB !important;
+        border-radius:20px !important;
+
+        padding:18px 10px !important;
+
+        box-shadow:
+            0 8px 22px rgba(0,0,0,.08) !important;
+
+        color:#111827 !important;
+
+        font-size:15px !important;
+        font-weight:600 !important;
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        line-height:1.7 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        transition:
+            all .2s ease !important;
+    }
+
+
+    /* -----------------------------------------
+    HOVER
+    ----------------------------------------- */
+
+    .st-key-status_kpis div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        transform:translateY(-3px);
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
+    }
+
+
+    /* -----------------------------------------
+    FOCUS / CLICK
+    ----------------------------------------- */
+
+    .st-key-status_kpis div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
+    }
+
+
+    /* -----------------------------------------
+    ALL
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #006747 !important;
+    }
+
+
+    /* -----------------------------------------
+    SCOPING
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #8E24AA !important;
+    }
+
+
+    /* -----------------------------------------
+    DEVELOPMENT
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #FF9800 !important;
+    }
+
+
+    /* -----------------------------------------
+    UAT
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #F9A825 !important;
+    }
+
+
+    /* -----------------------------------------
+    IS REVIEW
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00ACC1 !important;
+    }
+
+
+    /* -----------------------------------------
+    CMC
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #3949AB !important;
+    }
+
+
+    /* -----------------------------------------
+    LIVE
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00C853 !important;
+    }
+
+
+    /* -----------------------------------------
+    BAU
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(8)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #607D8B !important;
+    }
+
+
+    /* -----------------------------------------
+    BUTTON TEXT
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stButton"] button p {
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        font-size:15px !important;
+
+        font-weight:600 !important;
+
+        line-height:1.8 !important;
+
+    }
+
+
+    /* -----------------------------------------
+    REMOVE EXTRA GAPS
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+
+    /* -----------------------------------------
+    COLUMN SPACING
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:10px !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+    # =====================================================
+    # KPI CARD CONTAINER
+    # =====================================================
+
+    with st.container(key="status_kpis"):
+
+        c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+
+
+        # -----------------------------------------
+        # ALL
+        # -----------------------------------------
+
+        with c1:
+
+            if st.button(
+                f"ALL\n\n{all_count}",
+                key="kpi_all",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "ALL"
+                st.rerun()
+
+
+        # -----------------------------------------
+        # SCOPING
+        # -----------------------------------------
+
+        with c2:
+
+            if st.button(
+                f"SCOPING\n\n{scoping_count}",
+                key="kpi_scoping",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "SCOPING"
+                st.rerun()
+
+
+        
+
+        # -----------------------------------------
+        # UAT
+        # -----------------------------------------
+
+        with c3:
+
+            if st.button(
+                f"UAT\n\n{uat_count}",
+                key="kpi_uat",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "UAT"
+                st.rerun()
+
+
+        # -----------------------------------------
+        # IS REVIEW
+        # -----------------------------------------
+
+        with c4:
+
+            if st.button(
+                f"IS REVIEW\n\n{review_count}",
+                key="kpi_review",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "IS REVIEW"
+                st.rerun()
+
+
+        # -----------------------------------------
+        # CMC
+        # -----------------------------------------
+
+        with c5:
+
+            if st.button(
+                f"CMC\n\n{cmc_count}",
+                key="kpi_cmc",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "CMC"
+                st.rerun()
+
+
+        # -----------------------------------------
+        # LIVE
+        # -----------------------------------------
+
+        with c6:
+
+            if st.button(
+                f"LIVE\n\n{live_count}",
+                key="kpi_live",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "LIVE"
+                st.rerun()
+
+
+        # -----------------------------------------
+        # BAU
+        # -----------------------------------------
+
+        with c7:
+
+            if st.button(
+                f"BAU\n\n{bau_count}",
+                key="kpi_bau",
+                use_container_width=True
+            ):
+                st.session_state["project_status_filter"] = "BAU"
+                st.rerun()
+
 
     st.markdown("<br>", unsafe_allow_html=True)
+    # =====================================================
+    # APPLY KPI STATUS FILTER TO EXISTING TABLE
+    # =====================================================
 
+    selected_status = st.session_state.get(
+        "project_status_filter",
+        "ALL"
+    )
+
+    status_upper = (
+        filtered_df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+
+    if selected_status == "SCOPING":
+
+        filtered_df = filtered_df[
+            status_upper.isin([
+                "SCOPING",
+                "UNDER SCOPING"
+            ])
+        ].copy()
+
+
+    elif selected_status == "DEVELOPMENT":
+
+        filtered_df = filtered_df[
+            status_upper.isin([
+                "DEVELOPMENT",
+                "UNDER DEVELOPMENT",
+                "SIT"
+            ])
+        ].copy()
+
+
+    elif selected_status == "UAT":
+
+        filtered_df = filtered_df[
+            status_upper == "UAT"
+        ].copy()
+
+
+    elif selected_status == "IS REVIEW":
+
+        filtered_df = filtered_df[
+            status_upper == "IS REVIEW"
+        ].copy()
+
+
+    elif selected_status == "CMC":
+
+        filtered_df = filtered_df[
+            status_upper == "CMC"
+        ].copy()
+
+
+    elif selected_status == "LIVE":
+
+        filtered_df = filtered_df[
+            status_upper == "LIVE"
+        ].copy()
+
+
+    elif selected_status == "BAU":
+
+        filtered_df = filtered_df[
+            status_upper == "BAU"
+        ].copy()
     # =====================================================
     # PROJECT TABLE - VIP STYLE
     # =====================================================
@@ -2102,7 +2474,6 @@ elif page == "Analytics":
     status_order = [
         "LIVE",
         "UAT",
-        "UNDER DEVELOPMENT",
         "IS REVIEW",
         "CMC",
         "UNDER SCOPING"
@@ -2111,7 +2482,6 @@ elif page == "Analytics":
     color_map = {
         "LIVE":"#00C853",
         "UAT":"#F9A825",
-        "UNDER DEVELOPMENT":"#FF9800",
         "IS REVIEW":"#00ACC1",
         "CMC":"#3949AB",
         "UNDER SCOPING":"#8E24AA"
@@ -2395,7 +2765,6 @@ elif page == "Analytics":
 
         status_stages = [
             "SCOPING",
-            "DEVELOPMENT",
             "UAT",
             "IS REVIEW",
             "CMC",
@@ -2405,13 +2774,10 @@ elif page == "Analytics":
         status_progress = {
             "SCOPING": 1,
             "UNDER SCOPING": 1,
-            "DEVELOPMENT": 2,
-            "UNDER DEVELOPMENT": 2,
-            "SIT": 2,
-            "UAT": 3,
-            "IS REVIEW": 4,
-            "CMC": 5,
-            "LIVE": 6
+            "UAT": 2,
+            "IS REVIEW": 3,
+            "CMC": 4,
+            "LIVE": 5
         }
 
         # ==========================================
@@ -2437,7 +2803,7 @@ elif page == "Analytics":
             )
 
             progress_percent = int(
-                (current_stage / 6) * 100
+                (current_stage / 5) * 100
             )
 
             # ==================================
@@ -2454,14 +2820,6 @@ elif page == "Analytics":
                 status_bg = "#FEF3C7"
                 status_color = "#92400E"
 
-            elif current_status in [
-                "DEVELOPMENT",
-                "UNDER DEVELOPMENT",
-                "SIT"
-            ]:
-
-                status_bg = "#DBEAFE"
-                status_color = "#1E40AF"
 
             else:
 
