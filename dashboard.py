@@ -1658,73 +1658,50 @@ elif page == "Projects":
 
 
     # =====================================================
-    # VIP KPI CARD CSS
+    # =====================================================
+    # VIP CARD CSS
     # =====================================================
 
     st.markdown("""
     <style>
 
-    /* =====================================================
-    MAIN KPI CONTAINER
-    ===================================================== */
+    /* -----------------------------------------
+    KPI CARD CONTAINER
+    ----------------------------------------- */
 
-    .st-key-status_kpis {
+    .st-key-status_kpis div[data-testid="stButton"] {
         width:100%;
     }
 
 
-    /* =====================================================
-    KPI COLUMNS
-    ===================================================== */
+    /* -----------------------------------------
+    BASE CARD
+    ----------------------------------------- */
 
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"] {
-
-        gap:12px !important;
-
-    }
-
-
-    /* =====================================================
-    KPI CARD
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stButton"] {
+    .st-key-status_kpis div[data-testid="stButton"] button {
 
         width:100% !important;
-
-    }
-
-
-    .st-key-status_kpis
-    div[data-testid="stButton"] button {
-
-        width:100% !important;
-
-        min-height:145px !important;
+        min-height:125px !important;
 
         background:#FFFFFF !important;
 
         border:1px solid #E5E7EB !important;
-
         border-radius:20px !important;
 
         padding:18px 10px !important;
 
         box-shadow:
-            0 8px 24px rgba(0,0,0,0.07) !important;
+            0 8px 22px rgba(0,0,0,.08) !important;
 
-        color:#374151 !important;
+        color:#111827 !important;
+
+        font-size:15px !important;
+        font-weight:600 !important;
 
         font-family:
             "Segoe UI",
             Arial,
             sans-serif !important;
-
-        font-size:15px !important;
-
-        font-weight:600 !important;
 
         line-height:1.7 !important;
 
@@ -1733,52 +1710,148 @@ elif page == "Projects":
         text-align:center !important;
 
         transition:
-            transform 0.18s ease,
-            box-shadow 0.18s ease,
-            background 0.18s ease !important;
-
+            all .2s ease !important;
     }
 
 
-    /* =====================================================
+    /* -----------------------------------------
     HOVER
-    ===================================================== */
+    ----------------------------------------- */
 
-    .st-key-status_kpis
-    div[data-testid="stButton"] button:hover {
+    .st-key-status_kpis div[data-testid="stButton"] button:hover {
 
-        background:#FFFFFF !important;
+        background:#F8FAFC !important;
 
         transform:translateY(-3px);
 
         box-shadow:
-            0 14px 30px rgba(0,0,0,0.10) !important;
-
+            0 12px 28px rgba(0,0,0,.12) !important;
     }
 
 
-    /* =====================================================
-    FOCUS
-    ===================================================== */
+    /* -----------------------------------------
+    FOCUS / CLICK
+    ----------------------------------------- */
 
-    .st-key-status_kpis
-    div[data-testid="stButton"] button:focus {
+    .st-key-status_kpis div[data-testid="stButton"] button:focus {
 
         outline:none !important;
 
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
     }
 
 
-    /* =====================================================
+    /* -----------------------------------------
+    ALL
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #006747 !important;
+    }
+
+
+    /* -----------------------------------------
+    SCOPING
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #8E24AA !important;
+    }
+
+
+    /* -----------------------------------------
+    DEVELOPMENT
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #FF9800 !important;
+    }
+
+
+    /* -----------------------------------------
+    UAT
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #F9A825 !important;
+    }
+
+
+    /* -----------------------------------------
+    IS REVIEW
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00ACC1 !important;
+    }
+
+
+    /* -----------------------------------------
+    CMC
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #3949AB !important;
+    }
+
+
+    /* -----------------------------------------
+    LIVE
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00C853 !important;
+    }
+
+
+    /* -----------------------------------------
+    BAU
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(8)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #607D8B !important;
+    }
+
+
+    /* -----------------------------------------
     BUTTON TEXT
-    ===================================================== */
+    ----------------------------------------- */
 
     .st-key-status_kpis
     div[data-testid="stButton"] button p {
-
-        margin:0 !important;
-
-        padding:0 !important;
 
         font-family:
             "Segoe UI",
@@ -1789,134 +1862,30 @@ elif page == "Projects":
 
         font-weight:600 !important;
 
-        color:#374151 !important;
-
-        line-height:1.9 !important;
+        line-height:1.8 !important;
 
     }
 
 
-    /* =====================================================
-    ALL
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #006747 !important;
-
-    }
-
-
-    /* =====================================================
-    SCOPING
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #8E24AA !important;
-
-    }
-
-
-    /* =====================================================
-    DEVELOPMENT
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #FF9800 !important;
-
-    }
-
-
-    /* =====================================================
-    UAT
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #F9A825 !important;
-
-    }
-
-
-    /* =====================================================
-    IS REVIEW
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00ACC1 !important;
-
-    }
-
-
-    /* =====================================================
-    CMC
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #3949AB !important;
-
-    }
-
-
-    /* =====================================================
-    LIVE
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(7)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00C853 !important;
-
-    }
-
-
-    /* =====================================================
-    BAU
-    ===================================================== */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(8)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #607D8B !important;
-
-    }
-
-
-    /* =====================================================
-    REMOVE EXTRA STREAMLIT SPACING
-    ===================================================== */
+    /* -----------------------------------------
+    REMOVE EXTRA GAPS
+    ----------------------------------------- */
 
     .st-key-status_kpis
     div[data-testid="stVerticalBlock"] {
 
         gap:0 !important;
+    }
 
+
+    /* -----------------------------------------
+    COLUMN SPACING
+    ----------------------------------------- */
+
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:10px !important;
     }
 
     </style>
