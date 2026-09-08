@@ -589,7 +589,7 @@ st.sidebar.caption(
 # =====================================================
 
 if page == "Dashboard":
-    
+
     # ==========================================
     # HEADER - VIP ENTERPRISE
     # ==========================================
@@ -597,6 +597,7 @@ if page == "Dashboard":
     city, temp, weather = get_weather()
 
     left, center, right = st.columns([5.5, 2.2, 2])
+
 
     # ==========================================
     # LEFT - TITLE
@@ -608,49 +609,51 @@ if page == "Dashboard":
         <div style="
         background:linear-gradient(135deg,#ffffff,#f8fbff);
         border-radius:24px;
-        padding:35px;
+        padding:25px;
         border:1px solid #E5E7EB;
         box-shadow:0 14px 35px rgba(0,0,0,.10);
-        min-height:230px;">
+        min-height:190px;
+        box-sizing:border-box;">
 
         <div style="
         color:#006747;
-        font-size:18px;
+        font-size:16px;
         font-weight:700;
         letter-spacing:2px;">
         NATIONAL BANK OF PAKISTAN
         </div>
 
         <div style="
-        font-size:52px;
+        font-size:40px;
         color:#006747;
         font-weight:800;
         line-height:1.15;
-        margin-top:18px;">
+        margin-top:14px;">
         SmartPay Project Dashboard
         </div>
 
         <div style="
-        margin-top:20px;
-        font-size:20px;
+        margin-top:14px;
+        font-size:17px;
         color:#374151;">
         Digital Banking Group
         </div>
 
         <div style="
-        margin-top:28px;
+        margin-top:20px;
         display:inline-block;
         background:#ECFDF5;
         color:#006747;
-        padding:8px 18px;
+        padding:7px 16px;
         border-radius:30px;
-        font-size:14px;
+        font-size:13px;
         font-weight:600;">
         ● LIVE Dashboard
         </div>
 
         </div>
         """, unsafe_allow_html=True)
+
 
     # ==========================================
     # CENTER - WEATHER
@@ -662,41 +665,43 @@ if page == "Dashboard":
         <div style="
         background:linear-gradient(180deg,#ffffff,#f8fbff);
         border-radius:24px;
-        padding:25px;
-        min-height:230px;
+        padding:18px;
+        min-height:190px;
         text-align:center;
         border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);">
+        box-shadow:0 14px 35px rgba(0,0,0,.10);
+        box-sizing:border-box;">
 
         <div style="
-        font-size:32px;">
+        font-size:26px;">
         🌤
         </div>
 
         <div style="
-        font-size:20px;
+        font-size:17px;
         color:#006747;
         font-weight:700;
-        margin-top:5px;">
+        margin-top:4px;">
         {city}
         </div>
 
         <div style="
-        font-size:58px;
+        font-size:44px;
         color:#006747;
         font-weight:800;
-        margin:18px 0 5px;">
+        margin:12px 0 4px;">
         {temp}°
         </div>
 
         <div style="
         color:#6B7280;
-        font-size:18px;">
+        font-size:15px;">
         {weather}
         </div>
 
         </div>
         """, unsafe_allow_html=True)
+
 
     # ==========================================
     # RIGHT - DATE & TIME
@@ -708,43 +713,46 @@ if page == "Dashboard":
         <div style="
         background:linear-gradient(180deg,#ffffff,#f8fbff);
         border-radius:24px;
-        padding:25px;
+        padding:18px;
         width:109%;
-        min-height:230px;
+        min-height:190px;
         text-align:center;
         border:1px solid #E5E7EB;
         box-shadow:0 14px 35px rgba(0,0,0,.10);
-        font-family:Segoe UI;
+        font-family:Segoe UI,Arial,sans-serif;
         box-sizing:border-box;">
 
         <div style="
         color:#006747;
-        font-size:18px;
+        font-size:16px;
         font-weight:700;">
         TODAY
         </div>
 
         <div id="date"
         style="
-        margin-top:18px;
-        font-size:34px;
+        margin-top:12px;
+        font-size:28px;
         font-weight:700;
         color:#111827;">
         </div>
 
-        <hr style="margin:22px 0;">
+        <hr style="
+        margin:15px 0;
+        border:none;
+        border-top:1px solid #E5E7EB;">
 
         <div id="clock"
         style="
-        font-size:34px;
+        font-size:28px;
         font-weight:800;
         color:#006747;">
         </div>
 
         <div style="
-        margin-top:15px;
+        margin-top:10px;
         color:#6B7280;
-        font-size:14px;">
+        font-size:12px;">
         Pakistan Standard Time
         </div>
 
@@ -773,8 +781,15 @@ if page == "Dashboard":
         setInterval(updateClock,1000);
 
         </script>
-        """, height=440, scrolling=False)
+        """, height=300, scrolling=False)
+
+
     # ==========================================
+    # SPACE BEFORE KPI
+    # ==========================================
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     # KPI - VIP ENTERPRISE CARDS
     # ==========================================
 
