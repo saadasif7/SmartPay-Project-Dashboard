@@ -784,11 +784,6 @@ if page == "Dashboard":
         """, height=300, scrolling=False)
 
 
-    # ==========================================
-    # SPACE BEFORE KPI
-    # ==========================================
-
-    st.markdown("<br>", unsafe_allow_html=True)
     
     # KPI - VIP ENTERPRISE CARDS
     # ==========================================
@@ -882,9 +877,9 @@ if page == "Dashboard":
     st.markdown("""
     <h2 style="
     color:#006747;
-    font-size:34px;
+    font-size:30px;
     font-weight:700;
-    margin-bottom:25px;">
+    margin-bottom:18px;">
     👥 Team Overview
     </h2>
     """, unsafe_allow_html=True)
@@ -906,45 +901,45 @@ if page == "Dashboard":
             st.markdown(f"""
     <div style="
     background:linear-gradient(180deg,#ffffff,#f7f9fc);
-    border-radius:24px;
-    padding:25px;
+    border-radius:18px;
+    padding:16px 12px;
     text-align:center;
     border:1px solid #E5E7EB;
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
-    min-height:210px;">
+    box-shadow:0 6px 16px rgba(0,0,0,.06);
+    min-height:145px;">
 
     <div style="
-    width:70px;
-    height:70px;
+    width:50px;
+    height:50px;
     border-radius:50%;
     background:#E8F5E9;
     margin:auto;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:34px;">
+    font-size:25px;">
     👤
     </div>
 
     <div style="
-    margin-top:18px;
-    font-size:22px;
+    margin-top:10px;
+    font-size:18px;
     font-weight:700;
     color:#006747;">
     {row["Allocation"]}
     </div>
 
     <div style="
-    margin-top:18px;
-    font-size:52px;
+    margin-top:5px;
+    font-size:38px;
     font-weight:800;
     color:#111827;">
     {row["Projects"]}
     </div>
 
     <div style="
-    margin-top:8px;
-    font-size:15px;
+    margin-top:2px;
+    font-size:13px;
     color:#6B7280;">
     Projects Assigned
     </div>
@@ -953,7 +948,6 @@ if page == "Dashboard":
     """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
 
     # =====================================================
     # TEAM WORKLOAD
