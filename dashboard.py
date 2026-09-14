@@ -14,6 +14,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
 from utils.pdf_report import generate_executive_pdf
+import os
+
 
 
 
@@ -488,11 +490,6 @@ st.sidebar.markdown("---")
 # NAVIGATION
 # =====================================================
 
-st.sidebar.markdown(
-    "<h4 style='color:white;'>Navigation</h4>",
-    unsafe_allow_html=True
-)
-
 page = st.sidebar.radio(
     "Menu",
     [
@@ -501,11 +498,12 @@ page = st.sidebar.radio(
         "Analytics",
         "Project Timeline",
         "BAU Monitoring",
+        "CRPL",
+        "PAYSYS",
         "Export"
-        #"Team Performance",
-        #"Voice Search",
     ],
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    key="page_navigation"
 )
 
 st.sidebar.markdown("---")
@@ -1477,6 +1475,7 @@ if page == "Dashboard":
 # =====================================================
 
 elif page == "Projects":
+    project_file = os.path.join(os.path.dirname(__file__), "data", "projects.xlsx")
 
     # =====================================================
     # HEADER
@@ -2329,6 +2328,137 @@ elif page == "Projects":
         """,
         unsafe_allow_html=True
     )
+    # =====================================================
+    # EDIT PROJECTS
+    # =====================================================
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    if "project_edit_mode" not in st.session_state:
+        st.session_state["project_edit_mode"] = False
+
+
+    # =====================================================
+    # EDIT BUTTON
+    # =====================================================
+
+    if not st.session_state["project_edit_mode"]:
+
+        if st.button(
+            "✏️ Edit Projects",
+            key="project_edit_button",
+            use_container_width=True
+        ):
+
+            st.session_state["project_edit_mode"] = True
+            st.rerun()
+
+
+    # =====================================================
+    # EDITOR
+    # =====================================================
+
+    if st.session_state["project_edit_mode"]:
+
+        st.markdown("""
+        <h2 style="
+        color:#006747;
+        font-size:28px;
+        font-weight:700;
+        margin-top:20px;
+        margin-bottom:15px;">
+        ✏️ Edit Projects
+        </h2>
+        """, unsafe_allow_html=True)
+
+        st.info(
+            "✏️ Edit project data or add new projects."
+        )
+
+
+        # =================================================
+        # EDITABLE PROJECT TABLE
+        # =================================================
+
+        edited_df = st.data_editor(
+            df,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="dynamic",
+            height=550,
+            key="project_editor"
+        )
+
+
+        # =================================================
+        # SAVE / CLOSE
+        # =================================================
+
+        save_col, close_col = st.columns(2)
+
+
+        # =================================================
+        # SAVE
+        # =================================================
+
+        with save_col:
+
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="project_save",
+                use_container_width=True
+            ):
+
+                try:
+
+                    edited_df = edited_df.fillna("")
+
+                    edited_df.to_excel(
+                        project_file,
+                        index=False
+                    )
+
+                    st.success(
+                        "✅ Project data saved successfully!"
+                    )
+
+                    st.session_state[
+                        "project_edit_mode"
+                    ] = False
+
+                    if "project_editor" in st.session_state:
+                        del st.session_state["project_editor"]
+
+                    st.rerun()
+
+                except Exception as e:
+
+                    st.error(
+                        f"Save error: {e}"
+                    )
+
+
+        # =================================================
+        # CLOSE
+        # =================================================
+
+        with close_col:
+
+            if st.button(
+                "❌ Close Editor",
+                key="project_close_editor",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "project_edit_mode"
+                ] = False
+
+                if "project_editor" in st.session_state:
+                    del st.session_state["project_editor"]
+
+                st.rerun()
 # =====================================================
 # ANALYTICS
 # =====================================================
@@ -5453,6 +5583,1900 @@ elif page == "BAU Monitoring":
         st.info(
             "No BAU update field is available in the Excel data."
         )
+
+# =====================================================
+# CRPL
+# =====================================================
+
+elif page == "CRPL":
+
+    import os
+    import pandas as pd
+
+    # =====================================================
+    # LOAD CRPL FILE
+    # =====================================================
+
+    file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "CRPL_All_Data_Exactly_20.xlsx"
+    )
+
+    try:
+
+        raw = pd.read_excel(
+            file,
+            sheet_name="CRPL",
+            header=None
+        )
+
+        header_row = None
+
+        for i in range(min(20, len(raw))):
+
+            row = " ".join(
+                str(x).lower()
+                for x in raw.iloc[i]
+                if pd.notna(x)
+            )
+
+            if "crf no" in row and "crf name" in row:
+                header_row = i
+                break
+
+        if header_row is None:
+
+            st.error("CRPL header row not found.")
+            st.dataframe(raw.head(20))
+            st.stop()
+
+        df = pd.read_excel(
+            file,
+            sheet_name="CRPL",
+            header=header_row
+        )
+
+        df.columns = [
+            str(x).strip()
+            for x in df.columns
+        ]
+
+        df = df.dropna(
+            how="all"
+        ).reset_index(drop=True)
+
+    except Exception as e:
+
+        st.error(f"CRPL file error: {e}")
+        st.stop()
+
+    # =====================================================
+    # REQUIRED COLUMNS
+    # =====================================================
+
+    columns = [
+        "CRF No",
+        "CRF Name",
+        "Stage",
+        "CRPL Remarks",
+        "NBP Remarks"
+    ]
+
+    for col in columns:
+
+        if col not in df.columns:
+            df[col] = ""
+
+    df = df[columns].fillna("")
+
+    # =====================================================
+    # HEADER
+    # =====================================================
+
+    st.markdown("""
+    <div style="
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    border-radius:25px;
+    padding:30px;
+    border:1px solid #E5E7EB;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);">
+
+    <h1 style="
+    color:#006747;
+    margin:0;
+    font-size:42px;
+    font-weight:700;">
+    🏦 CRPL
+    </h1>
+
+    <p style="
+    margin-top:10px;
+    color:#6B7280;
+    font-size:18px;">
+    CRPL Issues &amp; Progress Tracking
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =====================================================
+    # FILTERS
+    # =====================================================
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:28px;
+    font-weight:700;">
+    🎯 Filters
+    </h2>
+    """, unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        search = st.text_input(
+            "Search CRF",
+            placeholder="🔍 Search CRF No or CRF Name..."
+        )
+
+    with c2:
+
+        stage_filter = st.selectbox(
+            "Stage",
+            [
+                "All",
+                "HOLD",
+                "WIP",
+                "LIVE",
+                "UAT"
+            ]
+        )
+
+    # =====================================================
+    # FILTER DATA
+    # =====================================================
+
+    filtered_df = df.copy()
+
+    if search:
+
+        filtered_df = filtered_df[
+            filtered_df["CRF No"]
+            .astype(str)
+            .str.contains(
+                search,
+                case=False,
+                na=False
+            )
+            |
+            filtered_df["CRF Name"]
+            .astype(str)
+            .str.contains(
+                search,
+                case=False,
+                na=False
+            )
+        ]
+
+    if stage_filter != "All":
+
+        if stage_filter == "LIVE":
+
+            filtered_df = filtered_df[
+                filtered_df["Stage"]
+                .astype(str)
+                .str.upper()
+                .isin([
+                    "LIVE",
+                    "PRODUCTION",
+                    "LIVE / PRODUCTION",
+                    "LIVE/PRODUCTION"
+                ])
+            ]
+
+        else:
+
+            filtered_df = filtered_df[
+                filtered_df["Stage"]
+                .astype(str)
+                .str.upper()
+                == stage_filter
+            ]
+
+    # =====================================================
+    # KPI COUNTS
+    # =====================================================
+
+    stage = (
+        df["Stage"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    hold_count = (
+        stage == "HOLD"
+    ).sum()
+
+    wip_count = (
+        stage == "WIP"
+    ).sum()
+
+    uat_count = (
+        stage == "UAT"
+    ).sum()
+
+    live_count = stage.isin([
+        "LIVE",
+        "PRODUCTION",
+        "LIVE / PRODUCTION",
+        "LIVE/PRODUCTION"
+    ]).sum()
+
+    # =====================================================
+    # KPI CARDS
+    # =====================================================
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+
+    with c1:
+
+        if st.button(
+            f"📋 ALL\n\n{len(df)}",
+            key="crpl_all",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_stage"] = "All"
+            st.rerun()
+
+
+    with c2:
+
+        if st.button(
+            f"⏸️ HOLD\n\n{hold_count}",
+            key="crpl_hold",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_stage"] = "HOLD"
+            st.rerun()
+
+
+    with c3:
+
+        if st.button(
+            f"🔄 WIP\n\n{wip_count}",
+            key="crpl_wip",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_stage"] = "WIP"
+            st.rerun()
+
+
+    with c4:
+
+        if st.button(
+            f"🟢 LIVE\n\n{live_count}",
+            key="crpl_live",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_stage"] = "LIVE"
+            st.rerun()
+
+
+    with c5:
+
+        if st.button(
+            f"🧪 UAT\n\n{uat_count}",
+            key="crpl_uat",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_stage"] = "UAT"
+            st.rerun()
+    # =====================================================
+    # CARD FILTER
+    # =====================================================
+
+    selected_card = st.session_state.get(
+        "crpl_stage",
+        "All"
+    )
+
+    if selected_card != "All":
+
+        if selected_card == "LIVE":
+
+            filtered_df = filtered_df[
+                filtered_df["Stage"]
+                .astype(str)
+                .str.upper()
+                .isin([
+                    "LIVE",
+                    "PRODUCTION",
+                    "LIVE / PRODUCTION",
+                    "LIVE/PRODUCTION"
+                ])
+            ]
+
+        else:
+
+            filtered_df = filtered_df[
+                filtered_df["Stage"]
+                .astype(str)
+                .str.upper()
+                == selected_card
+            ]
+
+    # =====================================================
+    # TABLE TITLE
+    # =====================================================
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:30px;
+    font-weight:700;
+    margin-top:20px;
+    margin-bottom:18px;">
+    📋 CRPL Details
+    </h2>
+    """, unsafe_allow_html=True)
+
+    # =====================================================
+    # VIP TABLE CSS
+    # =====================================================
+
+    st.markdown("""
+    <style>
+
+    .crpl-table-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:16px;
+        padding:6px;
+        box-shadow:0 6px 20px rgba(0,103,71,0.08);
+        overflow:hidden;
+    }
+
+    .crpl-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:14px;
+        table-layout:fixed;
+    }
+
+    .crpl-table thead th {
+        background:#006747;
+        color:white;
+        font-weight:700;
+        padding:14px 12px;
+        text-align:left;
+    }
+
+    .crpl-table thead th:first-child {
+        border-top-left-radius:11px;
+    }
+
+    .crpl-table thead th:last-child {
+        border-top-right-radius:11px;
+    }
+
+    .crpl-table tbody td {
+        padding:13px 12px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
+
+        white-space:normal !important;
+        word-wrap:break-word !important;
+        overflow-wrap:anywhere !important;
+        vertical-align:top;
+        line-height:1.6;
+    }
+
+    .crpl-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+    .crpl-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+    .crf-name {
+        font-weight:700;
+        color:#006747 !important;
+    }
+
+    .stage-badge {
+        display:inline-block;
+        padding:5px 11px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:800;
+        white-space:nowrap;
+    }
+
+    .stage-hold {
+        background:#FEE2E2;
+        color:#991B1B;
+    }
+
+    .stage-wip {
+        background:#DBEAFE;
+        color:#1E40AF;
+    }
+
+    .stage-uat {
+        background:#FEF3C7;
+        color:#92400E;
+    }
+
+    .stage-live {
+        background:#DCFCE7;
+        color:#166534;
+    }
+
+    .stage-default {
+        background:#F3F4F6;
+        color:#374151;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+    # =====================================================
+    # TABLE DATA
+    # =====================================================
+
+    display_df = filtered_df.copy()
+
+    # CRF NAME
+    display_df["CRF Name"] = display_df[
+        "CRF Name"
+    ].apply(
+        lambda x:
+        f'<span class="crf-name">{x}</span>'
+    )
+
+    # STAGE BADGE
+    def stage_badge(value):
+
+        value = str(value).strip()
+        upper = value.upper()
+
+        if upper == "HOLD":
+            css = "stage-hold"
+
+        elif upper == "WIP":
+            css = "stage-wip"
+
+        elif upper == "UAT":
+            css = "stage-uat"
+
+        elif upper in [
+            "LIVE",
+            "PRODUCTION",
+            "LIVE / PRODUCTION",
+            "LIVE/PRODUCTION"
+        ]:
+            css = "stage-live"
+
+        else:
+            css = "stage-default"
+
+        return (
+            f'<span class="stage-badge {css}">'
+            f'{value}'
+            f'</span>'
+        )
+
+    display_df["Stage"] = display_df[
+        "Stage"
+    ].apply(stage_badge)
+
+    # =====================================================
+    # HTML TABLE
+    # =====================================================
+
+    table_html = display_df.to_html(
+        index=False,
+        escape=False,
+        classes="crpl-table"
+    )
+
+    st.markdown(
+        f"""
+        <div class="crpl-table-wrapper">
+            {table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # =====================================================
+    # EDIT CRPL BUTTON
+    # =====================================================
+
+    st.markdown(
+        "<br>",
+        unsafe_allow_html=True
+    )
+
+
+    if "crpl_edit_mode" not in st.session_state:
+
+        st.session_state["crpl_edit_mode"] = False
+
+
+    if "crpl_new_field" not in st.session_state:
+
+        st.session_state["crpl_new_field"] = ""
+
+
+    # =====================================================
+    # EDIT BUTTON
+    # =====================================================
+
+    if not st.session_state["crpl_edit_mode"]:
+
+        if st.button(
+            "✏️ Edit CRPL",
+            key="crpl_edit_button",
+            type="secondary",
+            use_container_width=True
+        ):
+
+            st.session_state["crpl_edit_mode"] = True
+
+            st.rerun()
+
+
+    # =====================================================
+    # EDIT MODE
+    # =====================================================
+
+    if st.session_state["crpl_edit_mode"]:
+
+        st.markdown("""
+        <h2 style="
+        color:#006747;
+        font-size:28px;
+        font-weight:700;
+        margin-top:20px;
+        margin-bottom:15px;">
+        ✏️ Edit CRPL
+        </h2>
+        """, unsafe_allow_html=True)
+
+
+        st.info(
+            "✏️ Edit existing records, add new records, "
+            "or create a new field/column."
+        )
+
+
+        # =================================================
+        # ADD NEW FIELD
+        # =================================================
+
+        st.markdown("""
+        <h3 style="
+        color:#006747;
+        font-size:20px;
+        font-weight:700;
+        margin-top:10px;">
+        ➕ Add New Field
+        </h3>
+        """, unsafe_allow_html=True)
+
+
+        field_col1, field_col2 = st.columns([3, 1])
+
+
+        with field_col1:
+
+            new_field = st.text_input(
+                "New Field Name",
+                placeholder="e.g. Vendor Remarks",
+                key="crpl_new_field_input"
+            )
+
+
+        with field_col2:
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if st.button(
+                "➕ Add Field",
+                key="crpl_add_field",
+                use_container_width=True
+            ):
+
+                if new_field.strip():
+
+                    new_field = new_field.strip()
+
+
+                    if new_field not in df.columns:
+
+                        df[new_field] = ""
+
+
+                        # Save new field in session
+                        st.session_state[
+                            "crpl_added_fields"
+                        ] = df.columns.tolist()
+
+
+                        st.success(
+                            f"✅ '{new_field}' field added!"
+                        )
+
+                        st.rerun()
+
+                    else:
+
+                        st.warning(
+                            "⚠️ This field already exists."
+                        )
+
+                else:
+
+                    st.warning(
+                        "⚠️ Please enter a field name."
+                    )
+
+
+        # =================================================
+        # GET CURRENT DATA
+        # =================================================
+
+        edit_df = df.copy()
+
+
+        # =================================================
+        # APPLY SEARCH FILTER
+        # =================================================
+
+        if search:
+
+            search_mask = pd.Series(
+                False,
+                index=edit_df.index
+            )
+
+
+            for col in edit_df.columns:
+
+                search_mask = (
+                    search_mask
+                    |
+                    edit_df[col]
+                    .astype(str)
+                    .str.contains(
+                        search,
+                        case=False,
+                        na=False
+                    )
+                )
+
+
+            edit_df = edit_df[
+                search_mask
+            ]
+
+
+        # =================================================
+        # APPLY STAGE FILTER
+        # =================================================
+
+        if stage_filter != "All":
+
+            if stage_filter == "LIVE":
+
+                edit_df = edit_df[
+                    edit_df["Stage"]
+                    .astype(str)
+                    .str.upper()
+                    .isin([
+                        "LIVE",
+                        "PRODUCTION",
+                        "LIVE / PRODUCTION",
+                        "LIVE/PRODUCTION"
+                    ])
+                ]
+
+            else:
+
+                edit_df = edit_df[
+                    edit_df["Stage"]
+                    .astype(str)
+                    .str.upper()
+                    == stage_filter
+                ]
+
+
+        # =================================================
+        # APPLY KPI CARD FILTER
+        # =================================================
+
+        selected_card = st.session_state.get(
+            "crpl_stage",
+            "All"
+        )
+
+
+        if selected_card != "All":
+
+            if selected_card == "LIVE":
+
+                edit_df = edit_df[
+                    edit_df["Stage"]
+                    .astype(str)
+                    .str.upper()
+                    .isin([
+                        "LIVE",
+                        "PRODUCTION",
+                        "LIVE / PRODUCTION",
+                        "LIVE/PRODUCTION"
+                    ])
+                ]
+
+            else:
+
+                edit_df = edit_df[
+                    edit_df["Stage"]
+                    .astype(str)
+                    .str.upper()
+                    == selected_card
+                ]
+
+
+        # =================================================
+        # EDITABLE TABLE
+        # =================================================
+
+        edited_df = st.data_editor(
+            edit_df,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="dynamic",
+            height=500,
+            key="crpl_editor"
+        )
+
+
+        # =================================================
+        # SAVE / CLOSE
+        # =================================================
+
+        save_col, close_col = st.columns(2)
+
+
+        # =================================================
+        # SAVE CHANGES
+        # =================================================
+
+        with save_col:
+
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="crpl_save",
+                use_container_width=True
+            ):
+
+                try:
+
+                    # -----------------------------------------
+                    # READ ORIGINAL EXCEL
+                    # -----------------------------------------
+
+                    original = pd.read_excel(
+                        file,
+                        sheet_name="CRPL",
+                        header=header_row
+                    )
+
+
+                    original.columns = [
+                        str(x).strip()
+                        for x in original.columns
+                    ]
+
+
+                    original = original.fillna("")
+
+
+                    # -----------------------------------------
+                    # EXISTING COLUMNS
+                    # -----------------------------------------
+
+                    for col in edited_df.columns:
+
+                        if col not in original.columns:
+
+                            original[col] = ""
+
+
+                    # -----------------------------------------
+                    # UPDATE EXISTING / FILTERED ROWS
+                    # -----------------------------------------
+
+                    for idx in edited_df.index:
+
+                        if idx < len(original):
+
+                            for col in edited_df.columns:
+
+                                original.loc[
+                                    idx,
+                                    col
+                                ] = edited_df.loc[
+                                    idx,
+                                    col
+                                ]
+
+
+                    # -----------------------------------------
+                    # HANDLE NEW ROWS
+                    # -----------------------------------------
+
+                    original_indexes = set(
+                        original.index
+                    )
+
+
+                    for idx in edited_df.index:
+
+                        if idx not in original_indexes:
+
+                            new_row = {}
+
+                            for col in edited_df.columns:
+
+                                new_row[col] = edited_df.loc[
+                                    idx,
+                                    col
+                                ]
+
+
+                            original = pd.concat(
+                                [
+                                    original,
+                                    pd.DataFrame([new_row])
+                                ],
+                                ignore_index=True
+                            )
+
+
+                    # -----------------------------------------
+                    # SAVE TO EXCEL
+                    # -----------------------------------------
+
+                    with pd.ExcelWriter(
+                        file,
+                        engine="openpyxl",
+                        mode="a",
+                        if_sheet_exists="replace"
+                    ) as writer:
+
+                        original.to_excel(
+                            writer,
+                            sheet_name="CRPL",
+                            index=False
+                        )
+
+
+                    # -----------------------------------------
+                    # SUCCESS
+                    # -----------------------------------------
+
+                    st.success(
+                        "✅ CRPL changes, new rows and new fields "
+                        "saved successfully!"
+                    )
+
+
+                    st.session_state[
+                        "crpl_edit_mode"
+                    ] = False
+
+
+                    if "crpl_editor" in st.session_state:
+
+                        del st.session_state[
+                            "crpl_editor"
+                        ]
+
+
+                    st.rerun()
+
+
+                except Exception as e:
+
+                    st.error(
+                        f"Save error: {e}"
+                    )
+
+
+        # =================================================
+        # CLOSE EDITOR
+        # =================================================
+
+        with close_col:
+
+            if st.button(
+                "❌ Close Editor",
+                key="crpl_close_editor",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "crpl_edit_mode"
+                ] = False
+
+
+                if "crpl_editor" in st.session_state:
+
+                    del st.session_state[
+                        "crpl_editor"
+                    ]
+
+
+                st.rerun()
+# =====================================================
+# PAYSYS
+# =====================================================
+
+elif page == "PAYSYS":
+
+    import os
+    import pandas as pd
+
+    # =====================================================
+    # LOAD PAYSYS FILE
+    # =====================================================
+
+    file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "PAYSYS_Weekly_Project_Update_04-Sep-2026.xlsx"
+    )
+
+    try:
+
+        excel_file = pd.ExcelFile(file)
+
+        sheet_name = excel_file.sheet_names[0]
+
+        raw = pd.read_excel(
+            file,
+            sheet_name=sheet_name,
+            header=None
+        )
+
+        header_row = None
+
+        for i in range(min(20, len(raw))):
+
+            row = " ".join(
+                str(x).lower()
+                for x in raw.iloc[i]
+                if pd.notna(x)
+            )
+
+            if (
+                "uat/live" in row
+                and "paysys response" in row
+            ):
+                header_row = i
+                break
+
+        if header_row is None:
+
+            st.error("PAYSYS header row not found.")
+            st.dataframe(raw.head(20))
+            st.stop()
+
+        df = pd.read_excel(
+            file,
+            sheet_name=sheet_name,
+            header=header_row
+        )
+
+        df.columns = [
+            str(x).strip()
+            for x in df.columns
+        ]
+
+        df = df.dropna(
+            how="all"
+        ).reset_index(drop=True)
+
+    except Exception as e:
+
+        st.error(
+            f"PAYSYS file error: {e}"
+        )
+
+        st.stop()
+
+
+    # =====================================================
+    # REQUIRED COLUMNS
+    # =====================================================
+
+    columns = [
+        "UAT/Live",
+        "Current NBP Remarks",
+        "PAYSYS Response",
+        "NBP Remarks / Action Required",
+        "Last Update Date"
+    ]
+
+    for col in columns:
+
+        if col not in df.columns:
+            df[col] = ""
+
+    df = df[columns].fillna("")
+
+
+    # =====================================================
+    # HEADER
+    # =====================================================
+
+    st.markdown("""
+    <div style="
+    background:linear-gradient(180deg,#ffffff,#f8fbf9);
+    border-radius:25px;
+    padding:30px;
+    border:1px solid #DDE5E1;
+    box-shadow:0 12px 35px rgba(0,103,71,.08);">
+
+    <h1 style="
+    color:#006747;
+    margin:0;
+    font-size:42px;
+    font-weight:700;">
+    💳 PAYSYS
+    </h1>
+
+    <p style="
+    margin-top:10px;
+    color:#6B7280;
+    font-size:18px;">
+    PAYSYS Issues &amp; Progress Tracking
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+
+    st.markdown(
+        "<br>",
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # FILTERS
+    # =====================================================
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:28px;
+    font-weight:700;">
+    🎯 Filters
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    c1, c2 = st.columns(2)
+
+
+    with c1:
+
+        search = st.text_input(
+            "Search PAYSYS",
+            placeholder="🔍 Search PAYSYS remarks, response or status..."
+        )
+
+
+    with c2:
+
+        stage_filter = st.selectbox(
+            "Stage",
+            [
+                "All",
+                "UAT",
+                "LIVE"
+            ]
+        )
+
+
+    # =====================================================
+    # FILTER DATA
+    # =====================================================
+
+    filtered_df = df.copy()
+
+
+    if search:
+
+        search_columns = [
+            "UAT/Live",
+            "Current NBP Remarks",
+            "PAYSYS Response",
+            "NBP Remarks / Action Required",
+            "Last Update Date"
+        ]
+
+        search_mask = pd.Series(
+            False,
+            index=filtered_df.index
+        )
+
+        for col in search_columns:
+
+            search_mask = (
+                search_mask
+                |
+                filtered_df[col]
+                .astype(str)
+                .str.contains(
+                    search,
+                    case=False,
+                    na=False
+                )
+            )
+
+        filtered_df = filtered_df[
+            search_mask
+        ]
+
+
+    if stage_filter != "All":
+
+        filtered_df = filtered_df[
+            filtered_df["UAT/Live"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            == stage_filter
+        ]
+
+
+    # =====================================================
+    # KPI COUNTS
+    # =====================================================
+
+    stage = (
+        df["UAT/Live"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+
+    uat_count = (
+        stage == "UAT"
+    ).sum()
+
+
+    live_count = (
+        stage.isin([
+            "LIVE",
+            "PRODUCTION"
+        ])
+    ).sum()
+
+
+    # =====================================================
+    # KPI CARDS
+    # =====================================================
+
+    st.markdown(
+        "<br>",
+        unsafe_allow_html=True
+    )
+
+
+    c1, c2, c3 = st.columns(3)
+
+
+    with c1:
+
+        if st.button(
+            f"📋 ALL\n\n{len(df)}",
+            key="paysys_all",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "paysys_stage"
+            ] = "All"
+
+            st.rerun()
+
+
+    with c2:
+
+        if st.button(
+            f"🧪 UAT\n\n{uat_count}",
+            key="paysys_uat",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "paysys_stage"
+            ] = "UAT"
+
+            st.rerun()
+
+
+    with c3:
+
+        if st.button(
+            f"🟢 LIVE\n\n{live_count}",
+            key="paysys_live",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "paysys_stage"
+            ] = "LIVE"
+
+            st.rerun()
+
+
+    # =====================================================
+    # CARD FILTER
+    # =====================================================
+
+    selected_card = st.session_state.get(
+        "paysys_stage",
+        "All"
+    )
+
+
+    if selected_card != "All":
+
+        if selected_card == "LIVE":
+
+            filtered_df = filtered_df[
+                filtered_df["UAT/Live"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .isin([
+                    "LIVE",
+                    "PRODUCTION"
+                ])
+            ]
+
+        else:
+
+            filtered_df = filtered_df[
+                filtered_df["UAT/Live"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                == selected_card
+            ]
+
+
+    # =====================================================
+    # TABLE TITLE
+    # =====================================================
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:30px;
+    font-weight:700;
+    margin-top:20px;
+    margin-bottom:18px;">
+    📋 PAYSYS Details
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # VIP TABLE CSS - GREEN THEME
+    # =====================================================
+
+    st.markdown("""
+    <style>
+
+    .paysys-table-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:16px;
+        padding:6px;
+        box-shadow:0 6px 20px rgba(0,103,71,0.08);
+        overflow:hidden;
+    }
+
+    .paysys-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:14px;
+        table-layout:fixed;
+    }
+
+    .paysys-table thead th {
+        background:#006747;
+        color:white;
+        font-weight:700;
+        padding:14px 12px;
+        text-align:left;
+    }
+
+    .paysys-table thead th:first-child {
+        border-top-left-radius:11px;
+    }
+
+    .paysys-table thead th:last-child {
+        border-top-right-radius:11px;
+    }
+
+    .paysys-table tbody td {
+        padding:13px 12px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
+
+        white-space:normal !important;
+        word-wrap:break-word !important;
+        overflow-wrap:anywhere !important;
+        vertical-align:top;
+        line-height:1.6;
+    }
+
+    .paysys-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+    .paysys-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+    .paysys-name {
+        font-weight:700;
+        color:#006747 !important;
+    }
+
+    .stage-badge {
+        display:inline-block;
+        padding:5px 11px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:800;
+        white-space:nowrap;
+    }
+
+    .stage-uat {
+        background:#FEF3C7;
+        color:#92400E;
+    }
+
+    .stage-live {
+        background:#DCFCE7;
+        color:#166534;
+    }
+
+    .stage-default {
+        background:#F3F4F6;
+        color:#374151;
+    }
+
+
+    /* =====================================================
+       PAYSYS KPI BUTTONS
+       ===================================================== */
+
+    div.stButton > button {
+        background-color:#006747 !important;
+        color:white !important;
+        border:1px solid #006747 !important;
+        border-radius:10px !important;
+        font-weight:700 !important;
+    }
+
+    div.stButton > button:hover {
+        background-color:#00553A !important;
+        color:white !important;
+        border-color:#00553A !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # TABLE DATA
+    # =====================================================
+
+    display_df = filtered_df.copy()
+
+
+    # =====================================================
+    # STAGE BADGE
+    # =====================================================
+
+    def stage_badge(value):
+
+        value = str(value).strip()
+
+        upper = value.upper()
+
+
+        if upper == "UAT":
+
+            css = "stage-uat"
+
+
+        elif upper in [
+            "LIVE",
+            "PRODUCTION"
+        ]:
+
+            css = "stage-live"
+
+
+        else:
+
+            css = "stage-default"
+
+
+        return (
+            f'<span class="stage-badge {css}">'
+            f'{value}'
+            f'</span>'
+        )
+
+
+    display_df["UAT/Live"] = (
+        display_df["UAT/Live"]
+        .apply(stage_badge)
+    )
+
+
+    # =====================================================
+    # HTML TABLE
+    # =====================================================
+
+    table_html = display_df.to_html(
+        index=False,
+        escape=False,
+        classes="paysys-table"
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="paysys-table-wrapper">
+            {table_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # EDIT PAYSYS BUTTON
+    # =====================================================
+
+    st.markdown(
+        "<br>",
+        unsafe_allow_html=True
+    )
+
+
+    if "paysys_edit_mode" not in st.session_state:
+
+        st.session_state[
+            "paysys_edit_mode"
+        ] = False
+
+
+    # =====================================================
+    # EDIT BUTTON
+    # =====================================================
+
+    if not st.session_state["paysys_edit_mode"]:
+
+        if st.button(
+            "✏️ Edit PAYSYS",
+            key="paysys_edit_button",
+            type="secondary",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "paysys_edit_mode"
+            ] = True
+
+            st.rerun()
+
+
+    # =====================================================
+    # EDITOR
+    # =====================================================
+
+    if st.session_state["paysys_edit_mode"]:
+
+        st.markdown("""
+        <h2 style="
+        color:#006747;
+        font-size:28px;
+        font-weight:700;
+        margin-top:20px;
+        margin-bottom:15px;">
+        ✏️ Edit PAYSYS
+        </h2>
+        """, unsafe_allow_html=True)
+
+
+        st.info(
+            "✏️ Edit existing records, add new records, "
+            "or create a new field/column."
+        )
+
+
+        # =================================================
+        # ADD NEW FIELD
+        # =================================================
+
+        st.markdown("""
+        <h3 style="
+        color:#006747;
+        font-size:20px;
+        font-weight:700;
+        margin-top:10px;">
+        ➕ Add New Field
+        </h3>
+        """, unsafe_allow_html=True)
+
+
+        field_col1, field_col2 = st.columns([3, 1])
+
+
+        with field_col1:
+
+            new_field = st.text_input(
+                "New Field Name",
+                placeholder="e.g. Vendor Remarks",
+                key="paysys_new_field_input"
+            )
+
+
+        with field_col2:
+
+            st.markdown(
+                "<br>",
+                unsafe_allow_html=True
+            )
+
+            if st.button(
+                "➕ Add Field",
+                key="paysys_add_field",
+                use_container_width=True
+            ):
+
+                if new_field.strip():
+
+                    new_field = new_field.strip()
+
+
+                    if new_field not in df.columns:
+
+                        df[new_field] = ""
+
+
+                        st.session_state[
+                            "paysys_added_fields"
+                        ] = df.columns.tolist()
+
+
+                        st.success(
+                            f"✅ '{new_field}' field added!"
+                        )
+
+                        st.rerun()
+
+                    else:
+
+                        st.warning(
+                            "⚠️ This field already exists."
+                        )
+
+                else:
+
+                    st.warning(
+                        "⚠️ Please enter a field name."
+                    )
+
+
+        # =================================================
+        # GET CURRENT DATA
+        # =================================================
+
+        edit_df = df.copy()
+
+
+        # =================================================
+        # APPLY SEARCH FILTER
+        # =================================================
+
+        if search:
+
+            search_mask = pd.Series(
+                False,
+                index=edit_df.index
+            )
+
+
+            for col in edit_df.columns:
+
+                search_mask = (
+                    search_mask
+                    |
+                    edit_df[col]
+                    .astype(str)
+                    .str.contains(
+                        search,
+                        case=False,
+                        na=False
+                    )
+                )
+
+
+            edit_df = edit_df[
+                search_mask
+            ]
+
+
+        # =================================================
+        # APPLY STAGE FILTER
+        # =================================================
+
+        if stage_filter != "All":
+
+            if stage_filter == "LIVE":
+
+                edit_df = edit_df[
+                    edit_df["UAT/Live"]
+                    .astype(str)
+                    .str.upper()
+                    .isin([
+                        "LIVE",
+                        "PRODUCTION"
+                    ])
+                ]
+
+            else:
+
+                edit_df = edit_df[
+                    edit_df["UAT/Live"]
+                    .astype(str)
+                    .str.upper()
+                    == stage_filter
+                ]
+
+
+        # =================================================
+        # APPLY KPI CARD FILTER
+        # =================================================
+
+        selected_card = st.session_state.get(
+            "paysys_stage",
+            "All"
+        )
+
+
+        if selected_card != "All":
+
+            if selected_card == "LIVE":
+
+                edit_df = edit_df[
+                    edit_df["UAT/Live"]
+                    .astype(str)
+                    .str.upper()
+                    .isin([
+                        "LIVE",
+                        "PRODUCTION"
+                    ])
+                ]
+
+            else:
+
+                edit_df = edit_df[
+                    edit_df["UAT/Live"]
+                    .astype(str)
+                    .str.upper()
+                    == selected_card
+                ]
+
+
+        # =================================================
+        # EDITABLE TABLE
+        # =================================================
+
+        edited_df = st.data_editor(
+            edit_df,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="dynamic",
+            height=500,
+            disabled=[],
+            key="paysys_editor"
+        )
+
+
+        # =================================================
+        # SAVE / CLOSE BUTTONS
+        # =================================================
+
+        save_col, close_col = st.columns(2)
+
+
+        # =================================================
+        # SAVE CHANGES
+        # =================================================
+
+        with save_col:
+
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="paysys_save",
+                use_container_width=True
+            ):
+
+                try:
+
+                    # -----------------------------------------
+                    # READ ORIGINAL EXCEL
+                    # -----------------------------------------
+
+                    original = pd.read_excel(
+                        file,
+                        sheet_name=sheet_name,
+                        header=header_row
+                    )
+
+
+                    original.columns = [
+                        str(x).strip()
+                        for x in original.columns
+                    ]
+
+
+                    original = original.fillna("")
+
+
+                    # -----------------------------------------
+                    # ADD NEW COLUMNS
+                    # -----------------------------------------
+
+                    for col in edited_df.columns:
+
+                        if col not in original.columns:
+
+                            original[col] = ""
+
+
+                    # -----------------------------------------
+                    # UPDATE EXISTING ROWS
+                    # -----------------------------------------
+
+                    for idx in edited_df.index:
+
+                        if idx < len(original):
+
+                            for col in edited_df.columns:
+
+                                original.loc[
+                                    idx,
+                                    col
+                                ] = edited_df.loc[
+                                    idx,
+                                    col
+                                ]
+
+
+                    # -----------------------------------------
+                    # SAVE EXCEL
+                    # -----------------------------------------
+
+                    with pd.ExcelWriter(
+                        file,
+                        engine="openpyxl",
+                        mode="a",
+                        if_sheet_exists="replace"
+                    ) as writer:
+
+                        original.to_excel(
+                            writer,
+                            sheet_name=sheet_name,
+                            index=False
+                        )
+
+
+                    # -----------------------------------------
+                    # SUCCESS
+                    # -----------------------------------------
+
+                    st.success(
+                        "✅ PAYSYS changes, new rows and "
+                        "new fields saved successfully!"
+                    )
+
+
+                    st.session_state[
+                        "paysys_edit_mode"
+                    ] = False
+
+
+                    if "paysys_editor" in st.session_state:
+
+                        del st.session_state[
+                            "paysys_editor"
+                        ]
+
+
+                    st.rerun()
+
+
+                except Exception as e:
+
+                    st.error(
+                        f"Save error: {e}"
+                    )
+
+
+        # =================================================
+        # CLOSE EDITOR
+        # =================================================
+
+        with close_col:
+
+            if st.button(
+                "❌ Close Editor",
+                key="paysys_close_editor",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "paysys_edit_mode"
+                ] = False
+
+
+                if "paysys_editor" in st.session_state:
+
+                    del st.session_state[
+                        "paysys_editor"
+                    ]
+
+
+                st.rerun()
 # =====================================================
 # EXPORT
 # =====================================================
@@ -6048,3 +8072,5 @@ elif page == "Export":
         f"✅ Report Ready For Export — "
         f"{len(df)} Total Projects"
     )
+
+    
