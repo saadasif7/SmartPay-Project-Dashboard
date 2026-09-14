@@ -15,6 +15,9 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Image
 from utils.pdf_report import generate_executive_pdf
 import os
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.utils import get_column_letter
+
 
 
 
@@ -490,6 +493,14 @@ st.sidebar.markdown("---")
 # NAVIGATION
 # =====================================================
 
+# Dashboard card se navigation request aaye to
+if "navigate_to" in st.session_state:
+
+    st.session_state["page_navigation"] = st.session_state["navigate_to"]
+
+    del st.session_state["navigate_to"]
+
+
 page = st.sidebar.radio(
     "Menu",
     [
@@ -783,89 +794,422 @@ if page == "Dashboard":
 
 
     
-    # KPI - VIP ENTERPRISE CARDS
     # ==========================================
+    # =====================================================
+    # KPI - VIP ENTERPRISE CLICKABLE CARDS
+    # =====================================================
 
     status = df["Status"].astype(str).str.upper().str.strip()
 
     total_projects = len(df)
-    scoping_projects = len(df[status == "UNDER SCOPING"])
-    development_projects = len(df[status == "UNDER DEVELOPMENT"])
-    uat_projects = len(df[status == "UAT"])
-    review_projects = len(df[status == "IS REVIEW"])
-    cmc_projects = len(df[status == "CMC"])
-    live_projects = len(df[status == "LIVE"])
-    bau_projects = len(df[status == "BAU"])
 
-    # Better spacing for cards
-    c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(
-        [1.2, 1.1, 1.2, 1.0, 1.1, 1.0, 1.0, 1.0]
+    scoping_projects = len(
+        df[status.isin(["SCOPING", "UNDER SCOPING"])]
     )
 
-    ## ------------------------------------------
-    # KPI Card Function
-    # ------------------------------------------
+    uat_projects = len(
+        df[status == "UAT"]
+    )
 
-    def vip_card(title, value, color):
+    review_projects = len(
+        df[status == "IS REVIEW"]
+    )
 
-        st.markdown(
-            f"""
-    <div style="
-    background:white;
-    border-radius:22px;
-    padding:24px 16px;
-    height:145px;
-    border-top:8px solid {color};
-    box-shadow:0 8px 22px rgba(0,0,0,.08);
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    align-items:center;
-    text-align:center;">
+    cmc_projects = len(
+        df[status == "CMC"]
+    )
 
-    <div style="
-    color:#6B7280;
-    font-size:15px;
-    font-weight:600;">
-    {title}
-    </div>
+    live_projects = len(
+        df[status == "LIVE"]
+    )
 
-    <div style="
-    color:{color};
-    font-size:48px;
-    font-weight:700;
-    line-height:1;">
-    {value}
-    </div>
+    bau_projects = len(
+        df[status == "BAU"]
+    )
 
-    </div>
-    """,
-            unsafe_allow_html=True,
+
+    # =====================================================
+    # VIP CARD CSS
+    # =====================================================
+
+    st.markdown("""
+    <style>
+
+    /* -----------------------------------------
+    KPI CARD CONTAINER
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis div[data-testid="stButton"] {
+        width:100%;
+    }
+
+
+    /* -----------------------------------------
+    BASE CARD
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis div[data-testid="stButton"] button {
+
+        width:100% !important;
+
+        min-height:125px !important;
+
+        background:#FFFFFF !important;
+
+        border:1px solid #E5E7EB !important;
+
+        border-radius:20px !important;
+
+        padding:18px 10px !important;
+
+        box-shadow:
+            0 8px 22px rgba(0,0,0,.08) !important;
+
+        color:#111827 !important;
+
+        font-size:15px !important;
+
+        font-weight:600 !important;
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        line-height:1.7 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        transition:
+            all .2s ease !important;
+    }
+
+
+    /* -----------------------------------------
+    HOVER
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        transform:translateY(-3px);
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
+    }
+
+
+    /* -----------------------------------------
+    FOCUS / CLICK
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        min-height:140px !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,0.15),
+            0 12px 28px rgba(0,103,71,0.18) !important;
+
+        color:#006747 !important;
+
+        transform:translateY(-3px);
+
+        transition:
+            all .2s ease !important;
+    }
+
+
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus p {
+
+        color:#006747 !important;
+
+        font-weight:700 !important;
+    }
+
+
+    /* -----------------------------------------
+    TOTAL
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #006747 !important;
+    }
+
+
+    /* -----------------------------------------
+    SCOPING
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #8E24AA !important;
+    }
+
+
+    /* -----------------------------------------
+    UAT
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #F9A825 !important;
+    }
+
+
+    /* -----------------------------------------
+    IS REVIEW
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00ACC1 !important;
+    }
+
+
+    /* -----------------------------------------
+    CMC
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #3949AB !important;
+    }
+
+
+    /* -----------------------------------------
+    LIVE
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00C853 !important;
+    }
+
+
+    /* -----------------------------------------
+    BAU
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #607D8B !important;
+    }
+
+
+    /* -----------------------------------------
+    BUTTON TEXT
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stButton"] button p {
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        font-size:15px !important;
+
+        font-weight:600 !important;
+
+        line-height:1.8 !important;
+    }
+
+
+    /* -----------------------------------------
+    REMOVE EXTRA GAPS
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+
+    /* -----------------------------------------
+    COLUMN SPACING
+    ----------------------------------------- */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:10px !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # =====================================================
+    # CLICKABLE KPI CARDS
+    # =====================================================
+
+    with st.container(key="dashboard_kpis"):
+
+        c1, c2, c3, c4, c5, c6, c7 = st.columns(
+            [1.2, 1.1, 1.0, 1.1, 1.0, 1.0, 1.0]
         )
 
-    # ------------------------------------------
-    # KPI Cards
-    # ------------------------------------------
 
-    with c1:
-        vip_card("Total Projects", total_projects, "#006747")
+        # -----------------------------------------
+        # TOTAL PROJECTS
+        # -----------------------------------------
 
-    with c2:
-        vip_card("Scoping", scoping_projects, "#8E24AA")
+        with c1:
 
-    with c3:
-        vip_card("UAT", uat_projects, "#F9A825")
+            if st.button(
+                f"TOTAL PROJECTS\n\n{total_projects}",
+                key="dashboard_total",
+                use_container_width=True
+            ):
 
-    with c4:
-        vip_card("IS Review", review_projects, "#00ACC1")
+                st.session_state["project_status_filter"] = "All"
+                st.session_state["navigate_to"] = "Projects"
 
-    with c5:
-        vip_card("CMC", cmc_projects, "#3949AB")
+                st.rerun()
 
-    with c6:
-        vip_card("LIVE", live_projects, "#00C853")
-    with c7:
-        vip_card("BAU", bau_projects, "#607D8B")
+
+        # -----------------------------------------
+        # SCOPING
+        # -----------------------------------------
+
+        with c2:
+
+            if st.button(
+                f"SCOPING\n\n{scoping_projects}",
+                key="dashboard_scoping",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "SCOPING"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
+
+        # -----------------------------------------
+        # UAT
+        # -----------------------------------------
+
+        with c3:
+
+            if st.button(
+                f"UAT\n\n{uat_projects}",
+                key="dashboard_uat",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "UAT"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
+
+        # -----------------------------------------
+        # IS REVIEW
+        # -----------------------------------------
+
+        with c4:
+
+            if st.button(
+                f"IS REVIEW\n\n{review_projects}",
+                key="dashboard_review",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "IS REVIEW"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
+
+        # -----------------------------------------
+        # CMC
+        # -----------------------------------------
+
+        with c5:
+
+            if st.button(
+                f"CMC\n\n{cmc_projects}",
+                key="dashboard_cmc",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "CMC"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
+
+        # -----------------------------------------
+        # LIVE
+        # -----------------------------------------
+
+        with c6:
+
+            if st.button(
+                f"LIVE\n\n{live_projects}",
+                key="dashboard_live",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "LIVE"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
+
+        # -----------------------------------------
+        # BAU
+        # -----------------------------------------
+
+        with c7:
+
+            if st.button(
+                f"BAU\n\n{bau_projects}",
+                key="dashboard_bau",
+                use_container_width=True
+            ):
+
+                st.session_state["project_status_filter"] = "BAU"
+                st.session_state["navigate_to"] = "Projects"
+
+                st.rerun()
+
 
     st.markdown("<br>", unsafe_allow_html=True)
     # =====================================================
@@ -1738,17 +2082,38 @@ elif page == "Projects":
 
 
     /* -----------------------------------------
-    FOCUS / CLICK
+    FOCUS / CLICK / SELECTED
     ----------------------------------------- */
 
     .st-key-status_kpis div[data-testid="stButton"] button:focus {
 
         outline:none !important;
 
+        min-height:140px !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
         box-shadow:
-            0 12px 28px rgba(0,0,0,.12) !important;
+            0 0 0 3px rgba(0,103,71,0.15),
+            0 12px 28px rgba(0,103,71,0.18) !important;
+
+        color:#006747 !important;
+
+        transform:translateY(-3px);
+
+        transition:
+            all .2s ease !important;
     }
 
+
+    .st-key-status_kpis div[data-testid="stButton"] button:focus p {
+
+        color:#006747 !important;
+
+        font-weight:700 !important;
+    }
 
     /* -----------------------------------------
     ALL
@@ -5819,71 +6184,294 @@ elif page == "CRPL":
     ]).sum()
 
     # =====================================================
-    # KPI CARDS
+    # VIP CLICKABLE KPI CARDS
     # =====================================================
 
+    st.markdown("""
+    <style>
+
+    /* =====================================================
+    KPI CARD CONTAINER
+    ===================================================== */
+
+    .st-key-crpl_kpis div[data-testid="stButton"] {
+        width:100%;
+    }
+
+
+    /* =====================================================
+    BASE CARD
+    ===================================================== */
+
+    .st-key-crpl_kpis div[data-testid="stButton"] button {
+
+        width:100% !important;
+        min-height:125px !important;
+
+        background:#FFFFFF !important;
+
+        border:1px solid #E5E7EB !important;
+        border-radius:20px !important;
+
+        padding:18px 10px !important;
+
+        box-shadow:
+            0 8px 22px rgba(0,0,0,.08) !important;
+
+        color:#111827 !important;
+
+        font-size:15px !important;
+        font-weight:600 !important;
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        line-height:1.7 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        transition:all .2s ease !important;
+    }
+
+
+    /* =====================================================
+    HOVER
+    ===================================================== */
+
+    .st-key-crpl_kpis div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        color:#111827 !important;
+
+        transform:translateY(-3px);
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
+    }
+
+    .st-key-crpl_kpis
+    div[data-testid="stButton"] button:hover p {
+
+        color:#111827 !important;
+    }
+
+
+    /* =====================================================
+    SELECTED CARD
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,0.15),
+            0 12px 28px rgba(0,103,71,0.18) !important;
+
+        color:#006747 !important;
+    }
+
+    .st-key-crpl_kpis
+    div[data-testid="stButton"] button:focus p {
+
+        color:#006747 !important;
+
+        font-weight:700 !important;
+    }
+
+
+    /* =====================================================
+    ALL
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #006747 !important;
+    }
+
+
+    /* =====================================================
+    HOLD
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #607D8B !important;
+    }
+
+
+    /* =====================================================
+    WIP
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #FF9800 !important;
+    }
+
+
+    /* =====================================================
+    LIVE
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00C853 !important;
+    }
+
+
+    /* =====================================================
+    UAT
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #F9A825 !important;
+    }
+
+
+    /* =====================================================
+    BUTTON TEXT
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stButton"] button p {
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        font-size:15px !important;
+
+        font-weight:600 !important;
+
+        line-height:1.8 !important;
+
+        color:#111827 !important;
+    }
+
+
+    /* =====================================================
+    REMOVE EXTRA GAPS
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+
+    /* =====================================================
+    COLUMN SPACING
+    ===================================================== */
+
+    .st-key-crpl_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:10px !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # KPI CARD CONTAINER
+    # =====================================================
+
+    with st.container(key="crpl_kpis"):
+
+        c1, c2, c3, c4, c5 = st.columns(5)
+
+
+        # ALL
+        with c1:
+
+            if st.button(
+                f"ALL\n\n{len(df)}",
+                key="crpl_all",
+                use_container_width=True
+            ):
+                st.session_state["crpl_stage"] = "All"
+                st.rerun()
+
+
+        # HOLD
+        with c2:
+
+            if st.button(
+                f"HOLD\n\n{hold_count}",
+                key="crpl_hold",
+                use_container_width=True
+            ):
+                st.session_state["crpl_stage"] = "HOLD"
+                st.rerun()
+
+
+        # WIP
+        with c3:
+
+            if st.button(
+                f"WIP\n\n{wip_count}",
+                key="crpl_wip",
+                use_container_width=True
+            ):
+                st.session_state["crpl_stage"] = "WIP"
+                st.rerun()
+
+
+        # LIVE
+        with c4:
+
+            if st.button(
+                f"LIVE\n\n{live_count}",
+                key="crpl_live",
+                use_container_width=True
+            ):
+                st.session_state["crpl_stage"] = "LIVE"
+                st.rerun()
+
+
+        # UAT
+        with c5:
+
+            if st.button(
+                f"UAT\n\n{uat_count}",
+                key="crpl_uat",
+                use_container_width=True
+            ):
+                st.session_state["crpl_stage"] = "UAT"
+                st.rerun()
+
+
     st.markdown("<br>", unsafe_allow_html=True)
-
-    c1, c2, c3, c4, c5 = st.columns(5)
-
-    with c1:
-
-        if st.button(
-            f"📋 ALL\n\n{len(df)}",
-            key="crpl_all",
-            use_container_width=True
-        ):
-
-            st.session_state["crpl_stage"] = "All"
-            st.rerun()
-
-
-    with c2:
-
-        if st.button(
-            f"⏸️ HOLD\n\n{hold_count}",
-            key="crpl_hold",
-            use_container_width=True
-        ):
-
-            st.session_state["crpl_stage"] = "HOLD"
-            st.rerun()
-
-
-    with c3:
-
-        if st.button(
-            f"🔄 WIP\n\n{wip_count}",
-            key="crpl_wip",
-            use_container_width=True
-        ):
-
-            st.session_state["crpl_stage"] = "WIP"
-            st.rerun()
-
-
-    with c4:
-
-        if st.button(
-            f"🟢 LIVE\n\n{live_count}",
-            key="crpl_live",
-            use_container_width=True
-        ):
-
-            st.session_state["crpl_stage"] = "LIVE"
-            st.rerun()
-
-
-    with c5:
-
-        if st.button(
-            f"🧪 UAT\n\n{uat_count}",
-            key="crpl_uat",
-            use_container_width=True
-        ):
-
-            st.session_state["crpl_stage"] = "UAT"
-            st.rerun()
     # =====================================================
     # CARD FILTER
     # =====================================================
@@ -6787,62 +7375,261 @@ elif page == "PAYSYS":
 
 
     # =====================================================
-    # KPI CARDS
+    # VIP CLICKABLE KPI CARDS
     # =====================================================
 
-    st.markdown(
-        "<br>",
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <style>
+
+    /* =====================================================
+    KPI CARD CONTAINER
+    ===================================================== */
+
+    .st-key-paysys_kpis div[data-testid="stButton"] {
+        width:100%;
+    }
 
 
-    c1, c2, c3 = st.columns(3)
+    /* =====================================================
+    BASE CARD
+    ===================================================== */
+
+    .st-key-paysys_kpis div[data-testid="stButton"] button {
+
+        width:100% !important;
+        min-height:125px !important;
+
+        background:#FFFFFF !important;
+
+        border:1px solid #E5E7EB !important;
+        border-radius:20px !important;
+
+        padding:18px 10px !important;
+
+        box-shadow:
+            0 8px 22px rgba(0,0,0,.08) !important;
+
+        color:#111827 !important;
+
+        font-size:15px !important;
+        font-weight:600 !important;
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        line-height:1.7 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        transition:all .2s ease !important;
+    }
 
 
-    with c1:
+    /* =====================================================
+    HOVER
+    ===================================================== */
 
-        if st.button(
-            f"📋 ALL\n\n{len(df)}",
-            key="paysys_all",
-            use_container_width=True
-        ):
+    .st-key-paysys_kpis div[data-testid="stButton"] button:hover {
 
-            st.session_state[
-                "paysys_stage"
-            ] = "All"
+        background:#F8FAFC !important;
 
-            st.rerun()
+        color:#111827 !important;
 
+        transform:translateY(-3px);
 
-    with c2:
-
-        if st.button(
-            f"🧪 UAT\n\n{uat_count}",
-            key="paysys_uat",
-            use_container_width=True
-        ):
-
-            st.session_state[
-                "paysys_stage"
-            ] = "UAT"
-
-            st.rerun()
+        box-shadow:
+            0 12px 28px rgba(0,0,0,.12) !important;
+    }
 
 
-    with c3:
+    .st-key-paysys_kpis
+    div[data-testid="stButton"] button:hover p {
 
-        if st.button(
-            f"🟢 LIVE\n\n{live_count}",
-            key="paysys_live",
-            use_container_width=True
-        ):
+        color:#111827 !important;
+    }
 
-            st.session_state[
-                "paysys_stage"
-            ] = "LIVE"
 
-            st.rerun()
+    /* =====================================================
+    SELECTED / FOCUSED CARD
+    ===================================================== */
 
+    .st-key-paysys_kpis
+    div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,0.15),
+            0 12px 28px rgba(0,103,71,0.18) !important;
+
+        color:#006747 !important;
+    }
+
+
+    .st-key-paysys_kpis
+    div[data-testid="stButton"] button:focus p {
+
+        color:#006747 !important;
+
+        font-weight:700 !important;
+    }
+
+
+    /* =====================================================
+    ALL
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #006747 !important;
+    }
+
+
+    /* =====================================================
+    UAT
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #F9A825 !important;
+    }
+
+
+    /* =====================================================
+    LIVE
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:7px solid #00C853 !important;
+    }
+
+
+    /* =====================================================
+    BUTTON TEXT
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stButton"] button p {
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        font-size:15px !important;
+
+        font-weight:600 !important;
+
+        line-height:1.8 !important;
+
+        color:#111827 !important;
+    }
+
+
+    /* =====================================================
+    COLUMN SPACING
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:10px !important;
+    }
+
+
+    /* =====================================================
+    REMOVE EXTRA GAPS
+    ===================================================== */
+
+    .st-key-paysys_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # KPI CARD CONTAINER
+    # =====================================================
+
+    with st.container(key="paysys_kpis"):
+
+        c1, c2, c3 = st.columns(3)
+
+
+        # =================================================
+        # ALL
+        # =================================================
+
+        with c1:
+
+            if st.button(
+                f"ALL\n\n{len(df)}",
+                key="paysys_all",
+                use_container_width=True
+            ):
+
+                st.session_state["paysys_stage"] = "All"
+
+                st.rerun()
+
+
+        # =================================================
+        # UAT
+        # =================================================
+
+        with c2:
+
+            if st.button(
+                f"UAT\n\n{uat_count}",
+                key="paysys_uat",
+                use_container_width=True
+            ):
+
+                st.session_state["paysys_stage"] = "UAT"
+
+                st.rerun()
+
+
+        # =================================================
+        # LIVE
+        # =================================================
+
+        with c3:
+
+            if st.button(
+                f"LIVE\n\n{live_count}",
+                key="paysys_live",
+                use_container_width=True
+            ):
+
+                st.session_state["paysys_stage"] = "LIVE"
+
+                st.rerun()
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
     # CARD FILTER
@@ -7616,17 +8403,63 @@ elif page == "Export":
     """, unsafe_allow_html=True)
 
 
-    # ==========================================
+   # ==========================================
     # CSV DATA
     # ==========================================
 
-    csv = df.to_csv(
+    # SmartPay Projects
+    projects_export_df = df.copy()
+
+    csv = projects_export_df.to_csv(
         index=False
     ).encode("utf-8")
 
 
     # ==========================================
-    # EXCEL DATA
+    # LOAD CRPL DATA
+    # ==========================================
+
+    crpl_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "CRPL_All_Data_Exactly_20.xlsx"
+    )
+
+    try:
+
+        crpl_export_df = pd.read_excel(
+            crpl_file,
+            sheet_name="CRPL"
+        )
+
+    except Exception:
+
+        crpl_export_df = pd.DataFrame()
+
+
+    # ==========================================
+    # LOAD PAYSYS DATA
+    # ==========================================
+
+    paysys_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "PAYSYS_Weekly_Project_Update_04-Sep-2026.xlsx"
+    )
+
+    try:
+
+        paysys_export_df = pd.read_excel(
+            paysys_file
+        )
+
+    except Exception:
+
+        paysys_export_df = pd.DataFrame()
+
+
+    # ==========================================
+    # EXCEL DATA - ALL REPORTS
     # ==========================================
 
     excel_buffer = BytesIO()
@@ -7636,110 +8469,145 @@ elif page == "Export":
         engine="openpyxl"
     ) as writer:
 
-        df.to_excel(
+
+        # ======================================
+        # SMARTPAY PROJECTS
+        # ======================================
+
+        projects_export_df.to_excel(
             writer,
             index=False,
             sheet_name="SmartPay Projects"
         )
 
-        workbook = writer.book
-        worksheet = writer.sheets[
-            "SmartPay Projects"
-        ]
-
 
         # ======================================
-        # EXCEL TABLE
+        # CRPL
         # ======================================
 
-        from openpyxl.worksheet.table import (
-            Table,
-            TableStyleInfo
-        )
+        if not crpl_export_df.empty:
 
-        from openpyxl.utils import (
-            get_column_letter
-        )
-
-
-        last_row = worksheet.max_row
-        last_col = worksheet.max_column
-
-        last_col_letter = get_column_letter(
-            last_col
-        )
-
-        table_ref = (
-            f"A1:{last_col_letter}{last_row}"
-        )
-
-
-        tab = Table(
-            displayName="SmartPayProjects",
-            ref=table_ref
-        )
-
-
-        style = TableStyleInfo(
-            name="TableStyleMedium4",
-            showFirstColumn=False,
-            showLastColumn=False,
-            showRowStripes=True,
-            showColumnStripes=False
-        )
-
-
-        tab.tableStyleInfo = style
-
-        worksheet.add_table(tab)
-
-
-        # ======================================
-        # FREEZE HEADER
-        # ======================================
-
-        worksheet.freeze_panes = "A2"
-
-
-        # ======================================
-        # AUTO COLUMN WIDTH
-        # ======================================
-
-        for column in worksheet.columns:
-
-            max_length = 0
-
-            column_letter = (
-                column[0].column_letter
-            )
-
-            for cell in column:
-
-                try:
-
-                    if cell.value is not None:
-
-                        max_length = max(
-                            max_length,
-                            len(str(cell.value))
-                        )
-
-                except:
-
-                    pass
-
-
-            worksheet.column_dimensions[
-                column_letter
-            ].width = min(
-                max_length + 3,
-                40
+            crpl_export_df.to_excel(
+                writer,
+                index=False,
+                sheet_name="CRPL"
             )
 
 
-    excel_data = (
-        excel_buffer.getvalue()
-    )
+        # ======================================
+        # PAYSYS
+        # ======================================
+
+        if not paysys_export_df.empty:
+
+            paysys_export_df.to_excel(
+                writer,
+                index=False,
+                sheet_name="PAYSYS"
+            )
+
+
+        # ======================================
+        # FORMAT ALL EXCEL SHEETS
+        # ======================================
+
+        for sheet_name in writer.sheets:
+
+            worksheet = writer.sheets[sheet_name]
+
+
+            # ==================================
+            # FREEZE HEADER
+            # ==================================
+
+            worksheet.freeze_panes = "A2"
+
+
+            # ==================================
+            # AUTO COLUMN WIDTH
+            # ==================================
+
+            for column in worksheet.columns:
+
+                max_length = 0
+
+                column_letter = (
+                    column[0].column_letter
+                )
+
+                for cell in column:
+
+                    try:
+
+                        if cell.value is not None:
+
+                            max_length = max(
+                                max_length,
+                                len(str(cell.value))
+                            )
+
+                    except Exception:
+
+                        pass
+
+
+                worksheet.column_dimensions[
+                    column_letter
+                ].width = min(
+                    max_length + 3,
+                    45
+                )
+
+
+            # ==================================
+            # EXCEL TABLE
+            # ==================================
+
+            last_row = worksheet.max_row
+            last_col = worksheet.max_column
+
+
+            if last_row > 1 and last_col > 0:
+
+                last_col_letter = get_column_letter(
+                    last_col
+                )
+
+                table_ref = (
+                    f"A1:{last_col_letter}{last_row}"
+                )
+
+
+                # Safe table name
+                safe_name = (
+                    sheet_name
+                    .replace(" ", "")
+                    .replace("-", "")
+                    .replace("/", "")
+                )
+
+
+                tab = Table(
+                    displayName=f"{safe_name}Table",
+                    ref=table_ref
+                )
+
+
+                style = TableStyleInfo(
+                    name="TableStyleMedium4",
+                    showFirstColumn=False,
+                    showLastColumn=False,
+                    showRowStripes=True,
+                    showColumnStripes=False
+                )
+
+
+                tab.tableStyleInfo = style
+
+                worksheet.add_table(tab)
+
+
+    excel_data = excel_buffer.getvalue()
 
 
     # ==========================================
@@ -7781,7 +8649,7 @@ elif page == "Export":
                 color:#6B7280;
                 font-size:13px;
                 margin-top:4px;">
-                Project data in CSV format
+                SmartPay project data in CSV format
             </div>
 
         </div>
@@ -7829,7 +8697,7 @@ elif page == "Export":
                 color:#6B7280;
                 font-size:13px;
                 margin-top:4px;">
-                Formatted project data table
+                SmartPay, CRPL & PAYSYS data
             </div>
 
         </div>
@@ -7837,9 +8705,9 @@ elif page == "Export":
 
 
         st.download_button(
-            "⬇ Export Excel",
+            "⬇ Export All Excel Data",
             excel_data,
-            "SmartPay_Projects.xlsx",
+            "SmartPay_Executive_Data.xlsx",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True
         )
@@ -7889,7 +8757,9 @@ elif page == "Export":
             use_container_width=True
         ):
 
-            pdf = generate_executive_pdf(df)
+            pdf = generate_executive_pdf(
+                projects_export_df
+            )
 
 
             st.download_button(
@@ -7926,151 +8796,356 @@ elif page == "Export":
 
 
     # ==========================================
-    # SUMMARY CARD
+    # SUMMARY CARDS
     # ==========================================
 
-    st.html(f"""
-    <div style="
-        background:white;
-        border-radius:18px;
-        padding:20px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 6px 18px rgba(0,0,0,.06);
-        margin-bottom:15px;">
+    summary1, summary2, summary3 = st.columns(3)
 
+
+    # ==========================================
+    # SMARTPAY SUMMARY
+    # ==========================================
+
+    with summary1:
+
+        st.html(f"""
         <div style="
-            color:#6B7280;
-            font-size:13px;
-            font-weight:600;">
-            TOTAL PROJECTS
+            background:white;
+            border-radius:18px;
+            padding:20px;
+            border:1px solid #E5E7EB;
+            border-top:5px solid #006747;
+            box-shadow:0 6px 18px rgba(0,0,0,.06);">
+
+            <div style="
+                color:#6B7280;
+                font-size:13px;
+                font-weight:600;">
+                SMARTPAY PROJECTS
+            </div>
+
+            <div style="
+                color:#006747;
+                font-size:34px;
+                font-weight:700;
+                margin-top:5px;">
+                {len(projects_export_df)}
+            </div>
+
+            <div style="
+                color:#6B7280;
+                font-size:14px;
+                margin-top:5px;">
+                Projects available
+            </div>
+
         </div>
+        """)
 
+
+    # ==========================================
+    # CRPL SUMMARY
+    # ==========================================
+
+    with summary2:
+
+        st.html(f"""
         <div style="
+            background:white;
+            border-radius:18px;
+            padding:20px;
+            border:1px solid #E5E7EB;
+            border-top:5px solid #FF9800;
+            box-shadow:0 6px 18px rgba(0,0,0,.06);">
+
+            <div style="
+                color:#6B7280;
+                font-size:13px;
+                font-weight:600;">
+                CRPL
+            </div>
+
+            <div style="
+                color:#E65100;
+                font-size:34px;
+                font-weight:700;
+                margin-top:5px;">
+                {len(crpl_export_df)}
+            </div>
+
+            <div style="
+                color:#6B7280;
+                font-size:14px;
+                margin-top:5px;">
+                CRPL records
+            </div>
+
+        </div>
+        """)
+
+
+    # ==========================================
+    # PAYSYS SUMMARY
+    # ==========================================
+
+    with summary3:
+
+        st.html(f"""
+        <div style="
+            background:white;
+            border-radius:18px;
+            padding:20px;
+            border:1px solid #E5E7EB;
+            border-top:5px solid #3949AB;
+            box-shadow:0 6px 18px rgba(0,0,0,.06);">
+
+            <div style="
+                color:#6B7280;
+                font-size:13px;
+                font-weight:600;">
+                PAYSYS
+            </div>
+
+            <div style="
+                color:#3949AB;
+                font-size:34px;
+                font-weight:700;
+                margin-top:5px;">
+                {len(paysys_export_df)}
+            </div>
+
+            <div style="
+                color:#6B7280;
+                font-size:14px;
+                margin-top:5px;">
+                PAYSYS records
+            </div>
+
+        </div>
+        """)
+
+
+    # ==========================================
+    # PREVIEW TABS
+    # ==========================================
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    preview_projects, preview_crpl, preview_paysys = st.tabs(
+        [
+            "SmartPay Projects",
+            "CRPL",
+            "PAYSYS"
+        ]
+    )
+
+
+    # ==========================================
+    # SMARTPAY PROJECT PREVIEW
+    # ==========================================
+
+    with preview_projects:
+
+        st.markdown("""
+        <h3 style="
             color:#006747;
-            font-size:34px;
+            font-size:24px;
             font-weight:700;
-            margin-top:5px;">
-            {len(df)}
-        </div>
+            margin-top:10px;
+            margin-bottom:15px;">
+            📊 SmartPay Project Data
+        </h3>
+        """, unsafe_allow_html=True)
 
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:5px;">
-            Projects available for export
-        </div>
 
-    </div>
-    """)
+        display_preview = projects_export_df.copy()
+
+
+        # ======================================
+        # STATUS BADGES
+        # ======================================
+
+        def preview_status_badge(status):
+
+            status = str(status).strip()
+            status_upper = status.upper()
+
+
+            if status_upper == "LIVE":
+
+                css = "status-live"
+
+
+            elif status_upper == "UAT":
+
+                css = "status-uat"
+
+
+            elif status_upper in [
+                "DEVELOPMENT",
+                "UNDER DEVELOPMENT",
+                "SIT"
+            ]:
+
+                css = "status-development"
+
+
+            elif status_upper == "IS REVIEW":
+
+                css = "status-review"
+
+
+            elif status_upper == "CMC":
+
+                css = "status-cmc"
+
+
+            elif status_upper in [
+                "SCOPING",
+                "UNDER SCOPING"
+            ]:
+
+                css = "status-scoping"
+
+
+            else:
+
+                css = "status-default"
+
+
+            return (
+                f'<span class="status-badge {css}">'
+                f'{status}'
+                f'</span>'
+            )
+
+
+        # ======================================
+        # STATUS
+        # ======================================
+
+        if "Status" in display_preview.columns:
+
+            display_preview["Status"] = (
+                display_preview["Status"]
+                .apply(preview_status_badge)
+            )
+
+
+        # ======================================
+        # PROJECT NAME
+        # ======================================
+
+        if "Mandate" in display_preview.columns:
+
+            display_preview["Mandate"] = (
+                display_preview["Mandate"]
+                .apply(
+                    lambda x:
+                    f'<span class="project-name">'
+                    f'📁 {x}'
+                    f'</span>'
+                )
+            )
+
+
+        # ======================================
+        # HTML TABLE
+        # ======================================
+
+        preview_table_html = display_preview.to_html(
+            index=False,
+            escape=False,
+            classes="project-table"
+        )
+
+
+        st.markdown(
+            f"""
+            <div class="project-table-wrapper">
+                {preview_table_html}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
     # ==========================================
-    # FULL DATA TABLE PREVIEW - VIP
+    # CRPL PREVIEW
     # ==========================================
 
-    st.markdown("""
-    <h3 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:25px;
-    margin-bottom:15px;">
-    📊 Project Data Table
-    </h3>
-    """, unsafe_allow_html=True)
+    with preview_crpl:
+
+        st.markdown("""
+        <h3 style="
+            color:#006747;
+            font-size:24px;
+            font-weight:700;
+            margin-top:10px;
+            margin-bottom:15px;">
+            🔄 CRPL Data
+        </h3>
+        """, unsafe_allow_html=True)
 
 
-    # Copy data
-    display_preview = df.copy()
+        if not crpl_export_df.empty:
 
-
-    # ==========================================
-    # STATUS BADGES
-    # ==========================================
-
-    def preview_status_badge(status):
-
-        status = str(status).strip()
-        status_upper = status.upper()
-
-        if status_upper == "LIVE":
-            css = "status-live"
-
-        elif status_upper == "UAT":
-            css = "status-uat"
-
-        elif status_upper in [
-            "DEVELOPMENT",
-            "UNDER DEVELOPMENT",
-            "SIT"
-        ]:
-            css = "status-development"
-
-        elif status_upper == "IS REVIEW":
-            css = "status-review"
-
-        elif status_upper == "CMC":
-            css = "status-cmc"
-
-        elif status_upper in [
-            "SCOPING",
-            "UNDER SCOPING"
-        ]:
-            css = "status-scoping"
+            st.dataframe(
+                crpl_export_df,
+                use_container_width=True,
+                hide_index=True,
+                height=500
+            )
 
         else:
-            css = "status-default"
 
-        return f'<span class="status-badge {css}">{status}</span>'
-
-
-    # Status
-    if "Status" in display_preview.columns:
-
-        display_preview["Status"] = (
-            display_preview["Status"]
-            .apply(preview_status_badge)
-        )
-
-
-    # Project name
-    if "Mandate" in display_preview.columns:
-
-        display_preview["Mandate"] = (
-            display_preview["Mandate"]
-            .apply(
-                lambda x:
-                f'<span class="project-name">📁 {x}</span>'
+            st.warning(
+                "CRPL data could not be loaded."
             )
-        )
 
 
     # ==========================================
-    # CREATE HTML TABLE
+    # PAYSYS PREVIEW
     # ==========================================
 
-    preview_table_html = display_preview.to_html(
-        index=False,
-        escape=False,
-        classes="project-table"
-    )
+    with preview_paysys:
+
+        st.markdown("""
+        <h3 style="
+            color:#006747;
+            font-size:24px;
+            font-weight:700;
+            margin-top:10px;
+            margin-bottom:15px;">
+            ⚙️ PAYSYS Data
+        </h3>
+        """, unsafe_allow_html=True)
 
 
-    st.markdown(
-        f"""
-        <div class="project-table-wrapper">
-            {preview_table_html}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        if not paysys_export_df.empty:
+
+            st.dataframe(
+                paysys_export_df,
+                use_container_width=True,
+                hide_index=True,
+                height=500
+            )
+
+        else:
+
+            st.warning(
+                "PAYSYS data could not be loaded."
+            )
+
+
     # ==========================================
     # FINAL STATUS
     # ==========================================
 
     st.success(
         f"✅ Report Ready For Export — "
-        f"{len(df)} Total Projects"
+        f"{len(projects_export_df)} SmartPay Projects | "
+        f"{len(crpl_export_df)} CRPL Records | "
+        f"{len(paysys_export_df)} PAYSYS Records"
     )
-
-    
