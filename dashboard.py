@@ -17,7 +17,20 @@ from utils.pdf_report import generate_executive_pdf
 import os
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
-
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table as PDFTable,
+    TableStyle,
+    PageBreak,
+    Image as PDFImage
+)
+from reportlab.lib.units import inch
 
 
 
@@ -8401,23 +8414,20 @@ elif page == "Export":
         📤 Export Reports
     </h2>
     """, unsafe_allow_html=True)
-
-
-   # ==========================================
-    # CSV DATA
+        # ==========================================
+    # LOAD ALL DATA
     # ==========================================
 
-    # SmartPay Projects
+    # ------------------------------------------
+    # SMARTPAY PROJECT DATA
+    # ------------------------------------------
+
     projects_export_df = df.copy()
 
-    csv = projects_export_df.to_csv(
-        index=False
-    ).encode("utf-8")
 
-
-    # ==========================================
-    # LOAD CRPL DATA
-    # ==========================================
+    # ------------------------------------------
+    # CRPL DATA
+    # ------------------------------------------
 
     crpl_file = os.path.join(
         os.path.dirname(__file__),
@@ -8437,9 +8447,9 @@ elif page == "Export":
         crpl_export_df = pd.DataFrame()
 
 
-    # ==========================================
-    # LOAD PAYSYS DATA
-    # ==========================================
+    # ------------------------------------------
+    # PAYSYS DATA
+    # ------------------------------------------
 
     paysys_file = os.path.join(
         os.path.dirname(__file__),
@@ -8459,10 +8469,64 @@ elif page == "Export":
 
 
     # ==========================================
-    # EXCEL DATA - ALL REPORTS
+    # DATA SUMMARY
+    # ==========================================
+
+    s1, s2, s3 = st.columns(3)
+
+
+    with s1:
+
+        st.metric(
+            "SmartPay Projects",
+            len(projects_export_df)
+        )
+
+
+    with s2:
+
+        st.metric(
+            "CRPL Records",
+            len(crpl_export_df)
+        )
+
+
+    with s3:
+
+        st.metric(
+            "PAYSYS Records",
+            len(paysys_export_df)
+        )
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    # ==========================================
+    # CREATE CSV FILES
+    # ==========================================
+
+    smartpay_csv = projects_export_df.to_csv(
+        index=False
+    ).encode("utf-8-sig")
+
+
+    crpl_csv = crpl_export_df.to_csv(
+        index=False
+    ).encode("utf-8-sig")
+
+
+    paysys_csv = paysys_export_df.to_csv(
+        index=False
+    ).encode("utf-8-sig")
+
+
+    # ==========================================
+    # CREATE EXCEL FILE
     # ==========================================
 
     excel_buffer = BytesIO()
+
 
     with pd.ExcelWriter(
         excel_buffer,
@@ -8470,9 +8534,9 @@ elif page == "Export":
     ) as writer:
 
 
-        # ======================================
-        # SMARTPAY PROJECTS
-        # ======================================
+        # --------------------------------------
+        # SMARTPAY SHEET
+        # --------------------------------------
 
         projects_export_df.to_excel(
             writer,
@@ -8481,9 +8545,9 @@ elif page == "Export":
         )
 
 
-        # ======================================
-        # CRPL
-        # ======================================
+        # --------------------------------------
+        # CRPL SHEET
+        # --------------------------------------
 
         if not crpl_export_df.empty:
 
@@ -8494,9 +8558,9 @@ elif page == "Export":
             )
 
 
-        # ======================================
-        # PAYSYS
-        # ======================================
+        # --------------------------------------
+        # PAYSYS SHEET
+        # --------------------------------------
 
         if not paysys_export_df.empty:
 
@@ -8508,24 +8572,22 @@ elif page == "Export":
 
 
         # ======================================
-        # FORMAT ALL EXCEL SHEETS
+        # FORMAT EVERY SHEET
         # ======================================
 
-        for sheet_name in writer.sheets:
-
-            worksheet = writer.sheets[sheet_name]
+        for sheet_name, worksheet in writer.sheets.items():
 
 
-            # ==================================
+            # ----------------------------------
             # FREEZE HEADER
-            # ==================================
+            # ----------------------------------
 
             worksheet.freeze_panes = "A2"
 
 
-            # ==================================
+            # ----------------------------------
             # AUTO COLUMN WIDTH
-            # ==================================
+            # ----------------------------------
 
             for column in worksheet.columns:
 
@@ -8559,9 +8621,9 @@ elif page == "Export":
                 )
 
 
-            # ==================================
+            # ----------------------------------
             # EXCEL TABLE
-            # ==================================
+            # ----------------------------------
 
             last_row = worksheet.max_row
             last_col = worksheet.max_column
@@ -8573,12 +8635,12 @@ elif page == "Export":
                     last_col
                 )
 
+
                 table_ref = (
                     f"A1:{last_col_letter}{last_row}"
                 )
 
 
-                # Safe table name
                 safe_name = (
                     sheet_name
                     .replace(" ", "")
@@ -8587,7 +8649,7 @@ elif page == "Export":
                 )
 
 
-                tab = Table(
+                table = Table(
                     displayName=f"{safe_name}Table",
                     ref=table_ref
                 )
@@ -8602,54 +8664,403 @@ elif page == "Export":
                 )
 
 
-                tab.tableStyleInfo = style
+                table.tableStyleInfo = style
 
-                worksheet.add_table(tab)
+                worksheet.add_table(table)
 
 
     excel_data = excel_buffer.getvalue()
+        # ==========================================
+    # EXCLUSIVE EXECUTIVE PDF
+    # ==========================================
+
+    pdf_buffer = BytesIO()
+
+    pdf_doc = SimpleDocTemplate(
+        pdf_buffer,
+        pagesize=landscape(A4),
+        rightMargin=25,
+        leftMargin=25,
+        topMargin=25,
+        bottomMargin=25
+    )
+
+    pdf_styles = getSampleStyleSheet()
+
+    pdf_title_style = ParagraphStyle(
+        "PDFTitle",
+        parent=pdf_styles["Title"],
+        fontSize=26,
+        leading=30,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#006747"),
+        spaceAfter=12
+    )
+
+    pdf_heading_style = ParagraphStyle(
+        "PDFHeading",
+        parent=pdf_styles["Heading2"],
+        fontSize=18,
+        leading=22,
+        textColor=colors.HexColor("#006747"),
+        spaceBefore=10,
+        spaceAfter=12
+    )
+
+    pdf_cell_style = ParagraphStyle(
+        "PDFCell",
+        parent=pdf_styles["Normal"],
+        fontSize=6.5,
+        leading=8
+    )
+
+    pdf_header_style = ParagraphStyle(
+        "PDFHeader",
+        parent=pdf_styles["Normal"],
+        fontSize=7,
+        leading=9,
+        textColor=colors.white,
+        fontName="Helvetica-Bold"
+    )
+
+    pdf_story = []
+
+    # ==========================================
+    # PDF COVER
+    # ==========================================
+
+    pdf_story.append(Spacer(1, 0.5 * inch))
+
+    pdf_story.append(
+        Paragraph(
+            "SMARTPAY PROJECT MANAGEMENT",
+            pdf_title_style
+        )
+    )
+
+    pdf_story.append(
+        Paragraph(
+            "Executive Report",
+            ParagraphStyle(
+                "PDFSubTitle",
+                parent=pdf_styles["Heading2"],
+                alignment=TA_CENTER,
+                textColor=colors.HexColor("#6B7280")
+            )
+        )
+    )
+
+    pdf_story.append(Spacer(1, 0.25 * inch))
+
+    pdf_story.append(
+        Paragraph(
+            f"Generated On: "
+            f"{datetime.now().strftime('%d %B %Y | %I:%M %p')}",
+            ParagraphStyle(
+                "PDFDate",
+                parent=pdf_styles["Normal"],
+                alignment=TA_CENTER,
+                fontSize=10,
+                textColor=colors.HexColor("#555555")
+            )
+        )
+    )
+
+    pdf_story.append(Spacer(1, 0.5 * inch))
+
+    # ==========================================
+    # EXECUTIVE SUMMARY
+    # ==========================================
+
+    summary_data = [
+        ["REPORT", "TOTAL RECORDS"],
+        ["SmartPay Projects", str(len(projects_export_df))],
+        ["CRPL", str(len(crpl_export_df))],
+        ["PAYSYS", str(len(paysys_export_df))]
+    ]
+
+    summary_table = PDFTable(
+        summary_data,
+        colWidths=[5 * inch, 2 * inch]
+    )
+
+    summary_table.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#006747")
+            ),
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+            (
+                "ALIGN",
+                (1, 0),
+                (1, -1),
+                "CENTER"
+            ),
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.HexColor("#DDEBE5")
+            ),
+            (
+                "BACKGROUND",
+                (0, 1),
+                (-1, -1),
+                colors.HexColor("#F4FBF8")
+            ),
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                9
+            ),
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                9
+            )
+        ])
+    )
+
+    pdf_story.append(summary_table)
+
+    pdf_story.append(PageBreak())
+
+
+    # ==========================================
+    # DATAFRAME → PDF FUNCTION
+    # ==========================================
+
+    def dataframe_to_pdf(dataframe, title):
+
+        if dataframe.empty:
+            return
+
+        pdf_story.append(
+            Paragraph(
+                title,
+                pdf_heading_style
+            )
+        )
+
+        # Keep PDF readable
+        export_pdf_df = dataframe.copy()
+
+        # Maximum 100 records per section
+        export_pdf_df = export_pdf_df.head(100)
+
+        columns = list(export_pdf_df.columns)
+
+        table_data = []
+
+        # Header
+        table_data.append([
+            Paragraph(
+                str(column),
+                pdf_header_style
+            )
+            for column in columns
+        ])
+
+        # Rows
+        for _, row in export_pdf_df.iterrows():
+
+            row_data = []
+
+            for value in row:
+
+                if pd.isna(value):
+                    value = ""
+
+                value = str(value)
+
+                # Avoid huge cells
+                if len(value) > 180:
+                    value = value[:180] + "..."
+
+                row_data.append(
+                    Paragraph(
+                        value,
+                        pdf_cell_style
+                    )
+                )
+
+            table_data.append(row_data)
+
+        # Dynamic column width
+        available_width = 10.5 * inch
+
+        column_count = max(
+            len(columns),
+            1
+        )
+
+        column_width = (
+            available_width /
+            column_count
+        )
+
+        pdf_table = PDFTable(
+            table_data,
+            repeatRows=1,
+            colWidths=[
+                column_width
+            ] * column_count
+        )
+
+        pdf_table.setStyle(
+            TableStyle([
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor("#006747")
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    colors.white
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.3,
+                    colors.HexColor("#D1D5DB")
+                ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "TOP"
+                ),
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor("#F7FBF9")
+                    ]
+                ),
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                )
+            ])
+        )
+
+        pdf_story.append(pdf_table)
+
+        pdf_story.append(
+            Spacer(1, 0.25 * inch)
+        )
+
+        pdf_story.append(PageBreak())
+
+
+    # ==========================================
+    # ADD DATA TO PDF
+    # ==========================================
+
+    dataframe_to_pdf(
+        projects_export_df,
+        "SmartPay Projects"
+    )
+
+    dataframe_to_pdf(
+        crpl_export_df,
+        "CRPL"
+    )
+
+    dataframe_to_pdf(
+        paysys_export_df,
+        "PAYSYS"
+    )
+
+
+    # ==========================================
+    # BUILD PDF
+    # ==========================================
+
+    pdf_doc.build(pdf_story)
+
+    pdf_buffer.seek(0)
+
+    executive_pdf = pdf_buffer.getvalue()
 
 
     # ==========================================
     # EXPORT CARDS
     # ==========================================
 
-    c1, c2, c3 = st.columns(3)
+    e1, e2, e3 = st.columns(3)
 
 
     # ==========================================
-    # CSV
+    # SMARTPAY EXPORT
     # ==========================================
 
-    with c1:
+    with e1:
 
         st.html("""
         <div style="
-            background:#F8FAFC;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #006747;
+            background:white;
             border-radius:18px;
-            padding:20px;
-            min-height:105px;
-            margin-bottom:10px;">
-
-            <div style="font-size:26px;">
-                📄
-            </div>
+            padding:22px;
+            border:1px solid #DDEBE5;
+            border-top:5px solid #006747;
+            box-shadow:0 8px 22px rgba(0,0,0,.07);">
 
             <div style="
                 color:#006747;
-                font-size:17px;
-                font-weight:700;
-                margin-top:7px;">
-                CSV Report
+                font-size:18px;
+                font-weight:700;">
+                SmartPay Projects
             </div>
 
             <div style="
                 color:#6B7280;
                 font-size:13px;
-                margin-top:4px;">
-                SmartPay project data in CSV format
+                margin-top:6px;">
+                Download SmartPay project data
             </div>
 
         </div>
@@ -8657,47 +9068,123 @@ elif page == "Export":
 
 
         st.download_button(
-            "⬇ Export CSV",
-            csv,
+            "⬇ Download SmartPay CSV",
+            smartpay_csv,
             "SmartPay_Projects.csv",
+            "text/csv",
+            use_container_width=True
+        )
+            # ==========================================
+        # EXECUTIVE PDF EXPORT
+        # ==========================================
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.html("""
+        <div style="
+            background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
+            border-radius:20px;
+            padding:25px;
+            border:1px solid #BBF7D0;
+            border-left:6px solid #006747;
+            box-shadow:0 8px 22px rgba(0,0,0,.07);">
+
+            <div style="
+                color:#006747;
+                font-size:22px;
+                font-weight:700;">
+                📕 Exclusive Executive PDF Report
+            </div>
+
+            <div style="
+                color:#6B7280;
+                font-size:14px;
+                margin-top:7px;">
+                Complete executive PDF containing SmartPay,
+                CRPL and PAYSYS project information.
+            </div>
+
+        </div>
+        """)
+
+        st.download_button(
+            "⬇ Download Exclusive Executive PDF",
+            executive_pdf,
+            "SmartPay_Exclusive_Executive_Report.pdf",
+            "application/pdf",
+            use_container_width=True
+        )
+
+
+    # ==========================================
+    # CRPL EXPORT
+    # ==========================================
+
+    with e2:
+
+        st.html("""
+        <div style="
+            background:white;
+            border-radius:18px;
+            padding:22px;
+            border:1px solid #DDEBE5;
+            border-top:5px solid #FF9800;
+            box-shadow:0 8px 22px rgba(0,0,0,.07);">
+
+            <div style="
+                color:#E65100;
+                font-size:18px;
+                font-weight:700;">
+                CRPL
+            </div>
+
+            <div style="
+                color:#6B7280;
+                font-size:13px;
+                margin-top:6px;">
+                Download CRPL vendor data
+            </div>
+
+        </div>
+        """)
+
+
+        st.download_button(
+            "⬇ Download CRPL CSV",
+            crpl_csv,
+            "CRPL_Data.csv",
             "text/csv",
             use_container_width=True
         )
 
 
     # ==========================================
-    # EXCEL
+    # PAYSYS EXPORT
     # ==========================================
 
-    with c2:
+    with e3:
 
         st.html("""
         <div style="
-            background:#F8FAFC;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #16A34A;
+            background:white;
             border-radius:18px;
-            padding:20px;
-            min-height:105px;
-            margin-bottom:10px;">
-
-            <div style="font-size:26px;">
-                📊
-            </div>
+            padding:22px;
+            border:1px solid #DDEBE5;
+            border-top:5px solid #3949AB;
+            box-shadow:0 8px 22px rgba(0,0,0,.07);">
 
             <div style="
-                color:#166534;
-                font-size:17px;
-                font-weight:700;
-                margin-top:7px;">
-                Excel Report
+                color:#3949AB;
+                font-size:18px;
+                font-weight:700;">
+                PAYSYS
             </div>
 
             <div style="
                 color:#6B7280;
                 font-size:13px;
-                margin-top:4px;">
-                SmartPay, CRPL & PAYSYS data
+                margin-top:6px;">
+                Download PAYSYS vendor data
             </div>
 
         </div>
@@ -8705,75 +9192,56 @@ elif page == "Export":
 
 
         st.download_button(
-            "⬇ Export All Excel Data",
-            excel_data,
-            "SmartPay_Executive_Data.xlsx",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "⬇ Download PAYSYS CSV",
+            paysys_csv,
+            "PAYSYS_Data.csv",
+            "text/csv",
             use_container_width=True
         )
 
 
     # ==========================================
-    # PDF
+    # COMPLETE EXCEL EXPORT
     # ==========================================
 
-    with c3:
+    st.markdown("<br>", unsafe_allow_html=True)
 
-        st.html("""
+
+    st.html("""
+    <div style="
+        background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
+        border-radius:20px;
+        padding:25px;
+        border:1px solid #BBF7D0;
+        border-left:6px solid #006747;
+        box-shadow:0 8px 22px rgba(0,0,0,.07);">
+
         <div style="
-            background:#F8FAFC;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #DC2626;
-            border-radius:18px;
-            padding:20px;
-            min-height:105px;
-            margin-bottom:10px;">
-
-            <div style="font-size:26px;">
-                📑
-            </div>
-
-            <div style="
-                color:#991B1B;
-                font-size:17px;
-                font-weight:700;
-                margin-top:7px;">
-                Executive PDF
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                margin-top:4px;">
-                Management-ready report
-            </div>
-
+            color:#006747;
+            font-size:22px;
+            font-weight:700;">
+            📊 Complete Executive Excel Report
         </div>
-        """)
+
+        <div style="
+            color:#6B7280;
+            font-size:14px;
+            margin-top:7px;">
+            One Excel file containing SmartPay Projects, CRPL and PAYSYS
+            in separate worksheets.
+        </div>
+
+    </div>
+    """)
 
 
-        if st.button(
-            "📄 Generate Executive PDF",
-            use_container_width=True
-        ):
-
-            pdf = generate_executive_pdf(
-                projects_export_df
-            )
-
-
-            st.download_button(
-                "⬇ Download Executive PDF",
-                data=pdf,
-                file_name="SmartPay_Executive_Report.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-
-
-            st.success(
-                "Executive PDF Generated Successfully."
-            )
+    st.download_button(
+        "⬇ Download Complete Excel Report",
+        excel_data,
+        "SmartPay_Executive_Data.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        use_container_width=True
+    )
 
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -8796,141 +9264,8 @@ elif page == "Export":
 
 
     # ==========================================
-    # SUMMARY CARDS
-    # ==========================================
-
-    summary1, summary2, summary3 = st.columns(3)
-
-
-    # ==========================================
-    # SMARTPAY SUMMARY
-    # ==========================================
-
-    with summary1:
-
-        st.html(f"""
-        <div style="
-            background:white;
-            border-radius:18px;
-            padding:20px;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #006747;
-            box-shadow:0 6px 18px rgba(0,0,0,.06);">
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                font-weight:600;">
-                SMARTPAY PROJECTS
-            </div>
-
-            <div style="
-                color:#006747;
-                font-size:34px;
-                font-weight:700;
-                margin-top:5px;">
-                {len(projects_export_df)}
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:14px;
-                margin-top:5px;">
-                Projects available
-            </div>
-
-        </div>
-        """)
-
-
-    # ==========================================
-    # CRPL SUMMARY
-    # ==========================================
-
-    with summary2:
-
-        st.html(f"""
-        <div style="
-            background:white;
-            border-radius:18px;
-            padding:20px;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #FF9800;
-            box-shadow:0 6px 18px rgba(0,0,0,.06);">
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                font-weight:600;">
-                CRPL
-            </div>
-
-            <div style="
-                color:#E65100;
-                font-size:34px;
-                font-weight:700;
-                margin-top:5px;">
-                {len(crpl_export_df)}
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:14px;
-                margin-top:5px;">
-                CRPL records
-            </div>
-
-        </div>
-        """)
-
-
-    # ==========================================
-    # PAYSYS SUMMARY
-    # ==========================================
-
-    with summary3:
-
-        st.html(f"""
-        <div style="
-            background:white;
-            border-radius:18px;
-            padding:20px;
-            border:1px solid #E5E7EB;
-            border-top:5px solid #3949AB;
-            box-shadow:0 6px 18px rgba(0,0,0,.06);">
-
-            <div style="
-                color:#6B7280;
-                font-size:13px;
-                font-weight:600;">
-                PAYSYS
-            </div>
-
-            <div style="
-                color:#3949AB;
-                font-size:34px;
-                font-weight:700;
-                margin-top:5px;">
-                {len(paysys_export_df)}
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:14px;
-                margin-top:5px;">
-                PAYSYS records
-            </div>
-
-        </div>
-        """)
-
-
-    # ==========================================
     # PREVIEW TABS
     # ==========================================
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
 
     preview_projects, preview_crpl, preview_paysys = st.tabs(
         [
@@ -8942,7 +9277,7 @@ elif page == "Export":
 
 
     # ==========================================
-    # SMARTPAY PROJECT PREVIEW
+    # SMARTPAY PREVIEW
     # ==========================================
 
     with preview_projects:
@@ -8950,124 +9285,19 @@ elif page == "Export":
         st.markdown("""
         <h3 style="
             color:#006747;
-            font-size:24px;
+            font-size:22px;
             font-weight:700;
-            margin-top:10px;
-            margin-bottom:15px;">
-            📊 SmartPay Project Data
+            margin-bottom:12px;">
+            SmartPay Project Data
         </h3>
         """, unsafe_allow_html=True)
 
 
-        display_preview = projects_export_df.copy()
-
-
-        # ======================================
-        # STATUS BADGES
-        # ======================================
-
-        def preview_status_badge(status):
-
-            status = str(status).strip()
-            status_upper = status.upper()
-
-
-            if status_upper == "LIVE":
-
-                css = "status-live"
-
-
-            elif status_upper == "UAT":
-
-                css = "status-uat"
-
-
-            elif status_upper in [
-                "DEVELOPMENT",
-                "UNDER DEVELOPMENT",
-                "SIT"
-            ]:
-
-                css = "status-development"
-
-
-            elif status_upper == "IS REVIEW":
-
-                css = "status-review"
-
-
-            elif status_upper == "CMC":
-
-                css = "status-cmc"
-
-
-            elif status_upper in [
-                "SCOPING",
-                "UNDER SCOPING"
-            ]:
-
-                css = "status-scoping"
-
-
-            else:
-
-                css = "status-default"
-
-
-            return (
-                f'<span class="status-badge {css}">'
-                f'{status}'
-                f'</span>'
-            )
-
-
-        # ======================================
-        # STATUS
-        # ======================================
-
-        if "Status" in display_preview.columns:
-
-            display_preview["Status"] = (
-                display_preview["Status"]
-                .apply(preview_status_badge)
-            )
-
-
-        # ======================================
-        # PROJECT NAME
-        # ======================================
-
-        if "Mandate" in display_preview.columns:
-
-            display_preview["Mandate"] = (
-                display_preview["Mandate"]
-                .apply(
-                    lambda x:
-                    f'<span class="project-name">'
-                    f'📁 {x}'
-                    f'</span>'
-                )
-            )
-
-
-        # ======================================
-        # HTML TABLE
-        # ======================================
-
-        preview_table_html = display_preview.to_html(
-            index=False,
-            escape=False,
-            classes="project-table"
-        )
-
-
-        st.markdown(
-            f"""
-            <div class="project-table-wrapper">
-                {preview_table_html}
-            </div>
-            """,
-            unsafe_allow_html=True
+        st.dataframe(
+            projects_export_df,
+            use_container_width=True,
+            hide_index=True,
+            height=500
         )
 
 
@@ -9079,12 +9309,11 @@ elif page == "Export":
 
         st.markdown("""
         <h3 style="
-            color:#006747;
-            font-size:24px;
+            color:#E65100;
+            font-size:22px;
             font-weight:700;
-            margin-top:10px;
-            margin-bottom:15px;">
-            🔄 CRPL Data
+            margin-bottom:12px;">
+            CRPL Data
         </h3>
         """, unsafe_allow_html=True)
 
@@ -9113,12 +9342,11 @@ elif page == "Export":
 
         st.markdown("""
         <h3 style="
-            color:#006747;
-            font-size:24px;
+            color:#3949AB;
+            font-size:22px;
             font-weight:700;
-            margin-top:10px;
-            margin-bottom:15px;">
-            ⚙️ PAYSYS Data
+            margin-bottom:12px;">
+            PAYSYS Data
         </h3>
         """, unsafe_allow_html=True)
 
@@ -9144,8 +9372,10 @@ elif page == "Export":
     # ==========================================
 
     st.success(
-        f"✅ Report Ready For Export — "
+        f"Report Ready — "
         f"{len(projects_export_df)} SmartPay Projects | "
         f"{len(crpl_export_df)} CRPL Records | "
         f"{len(paysys_export_df)} PAYSYS Records"
     )
+
+   
