@@ -7461,7 +7461,6 @@ elif page == "PAYSYS":
     # =====================================================
 
     columns = [
-        "Sr. No.",
         "Project / Issue",
         "UAT/Live",
         "Current NBP Remarks",
