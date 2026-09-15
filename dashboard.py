@@ -7456,7 +7456,13 @@ elif page == "PAYSYS":
     # REQUIRED COLUMNS
     # =====================================================
 
+    # =====================================================
+    # REQUIRED COLUMNS
+    # =====================================================
+
     columns = [
+        "Sr. No.",
+        "Project / Issue",
         "UAT/Live",
         "Current NBP Remarks",
         "PAYSYS Response",
