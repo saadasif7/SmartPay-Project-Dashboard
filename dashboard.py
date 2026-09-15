@@ -224,6 +224,13 @@ st.markdown("""
 .stApp{
     background:#F8F9FA;
 }
+/* ==========================================
+   COMPACT TOP SPACE
+========================================== */
+
+.block-container {
+    padding-top: 2.5rem !important;
+}
 
 /* ===========================
    Headings
@@ -613,201 +620,61 @@ st.sidebar.caption(
 if page == "Dashboard":
 
     # ==========================================
-    # HEADER - VIP ENTERPRISE
+    # TITLE - COMPACT HEADER
     # ==========================================
 
-    city, temp, weather = get_weather()
+    st.markdown("""
+    <div style="
+    background:linear-gradient(135deg,#ffffff,#f8fbff);
+    border-radius:18px;
+    padding:14px 22px;
+    border:1px solid #E5E7EB;
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
+    box-sizing:border-box;
+    margin-bottom:10px;
+    ">
 
-    left, center, right = st.columns([5.5, 2.2, 2])
+    <div style="
+    color:#006747;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.8px;
+    margin-bottom:5px;">
+    NATIONAL BANK OF PAKISTAN
+    </div>
 
+    <div style="
+    font-size:28px;
+    color:#006747;
+    font-weight:800;
+    line-height:1.15;
+    margin:0;">
+    SmartPay Project Dashboard
+    </div>
 
-    # ==========================================
-    # LEFT - TITLE
-    # ==========================================
+    <div style="
+    margin-top:5px;
+    font-size:14px;
+    color:#374151;">
+    Digital Banking Group
+    </div>
 
-    with left:
+    <div style="
+    margin-top:8px;
+    display:inline-block;
+    background:#ECFDF5;
+    color:#006747;
+    padding:4px 11px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;">
+    ● LIVE Dashboard
+    </div>
 
-        st.markdown("""
-        <div style="
-        background:linear-gradient(135deg,#ffffff,#f8fbff);
-        border-radius:24px;
-        padding:25px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        min-height:190px;
-        box-sizing:border-box;">
-
-        <div style="
-        color:#006747;
-        font-size:16px;
-        font-weight:700;
-        letter-spacing:2px;">
-        NATIONAL BANK OF PAKISTAN
-        </div>
-
-        <div style="
-        font-size:40px;
-        color:#006747;
-        font-weight:800;
-        line-height:1.15;
-        margin-top:14px;">
-        SmartPay Project Dashboard
-        </div>
-
-        <div style="
-        margin-top:14px;
-        font-size:17px;
-        color:#374151;">
-        Digital Banking Group
-        </div>
-
-        <div style="
-        margin-top:20px;
-        display:inline-block;
-        background:#ECFDF5;
-        color:#006747;
-        padding:7px 16px;
-        border-radius:30px;
-        font-size:13px;
-        font-weight:600;">
-        ● LIVE Dashboard
-        </div>
-
-        </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
-    # ==========================================
-    # CENTER - WEATHER
-    # ==========================================
-
-    with center:
-
-        st.markdown(f"""
-        <div style="
-        background:linear-gradient(180deg,#ffffff,#f8fbff);
-        border-radius:24px;
-        padding:18px;
-        min-height:190px;
-        text-align:center;
-        border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        box-sizing:border-box;">
-
-        <div style="
-        font-size:26px;">
-        🌤
-        </div>
-
-        <div style="
-        font-size:17px;
-        color:#006747;
-        font-weight:700;
-        margin-top:4px;">
-        {city}
-        </div>
-
-        <div style="
-        font-size:44px;
-        color:#006747;
-        font-weight:800;
-        margin:12px 0 4px;">
-        {temp}°
-        </div>
-
-        <div style="
-        color:#6B7280;
-        font-size:15px;">
-        {weather}
-        </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-
-    # ==========================================
-    # RIGHT - DATE & TIME
-    # ==========================================
-
-    with right:
-
-        components.html("""
-        <div style="
-        background:linear-gradient(180deg,#ffffff,#f8fbff);
-        border-radius:24px;
-        padding:18px;
-        width:109%;
-        min-height:190px;
-        text-align:center;
-        border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        font-family:Segoe UI,Arial,sans-serif;
-        box-sizing:border-box;">
-
-        <div style="
-        color:#006747;
-        font-size:16px;
-        font-weight:700;">
-        TODAY
-        </div>
-
-        <div id="date"
-        style="
-        margin-top:12px;
-        font-size:28px;
-        font-weight:700;
-        color:#111827;">
-        </div>
-
-        <hr style="
-        margin:15px 0;
-        border:none;
-        border-top:1px solid #E5E7EB;">
-
-        <div id="clock"
-        style="
-        font-size:28px;
-        font-weight:800;
-        color:#006747;">
-        </div>
-
-        <div style="
-        margin-top:10px;
-        color:#6B7280;
-        font-size:12px;">
-        Pakistan Standard Time
-        </div>
-
-        </div>
-
-        <script>
-
-        function updateClock(){
-
-            const now = new Date();
-
-            document.getElementById("date").innerHTML =
-            now.toLocaleDateString("en-GB",{
-                day:"2-digit",
-                month:"short",
-                year:"numeric"
-            });
-
-            document.getElementById("clock").innerHTML =
-            now.toLocaleTimeString("en-US");
-
-        }
-
-        updateClock();
-
-        setInterval(updateClock,1000);
-
-        </script>
-        """, height=300, scrolling=False)
-
-
-    
-    # ==========================================
     # =====================================================
     # KPI - VIP ENTERPRISE CLICKABLE CARDS
     # =====================================================
@@ -848,39 +715,42 @@ if page == "Dashboard":
     st.markdown("""
     <style>
 
-    /* -----------------------------------------
-    KPI CARD CONTAINER
-    ----------------------------------------- */
+    /* =========================================
+       KPI CARD CONTAINER
+    ========================================= */
 
     .st-key-dashboard_kpis div[data-testid="stButton"] {
-        width:100%;
+        width:100% !important;
     }
 
 
-    /* -----------------------------------------
-    BASE CARD
-    ----------------------------------------- */
+    /* =========================================
+       BASE KPI CARD
+    ========================================= */
 
-    .st-key-dashboard_kpis div[data-testid="stButton"] button {
+    .st-key-dashboard_kpis
+    div[data-testid="stButton"] button {
 
         width:100% !important;
 
-        min-height:125px !important;
+        min-height:96px !important;
+
+        height:96px !important;
 
         background:#FFFFFF !important;
 
         border:1px solid #E5E7EB !important;
 
-        border-radius:20px !important;
+        border-radius:16px !important;
 
-        padding:18px 10px !important;
+        padding:10px 6px !important;
 
         box-shadow:
-            0 8px 22px rgba(0,0,0,.08) !important;
+            0 6px 16px rgba(0,0,0,.08) !important;
 
         color:#111827 !important;
 
-        font-size:15px !important;
+        font-size:13px !important;
 
         font-weight:600 !important;
 
@@ -889,161 +759,25 @@ if page == "Dashboard":
             Arial,
             sans-serif !important;
 
-        line-height:1.7 !important;
+        line-height:1.2 !important;
 
         white-space:pre-line !important;
 
         text-align:center !important;
 
-        transition:
-            all .2s ease !important;
+        display:flex !important;
+
+        align-items:center !important;
+
+        justify-content:center !important;
+
+        transition:all .2s ease !important;
     }
 
 
-    /* -----------------------------------------
-    HOVER
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:hover {
-
-        background:#F8FAFC !important;
-
-        transform:translateY(-3px);
-
-        box-shadow:
-            0 12px 28px rgba(0,0,0,.12) !important;
-    }
-
-
-    /* -----------------------------------------
-    FOCUS / CLICK
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus {
-
-        outline:none !important;
-
-        min-height:140px !important;
-
-        background:#EAF5F0 !important;
-
-        border:2px solid #006747 !important;
-
-        box-shadow:
-            0 0 0 3px rgba(0,103,71,0.15),
-            0 12px 28px rgba(0,103,71,0.18) !important;
-
-        color:#006747 !important;
-
-        transform:translateY(-3px);
-
-        transition:
-            all .2s ease !important;
-    }
-
-
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus p {
-
-        color:#006747 !important;
-
-        font-weight:700 !important;
-    }
-
-
-    /* -----------------------------------------
-    TOTAL
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #006747 !important;
-    }
-
-
-    /* -----------------------------------------
-    SCOPING
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #8E24AA !important;
-    }
-
-
-    /* -----------------------------------------
-    UAT
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #F9A825 !important;
-    }
-
-
-    /* -----------------------------------------
-    IS REVIEW
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00ACC1 !important;
-    }
-
-
-    /* -----------------------------------------
-    CMC
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #3949AB !important;
-    }
-
-
-    /* -----------------------------------------
-    LIVE
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00C853 !important;
-    }
-
-
-    /* -----------------------------------------
-    BAU
-    ----------------------------------------- */
-
-    .st-key-dashboard_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(7)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #607D8B !important;
-    }
-
-
-    /* -----------------------------------------
-    BUTTON TEXT
-    ----------------------------------------- */
+    /* =========================================
+       BUTTON TEXT
+    ========================================= */
 
     .st-key-dashboard_kpis
     div[data-testid="stButton"] button p {
@@ -1053,17 +787,174 @@ if page == "Dashboard":
             Arial,
             sans-serif !important;
 
-        font-size:15px !important;
+        font-size:13px !important;
 
-        font-weight:600 !important;
+        font-weight:650 !important;
 
-        line-height:1.8 !important;
+        line-height:1.3 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        display:block !important;
+
+        width:100% !important;
+
+        margin:0 !important;
+
+        padding:0 !important;
+
+        color:#111827 !important;
     }
 
 
-    /* -----------------------------------------
-    REMOVE EXTRA GAPS
-    ----------------------------------------- */
+    /* =========================================
+       HOVER
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        transform:translateY(-2px) !important;
+
+        box-shadow:
+            0 10px 22px rgba(0,0,0,.11) !important;
+    }
+
+
+    /* =========================================
+       FOCUS / SELECTED
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        min-height:96px !important;
+
+        height:96px !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,0.12),
+            0 10px 22px rgba(0,103,71,0.16) !important;
+
+        color:#006747 !important;
+
+        transform:translateY(-2px) !important;
+    }
+
+
+    .st-key-dashboard_kpis
+    div[data-testid="stButton"] button:focus p {
+
+        color:#006747 !important;
+
+        font-weight:750 !important;
+    }
+
+
+    /* =========================================
+       CARD 1 - TOTAL
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #006747 !important;
+    }
+
+
+    /* =========================================
+       CARD 2 - SCOPING
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #8E24AA !important;
+    }
+
+
+    /* =========================================
+       CARD 3 - UAT
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #F9A825 !important;
+    }
+
+
+    /* =========================================
+       CARD 4 - IS REVIEW
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #00ACC1 !important;
+    }
+
+
+    /* =========================================
+       CARD 5 - CMC
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #3949AB !important;
+    }
+
+
+    /* =========================================
+       CARD 6 - LIVE
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #00C853 !important;
+    }
+
+
+    /* =========================================
+       CARD 7 - BAU
+    ========================================= */
+
+    .st-key-dashboard_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7)
+    div[data-testid="stButton"] button {
+
+        border-top:6px solid #607D8B !important;
+    }
+
+
+    /* =========================================
+       REMOVE EXTRA GAP
+    ========================================= */
 
     .st-key-dashboard_kpis
     div[data-testid="stVerticalBlock"] {
@@ -1072,21 +963,22 @@ if page == "Dashboard":
     }
 
 
-    /* -----------------------------------------
-    COLUMN SPACING
-    ----------------------------------------- */
+    /* =========================================
+       COLUMN SPACING
+    ========================================= */
 
     .st-key-dashboard_kpis
     div[data-testid="stHorizontalBlock"] {
 
         gap:10px !important;
+
+        align-items:stretch !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
 
-    # =====================================================
     # =====================================================
     # CLICKABLE KPI CARDS
     # =====================================================
@@ -1105,12 +997,13 @@ if page == "Dashboard":
         with c1:
 
             if st.button(
-                f"TOTAL PROJECTS\n\n{total_projects}",
+                f"TOTAL PROJECTS\n{total_projects}",
                 key="dashboard_total",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "All"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1123,12 +1016,13 @@ if page == "Dashboard":
         with c2:
 
             if st.button(
-                f"SCOPING\n\n{scoping_projects}",
+                f"SCOPING\n{scoping_projects}",
                 key="dashboard_scoping",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "SCOPING"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1141,12 +1035,13 @@ if page == "Dashboard":
         with c3:
 
             if st.button(
-                f"UAT\n\n{uat_projects}",
+                f"UAT\n{uat_projects}",
                 key="dashboard_uat",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "UAT"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1159,12 +1054,13 @@ if page == "Dashboard":
         with c4:
 
             if st.button(
-                f"IS REVIEW\n\n{review_projects}",
+                f"IS REVIEW\n{review_projects}",
                 key="dashboard_review",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "IS REVIEW"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1177,12 +1073,13 @@ if page == "Dashboard":
         with c5:
 
             if st.button(
-                f"CMC\n\n{cmc_projects}",
+                f"CMC\n{cmc_projects}",
                 key="dashboard_cmc",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "CMC"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1195,12 +1092,13 @@ if page == "Dashboard":
         with c6:
 
             if st.button(
-                f"LIVE\n\n{live_projects}",
+                f"LIVE\n{live_projects}",
                 key="dashboard_live",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "LIVE"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1213,12 +1111,13 @@ if page == "Dashboard":
         with c7:
 
             if st.button(
-                f"BAU\n\n{bau_projects}",
+                f"BAU\n{bau_projects}",
                 key="dashboard_bau",
                 use_container_width=True
             ):
 
                 st.session_state["project_status_filter"] = "BAU"
+
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
@@ -1232,12 +1131,13 @@ if page == "Dashboard":
     st.markdown("""
     <h2 style="
     color:#006747;
-    font-size:30px;
+    font-size:26px;
     font-weight:700;
-    margin-bottom:18px;">
+    margin-bottom:10px;">
     👥 Team Overview
     </h2>
     """, unsafe_allow_html=True)
+
 
     allocation = (
         df["Allocation"]
@@ -1246,6 +1146,7 @@ if page == "Dashboard":
     )
 
     allocation.columns = ["Allocation", "Projects"]
+
 
     cols = st.columns(4)
 
@@ -1256,45 +1157,52 @@ if page == "Dashboard":
             st.markdown(f"""
     <div style="
     background:linear-gradient(180deg,#ffffff,#f7f9fc);
-    border-radius:18px;
-    padding:16px 12px;
+    border-radius:14px;
+    padding:9px 8px;
     text-align:center;
     border:1px solid #E5E7EB;
-    box-shadow:0 6px 16px rgba(0,0,0,.06);
-    min-height:145px;">
+    box-shadow:0 4px 12px rgba(0,0,0,.05);
+    min-height:100px;
+    box-sizing:border-box;">
 
     <div style="
-    width:50px;
-    height:50px;
+    width:34px;
+    height:34px;
     border-radius:50%;
     background:#E8F5E9;
     margin:auto;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:25px;">
+    font-size:17px;">
     👤
     </div>
 
     <div style="
-    margin-top:10px;
-    font-size:18px;
+    margin-top:5px;
+    font-size:14px;
     font-weight:700;
-    color:#006747;">
+    line-height:1.2;
+    color:#006747;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;">
     {row["Allocation"]}
     </div>
 
     <div style="
-    margin-top:5px;
-    font-size:38px;
+    margin-top:2px;
+    font-size:26px;
     font-weight:800;
+    line-height:1;
     color:#111827;">
     {row["Projects"]}
     </div>
 
     <div style="
     margin-top:2px;
-    font-size:13px;
+    font-size:10px;
+    line-height:1.1;
     color:#6B7280;">
     Projects Assigned
     </div>
@@ -1302,21 +1210,25 @@ if page == "Dashboard":
     </div>
     """, unsafe_allow_html=True)
 
+
     st.markdown("<br>", unsafe_allow_html=True)
 
+
     # =====================================================
-    # TEAM WORKLOAD
+    # TEAM WORKLOAD - COMPACT
     # =====================================================
 
     st.markdown("""
     <h2 style="
     color:#006747;
-    font-size:34px;
+    font-size:24px;
     font-weight:700;
-    margin-bottom:20px;">
+    margin-top:8px;
+    margin-bottom:10px;">
     📊 Team Workload
     </h2>
     """, unsafe_allow_html=True)
+
 
     team_df = (
         df.groupby("Allocation")
@@ -1324,6 +1236,7 @@ if page == "Dashboard":
         .reset_index(name="Projects")
         .sort_values("Projects", ascending=False)
     )
+
 
     fig = px.bar(
         team_df,
@@ -1334,36 +1247,43 @@ if page == "Dashboard":
         color_continuous_scale="Greens"
     )
 
+
     fig.update_traces(
         textposition="outside",
-        marker_line_width=0
+        marker_line_width=0,
+        textfont=dict(size=12)
     )
 
+
     fig.update_layout(
-        height=500,
+        height=380,
         plot_bgcolor="white",
         paper_bgcolor="white",
-        margin=dict(l=20, r=20, t=20, b=20),
+        margin=dict(
+            l=15,
+            r=15,
+            t=8,
+            b=15
+        ),
         coloraxis_showscale=False,
         xaxis_title="",
         yaxis_title="Projects",
-        font=dict(size=15),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(gridcolor="#ECECEC")
+        font=dict(size=12),
+        xaxis=dict(
+            showgrid=False,
+            tickfont=dict(size=12)
+        ),
+        yaxis=dict(
+            gridcolor="#ECECEC",
+            tickfont=dict(size=11)
+        )
     )
 
-    st.markdown("""
-    <div style="
-    background:white;
-    border-radius:24px;
-    padding:15px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 12px 30px rgba(0,0,0,.08);">
-    </div>
-    """, unsafe_allow_html=True)
 
-    st.plotly_chart(fig, width="stretch")
-
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
 
     # =====================================================
     # TEAM SUMMARY - VIP
@@ -1832,78 +1752,123 @@ if page == "Dashboard":
 # =====================================================
 
 elif page == "Projects":
-    project_file = os.path.join(os.path.dirname(__file__), "data", "projects.xlsx")
+
+    project_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "projects.xlsx"
+    )
 
     # =====================================================
-    # HEADER
+    # COMPACT HEADER
     # =====================================================
 
     st.markdown("""
     <div style="
-    background:linear-gradient(180deg,#ffffff,#f8fbff);
-    border-radius:25px;
-    padding:30px;
+    background:linear-gradient(135deg,#ffffff,#f8fbff);
+    border-radius:18px;
+    padding:14px 22px;
     border:1px solid #E5E7EB;
-    box-shadow:0 12px 35px rgba(0,0,0,.08);">
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
+    box-sizing:border-box;
+    margin-bottom:4px;">
 
-    <h1 style="
+    <div style="
     color:#006747;
-    margin:0;
-    font-size:42px;
-    font-weight:700;">
-    📁 Project Portfolio
-    </h1>
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.8px;
+    margin-bottom:4px;">
+    SMARTPAY PROJECT MANAGEMENT
+    </div>
 
-    <p style="
-    margin-top:10px;
+    <div style="
+    color:#006747;
+    font-size:28px;
+    font-weight:800;
+    line-height:1.15;
+    margin:0;">
+    📁 Project Portfolio
+    </div>
+
+    <div style="
+    margin-top:4px;
     color:#6B7280;
-    font-size:18px;">
+    font-size:14px;">
     SmartPay Project Management System
-    </p>
+    </div>
 
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # FILTERS
+    # FILTERS - COMPACT
     # =====================================================
 
     st.markdown("""
     <h2 style="
     color:#006747;
-    font-size:28px;
-    font-weight:700;">
+    font-size:24px;
+    font-weight:700;
+    margin-top:2px;
+    margin-bottom:6px;
+    padding-top:0;">
     🎯 Filters
     </h2>
     """, unsafe_allow_html=True)
 
+
     c1, c2, c3, c4 = st.columns(4)
 
+
     with c1:
+
         search = st.text_input(
             "Search Project",
-            placeholder="🔍 Search Project..."
+            placeholder="🔍 Search Project...",
+            key="project_filter_search"
         )
+
 
     with c2:
+
         allocation = st.selectbox(
             "Team Member",
-            ["All"] + sorted(df["Allocation"].dropna().unique())
+            ["All"] + sorted(
+                df["Allocation"]
+                .dropna()
+                .unique()
+            ),
+            key="project_filter_allocation"
         )
+
 
     with c3:
+
         status = st.selectbox(
             "Status",
-            ["All"] + sorted(df["Status"].dropna().unique())
+            ["All"] + sorted(
+                df["Status"]
+                .dropna()
+                .unique()
+            ),
+            key="project_filter_status"
         )
 
+
     with c4:
+
         category = st.selectbox(
             "Category",
-            ["All"] + sorted(df["Category"].dropna().unique())
+            ["All"] + sorted(
+                df["Category"]
+                .dropna()
+                .unique()
+            ),
+            key="project_filter_category"
         )
+
 
     # =====================================================
     # FILTERING
@@ -1911,55 +1876,69 @@ elif page == "Projects":
 
     filtered_df = df.copy()
 
+
     if search:
+
         filtered_df = filtered_df[
-            filtered_df["Mandate"].astype(str).str.contains(
+            filtered_df["Mandate"]
+            .astype(str)
+            .str.contains(
                 search,
                 case=False,
                 na=False
             )
         ]
 
+
     if allocation != "All":
+
         filtered_df = filtered_df[
             filtered_df["Allocation"] == allocation
         ]
 
+
     if status != "All":
+
         filtered_df = filtered_df[
             filtered_df["Status"] == status
         ]
 
+
     if category != "All":
+
         filtered_df = filtered_df[
             filtered_df["Category"] == category
         ]
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
-    # SUMMARY
+    # COMPACT SUMMARY
     # =====================================================
 
-    left, right = st.columns([3,1])
+    left, right = st.columns([3, 1])
+
 
     with left:
 
         st.markdown(f"""
         <div style="
         background:#E8F5E9;
-        padding:18px;
-        border-radius:15px;
+        padding:9px 14px;
+        border-radius:11px;
         color:#006747;
-        font-size:20px;
-        font-weight:700;">
+        font-size:15px;
+        font-weight:700;
+        margin-top:6px;">
         📌 Showing <b>{len(filtered_df)}</b> Project(s)
         </div>
         """, unsafe_allow_html=True)
 
+
     with right:
 
-        csv = filtered_df.to_csv(index=False).encode("utf-8")
+        csv = filtered_df.to_csv(
+            index=False
+        ).encode("utf-8")
 
         st.download_button(
             "⬇ Download CSV",
@@ -1968,11 +1947,8 @@ elif page == "Projects":
             "text/csv",
             width="stretch"
         )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
     # =====================================================
-    # VIP CLICKABLE KPI CARDS
+    # VIP CLICKABLE KPI CARDS - COMPACT
     # =====================================================
 
     # -----------------------------------------
@@ -1997,10 +1973,6 @@ elif page == "Projects":
         ["SCOPING", "UNDER SCOPING"]
     ).sum()
 
-    development_count = status_clean.isin(
-        ["DEVELOPMENT", "UNDER DEVELOPMENT", "SIT"]
-    ).sum()
-
     uat_count = (
         status_clean == "UAT"
     ).sum()
@@ -2023,218 +1995,57 @@ elif page == "Projects":
 
 
     # =====================================================
-    # =====================================================
-    # VIP CARD CSS
+    # COMPACT KPI CARD CSS
     # =====================================================
 
     st.markdown("""
     <style>
 
-    /* -----------------------------------------
-    KPI CARD CONTAINER
-    ----------------------------------------- */
-
     .st-key-status_kpis div[data-testid="stButton"] {
-        width:100%;
+        width:100% !important;
     }
 
-
-    /* -----------------------------------------
-    BASE CARD
-    ----------------------------------------- */
-
-    .st-key-status_kpis div[data-testid="stButton"] button {
+    .st-key-status_kpis
+    div[data-testid="stButton"] button {
 
         width:100% !important;
-        min-height:125px !important;
+
+        min-height:96px !important;
+        height:96px !important;
 
         background:#FFFFFF !important;
 
         border:1px solid #E5E7EB !important;
-        border-radius:20px !important;
+        border-radius:16px !important;
 
-        padding:18px 10px !important;
+        padding:10px 6px !important;
 
         box-shadow:
-            0 8px 22px rgba(0,0,0,.08) !important;
+            0 6px 16px rgba(0,0,0,.07) !important;
 
         color:#111827 !important;
 
-        font-size:15px !important;
-        font-weight:600 !important;
+        font-size:13px !important;
+        font-weight:650 !important;
 
         font-family:
             "Segoe UI",
             Arial,
             sans-serif !important;
 
-        line-height:1.7 !important;
+        line-height:1.3 !important;
 
         white-space:pre-line !important;
 
         text-align:center !important;
 
-        transition:
-            all .2s ease !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+
+        transition:all .2s ease !important;
     }
 
-
-    /* -----------------------------------------
-    HOVER
-    ----------------------------------------- */
-
-    .st-key-status_kpis div[data-testid="stButton"] button:hover {
-
-        background:#F8FAFC !important;
-
-        transform:translateY(-3px);
-
-        box-shadow:
-            0 12px 28px rgba(0,0,0,.12) !important;
-    }
-
-
-    /* -----------------------------------------
-    FOCUS / CLICK / SELECTED
-    ----------------------------------------- */
-
-    .st-key-status_kpis div[data-testid="stButton"] button:focus {
-
-        outline:none !important;
-
-        min-height:140px !important;
-
-        background:#EAF5F0 !important;
-
-        border:2px solid #006747 !important;
-
-        box-shadow:
-            0 0 0 3px rgba(0,103,71,0.15),
-            0 12px 28px rgba(0,103,71,0.18) !important;
-
-        color:#006747 !important;
-
-        transform:translateY(-3px);
-
-        transition:
-            all .2s ease !important;
-    }
-
-
-    .st-key-status_kpis div[data-testid="stButton"] button:focus p {
-
-        color:#006747 !important;
-
-        font-weight:700 !important;
-    }
-
-    /* -----------------------------------------
-    ALL
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #006747 !important;
-    }
-
-
-    /* -----------------------------------------
-    SCOPING
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #8E24AA !important;
-    }
-
-
-    /* -----------------------------------------
-    DEVELOPMENT
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #FF9800 !important;
-    }
-
-
-    /* -----------------------------------------
-    UAT
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #F9A825 !important;
-    }
-
-
-    /* -----------------------------------------
-    IS REVIEW
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00ACC1 !important;
-    }
-
-
-    /* -----------------------------------------
-    CMC
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #3949AB !important;
-    }
-
-
-    /* -----------------------------------------
-    LIVE
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(7)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #00C853 !important;
-    }
-
-
-    /* -----------------------------------------
-    BAU
-    ----------------------------------------- */
-
-    .st-key-status_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(8)
-    div[data-testid="stButton"] button {
-
-        border-top:7px solid #607D8B !important;
-    }
-
-
-    /* -----------------------------------------
-    BUTTON TEXT
-    ----------------------------------------- */
 
     .st-key-status_kpis
     div[data-testid="stButton"] button p {
@@ -2244,38 +2055,141 @@ elif page == "Projects":
             Arial,
             sans-serif !important;
 
-        font-size:15px !important;
+        font-size:13px !important;
 
-        font-weight:600 !important;
+        font-weight:650 !important;
 
-        line-height:1.8 !important;
+        line-height:1.3 !important;
 
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        display:block !important;
+
+        width:100% !important;
+
+        margin:0 !important;
+        padding:0 !important;
+
+        color:#111827 !important;
     }
 
 
-    /* -----------------------------------------
-    REMOVE EXTRA GAPS
-    ----------------------------------------- */
+    .st-key-status_kpis
+    div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        transform:translateY(-2px) !important;
+
+        box-shadow:
+            0 10px 22px rgba(0,0,0,.11) !important;
+    }
+
 
     .st-key-status_kpis
-    div[data-testid="stVerticalBlock"] {
+    div[data-testid="stButton"] button:focus {
 
+        outline:none !important;
+
+        min-height:96px !important;
+        height:96px !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,0.12),
+            0 10px 22px rgba(0,103,71,0.16) !important;
+
+        color:#006747 !important;
+
+        transform:translateY(-2px) !important;
+    }
+
+
+    /* ALL */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #006747 !important;
+    }
+
+
+    /* SCOPING */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #8E24AA !important;
+    }
+
+
+    /* UAT */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #F9A825 !important;
+    }
+
+
+    /* IS REVIEW */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #00ACC1 !important;
+    }
+
+
+    /* CMC */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #3949AB !important;
+    }
+
+
+    /* LIVE */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #00C853 !important;
+    }
+
+
+    /* BAU */
+    .st-key-status_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7)
+    div[data-testid="stButton"] button {
+        border-top:6px solid #607D8B !important;
+    }
+
+
+    /* REMOVE EXTRA GAPS */
+    .st-key-status_kpis
+    div[data-testid="stVerticalBlock"] {
         gap:0 !important;
     }
 
 
-    /* -----------------------------------------
-    COLUMN SPACING
-    ----------------------------------------- */
-
+    /* COLUMN SPACING */
     .st-key-status_kpis
     div[data-testid="stHorizontalBlock"] {
-
-        gap:10px !important;
+        gap:8px !important;
+        align-items:stretch !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
+
 
     # =====================================================
     # KPI CARD CONTAINER
@@ -2293,10 +2207,11 @@ elif page == "Projects":
         with c1:
 
             if st.button(
-                f"ALL\n\n{all_count}",
+                f"ALL\n{all_count}",
                 key="kpi_all",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "ALL"
                 st.rerun()
 
@@ -2308,15 +2223,14 @@ elif page == "Projects":
         with c2:
 
             if st.button(
-                f"SCOPING\n\n{scoping_count}",
+                f"SCOPING\n{scoping_count}",
                 key="kpi_scoping",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "SCOPING"
                 st.rerun()
 
-
-        
 
         # -----------------------------------------
         # UAT
@@ -2325,10 +2239,11 @@ elif page == "Projects":
         with c3:
 
             if st.button(
-                f"UAT\n\n{uat_count}",
+                f"UAT\n{uat_count}",
                 key="kpi_uat",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "UAT"
                 st.rerun()
 
@@ -2340,10 +2255,11 @@ elif page == "Projects":
         with c4:
 
             if st.button(
-                f"IS REVIEW\n\n{review_count}",
+                f"IS REVIEW\n{review_count}",
                 key="kpi_review",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "IS REVIEW"
                 st.rerun()
 
@@ -2355,10 +2271,11 @@ elif page == "Projects":
         with c5:
 
             if st.button(
-                f"CMC\n\n{cmc_count}",
+                f"CMC\n{cmc_count}",
                 key="kpi_cmc",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "CMC"
                 st.rerun()
 
@@ -2370,10 +2287,11 @@ elif page == "Projects":
         with c6:
 
             if st.button(
-                f"LIVE\n\n{live_count}",
+                f"LIVE\n{live_count}",
                 key="kpi_live",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "LIVE"
                 st.rerun()
 
@@ -2385,10 +2303,11 @@ elif page == "Projects":
         with c7:
 
             if st.button(
-                f"BAU\n\n{bau_count}",
+                f"BAU\n{bau_count}",
                 key="kpi_bau",
                 use_container_width=True
             ):
+
                 st.session_state["project_status_filter"] = "BAU"
                 st.rerun()
 
@@ -2842,6 +2761,7 @@ elif page == "Projects":
 # =====================================================
 
 elif page == "Analytics":
+
     # ==========================================
     # ANALYTICS DATA
     # ==========================================
@@ -2861,73 +2781,130 @@ elif page == "Analytics":
         .str.upper()
         == "BAU"
     ].copy()
-    
+
+
+    # ==========================================
+    # COMPACT HEADER
+    # ==========================================
+
     st.markdown("""
     <div style="
-    background:linear-gradient(180deg,#ffffff,#f8fbff);
-    border-radius:24px;
-    padding:28px;
+    background:linear-gradient(135deg,#ffffff,#f8fbff);
+    border-radius:18px;
+    padding:14px 22px;
     border:1px solid #E5E7EB;
-    box-shadow:0 14px 35px rgba(0,0,0,.10);">
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
+    box-sizing:border-box;
+    margin-bottom:6px;">
 
-    <h1 style="
+    <div style="
     color:#006747;
-    margin:0;
-    font-size:40px;
-    font-weight:700;">
-    📊 Analytics Dashboard
-    </h1>
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.8px;
+    margin-bottom:4px;">
+    SMARTPAY ANALYTICS
+    </div>
 
-    <p style="
+    <div style="
+    color:#006747;
+    font-size:28px;
+    font-weight:800;
+    line-height:1.15;
+    margin:0;">
+    📊 Analytics Dashboard
+    </div>
+
+    <div style="
+    margin-top:4px;
     color:#6B7280;
-    font-size:17px;
-    margin-top:10px;">
+    font-size:14px;">
     SmartPay Project Insights & Team Performance
-    </p>
+    </div>
 
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+
     # ==========================================
     # KPI CARDS
     # ==========================================
 
-    status = df["Status"].astype(str).str.upper().str.strip()
+    status = (
+        df["Status"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+    )
 
     total_projects = len(df)
-    live_projects = len(df[status == "LIVE"])
-    uat_projects = len(df[status == "UAT"])
-    team_members = df["Allocation"].nunique()
 
-    live_percent = round((live_projects / total_projects) * 100, 1) if total_projects else 0
-    uat_percent = round((uat_projects / total_projects) * 100, 1) if total_projects else 0
+    live_projects = len(
+        df[status == "LIVE"]
+    )
 
+    uat_projects = len(
+        df[status == "UAT"]
+    )
+
+    team_members = (
+        df["Allocation"]
+        .nunique()
+    )
+
+    live_percent = (
+        round(
+            (live_projects / total_projects) * 100,
+            1
+        )
+        if total_projects
+        else 0
+    )
+
+    uat_percent = (
+        round(
+            (uat_projects / total_projects) * 100,
+            1
+        )
+        if total_projects
+        else 0
+    )
+
+
+    # ==========================================
+    # COMPACT ANALYTICS KPI CARD
+    # ==========================================
 
     def analytics_card(title, value, color):
 
         st.markdown(f"""
         <div style="
-        background:white;
-        border-radius:22px;
-        padding:24px;
+        background:#FFFFFF;
+        border-radius:14px;
+        padding:10px 8px;
         text-align:center;
-        border-top:7px solid {color};
-        box-shadow:0 10px 30px rgba(0,0,0,.10);
-        min-height:140px;">
+        border-top:5px solid {color};
+        border-left:1px solid #E5E7EB;
+        border-right:1px solid #E5E7EB;
+        border-bottom:1px solid #E5E7EB;
+        box-shadow:0 5px 14px rgba(0,0,0,.06);
+        min-height:90px;
+        box-sizing:border-box;">
 
         <div style="
         color:#6B7280;
-        font-size:15px;
-        font-weight:600;">
+        font-size:12px;
+        font-weight:600;
+        line-height:1.2;">
         {title}
         </div>
 
         <div style="
         color:{color};
-        font-size:46px;
-        font-weight:700;
-        margin-top:18px;">
+        font-size:30px;
+        font-weight:800;
+        line-height:1;
+        margin-top:7px;">
         {value}
         </div>
 
@@ -2937,49 +2914,122 @@ elif page == "Analytics":
 
     k1, k2, k3, k4 = st.columns(4)
 
+
     with k1:
-        analytics_card("Total Projects", total_projects, "#006747")
+
+        analytics_card(
+            "Total Projects",
+            total_projects,
+            "#006747"
+        )
+
 
     with k2:
-        analytics_card("Live %", f"{live_percent}%", "#00C853")
+
+        analytics_card(
+            "Live %",
+            f"{live_percent}%",
+            "#00C853"
+        )
+
 
     with k3:
-        analytics_card("UAT %", f"{uat_percent}%", "#F9A825")
+
+        analytics_card(
+            "UAT %",
+            f"{uat_percent}%",
+            "#F9A825"
+        )
+
 
     with k4:
-        analytics_card("Team Members", team_members, "#3949AB")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        analytics_card(
+            "Team Members",
+            team_members,
+            "#3949AB"
+        )
+
+
+    # ==========================================
+    # SMALL GAP BEFORE FILTERS
+    # ==========================================
+
+    st.markdown(
+        "<div style='height:6px;'></div>",
+        unsafe_allow_html=True
+    )
+
 
     # ==========================================
     # FILTERS
     # ==========================================
 
-    f1, f2 = st.columns([2,2])
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:2px;
+    margin-bottom:7px;">
+    🎯 Analytics Filters
+    </h2>
+    """, unsafe_allow_html=True)
+
+
+    f1, f2 = st.columns([2, 2])
+
 
     with f1:
+
         selected_allocation = st.selectbox(
             "👤 Team Member",
-            ["All"] + sorted(df["Allocation"].dropna().unique())
+            ["All"] + sorted(
+                analytics_source_df[
+                    "Allocation"
+                ]
+                .dropna()
+                .unique()
+            )
         )
+
 
     with f2:
+
         selected_status = st.selectbox(
             "📌 Status",
-            ["All"] + sorted(df["Status"].dropna().unique())
+            ["All"] + sorted(
+                analytics_source_df[
+                    "Status"
+                ]
+                .dropna()
+                .unique()
+            )
         )
 
-    analytics_df = df.copy()
+
+    # ==========================================
+    # ANALYTICS FILTER DATA
+    # ==========================================
+
+    analytics_df = analytics_source_df.copy()
+
 
     if selected_allocation != "All":
+
         analytics_df = analytics_df[
-            analytics_df["Allocation"] == selected_allocation
+            analytics_df["Allocation"]
+            == selected_allocation
         ]
 
+
     if selected_status != "All":
+
         analytics_df = analytics_df[
-            analytics_df["Status"] == selected_status
+            analytics_df["Status"]
+            == selected_status
         ]
+
 
     analytics_df["Status"] = (
         analytics_df["Status"]
@@ -2987,6 +3037,11 @@ elif page == "Analytics":
         .str.upper()
         .str.strip()
     )
+
+
+    # ==========================================
+    # STATUS ORDER
+    # ==========================================
 
     status_order = [
         "LIVE",
@@ -2996,20 +3051,26 @@ elif page == "Analytics":
         "UNDER SCOPING"
     ]
 
+
     color_map = {
-        "LIVE":"#00C853",
-        "UAT":"#F9A825",
-        "IS REVIEW":"#00ACC1",
-        "CMC":"#3949AB",
-        "UNDER SCOPING":"#8E24AA"
+        "LIVE": "#00C853",
+        "UAT": "#F9A825",
+        "IS REVIEW": "#00ACC1",
+        "CMC": "#3949AB",
+        "UNDER SCOPING": "#8E24AA"
     }
 
     # ==========================================
-    # STATUS CHART
+    # STATUS CHART - COMPACT
     # ==========================================
 
     st.markdown("""
-    <h2 style="color:#006747;font-size:30px;">
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:6px;
+    margin-bottom:8px;">
     📈 Project Status
     </h2>
     """, unsafe_allow_html=True)
@@ -3036,7 +3097,7 @@ elif page == "Analytics":
     )
 
     fig1.update_layout(
-        height=470,
+        height=380,
         template="plotly_white",
         plot_bgcolor="white",
         paper_bgcolor="white",
@@ -3045,21 +3106,33 @@ elif page == "Analytics":
 
         font=dict(
             color="#111827",
-            size=14
+            size=12
         ),
 
         xaxis=dict(
             title="Status",
-            title_font=dict(color="#374151", size=14),
-            tickfont=dict(color="#374151", size=13),
+            title_font=dict(
+                color="#374151",
+                size=12
+            ),
+            tickfont=dict(
+                color="#374151",
+                size=11
+            ),
             showgrid=False,
             zeroline=False
         ),
 
         yaxis=dict(
             title="Projects",
-            title_font=dict(color="#374151", size=14),
-            tickfont=dict(color="#374151", size=13),
+            title_font=dict(
+                color="#374151",
+                size=12
+            ),
+            tickfont=dict(
+                color="#374151",
+                size=11
+            ),
             gridcolor="#E5E7EB",
             zeroline=False
         ),
@@ -3067,33 +3140,41 @@ elif page == "Analytics":
         legend=dict(
             font=dict(
                 color="#374151",
-                size=12
+                size=11
             )
         ),
 
         margin=dict(
-            l=50,
-            r=30,
-            t=20,
-            b=60
+            l=35,
+            r=20,
+            t=10,
+            b=45
         )
     )
 
     fig1.update_traces(
         textposition="inside",
+        textfont=dict(size=11),
         marker_line_width=0
     )
 
-    st.plotly_chart(fig1, width="stretch")
+    st.plotly_chart(
+        fig1,
+        width="stretch"
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # ==========================================
-    # TEAM PERFORMANCE
+    # TEAM PERFORMANCE - COMPACT
     # ==========================================
 
     st.markdown("""
-    <h2 style="color:#006747;font-size:30px;">
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:6px;
+    margin-bottom:8px;">
     👥 Team Performance
     </h2>
     """, unsafe_allow_html=True)
@@ -3119,7 +3200,7 @@ elif page == "Analytics":
     )
 
     fig2.update_layout(
-        height=470,
+        height=380,
         template="plotly_white",
         plot_bgcolor="white",
         paper_bgcolor="white",
@@ -3127,14 +3208,14 @@ elif page == "Analytics":
 
         font=dict(
             color="#111827",
-            size=14
+            size=12
         ),
 
         xaxis=dict(
             title="",
             tickfont=dict(
                 color="#374151",
-                size=13
+                size=11
             ),
             showgrid=False,
             zeroline=False
@@ -3144,21 +3225,21 @@ elif page == "Analytics":
             title="Projects",
             title_font=dict(
                 color="#374151",
-                size=14
+                size=12
             ),
             tickfont=dict(
                 color="#374151",
-                size=13
+                size=11
             ),
             gridcolor="#E5E7EB",
             zeroline=False
         ),
 
         margin=dict(
-            l=50,
-            r=30,
-            t=20,
-            b=80
+            l=35,
+            r=20,
+            t=10,
+            b=55
         )
     )
 
@@ -3166,16 +3247,18 @@ elif page == "Analytics":
         textposition="outside",
         textfont=dict(
             color="#111827",
-            size=13
+            size=11
         )
     )
 
-    st.plotly_chart(fig2, width="stretch")
+    st.plotly_chart(
+        fig2,
+        width="stretch"
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # ==========================================
-    # PERSON ANALYTICS
+    # PERSON ANALYTICS - COMPACT
     # ==========================================
 
     if selected_allocation != "All":
@@ -3188,15 +3271,18 @@ elif page == "Analytics":
             analytics_df["Allocation"] == selected_allocation
         ].copy()
 
+
         # ==========================================
-        # PIE CHART - TOP
+        # PIE CHART
         # ==========================================
 
         st.markdown(
             f"""
             <h2 style="
             color:#006747;
-            font-size:28px;
+            font-size:24px;
+            font-weight:700;
+            margin-top:6px;
             margin-bottom:5px;">
             🥧 {selected_allocation}
             </h2>
@@ -3226,35 +3312,35 @@ elif page == "Analytics":
         )
 
         fig3.update_layout(
-            height=430,
+            height=360,
             template="plotly_white",
             plot_bgcolor="white",
             paper_bgcolor="white",
 
             font=dict(
                 color="#111827",
-                size=13
+                size=12
             ),
 
             legend=dict(
                 font=dict(
                     color="#374151",
-                    size=12
+                    size=11
                 )
             ),
 
             margin=dict(
-                l=20,
-                r=20,
-                t=10,
-                b=10
+                l=10,
+                r=10,
+                t=5,
+                b=5
             )
         )
 
         fig3.update_traces(
             textfont=dict(
                 color="white",
-                size=13
+                size=11
             )
         )
 
@@ -3271,14 +3357,16 @@ elif page == "Analytics":
             """
             <h2 style="
             color:#006747;
-            font-size:28px;
-            margin-top:10px;
-            margin-bottom:20px;">
+            font-size:24px;
+            font-weight:700;
+            margin-top:8px;
+            margin-bottom:12px;">
             📊 Project Status Progress
             </h2>
             """,
             unsafe_allow_html=True
         )
+
 
         status_stages = [
             "SCOPING",
@@ -3287,6 +3375,7 @@ elif page == "Analytics":
             "CMC",
             "LIVE"
         ]
+
 
         status_progress = {
             "SCOPING": 1,
@@ -3297,22 +3386,33 @@ elif page == "Analytics":
             "LIVE": 5
         }
 
+
         # ==========================================
         # REMOVE BAU PROJECTS
         # ==========================================
 
         project_df = person_df[
-            person_df["Status"].astype(str).str.strip().str.upper() != "BAU"
+            person_df["Status"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            != "BAU"
         ].copy()
 
+
         # ==========================================
-        # SHOW ONLY NON-BAU PROJECTS
+        # INDIVIDUAL PROJECT CARDS
         # ==========================================
 
         for _, row in project_df.iterrows():
 
-            project_name = str(row["Mandate"])
-            current_status = str(row["Status"]).strip().upper()
+            project_name = str(
+                row["Mandate"]
+            ).strip()
+
+            current_status = str(
+                row["Status"]
+            ).strip().upper()
 
             current_stage = status_progress.get(
                 current_status,
@@ -3323,9 +3423,10 @@ elif page == "Analytics":
                 (current_stage / 5) * 100
             )
 
-            # ==================================
+
+            # ======================================
             # STATUS COLORS
-            # ==================================
+            # ======================================
 
             if current_status == "LIVE":
 
@@ -3337,98 +3438,117 @@ elif page == "Analytics":
                 status_bg = "#FEF3C7"
                 status_color = "#92400E"
 
+            elif current_status == "CMC":
+
+                status_bg = "#EDE9FE"
+                status_color = "#5B21B6"
+
+            elif current_status == "IS REVIEW":
+
+                status_bg = "#CCFBF1"
+                status_color = "#115E59"
+
+            elif current_status in [
+                "SCOPING",
+                "UNDER SCOPING"
+            ]:
+
+                status_bg = "#F3E8FF"
+                status_color = "#7E22CE"
 
             else:
 
                 status_bg = "#F3F4F6"
                 status_color = "#374151"
 
-            # ==================================
+
+            # ======================================
             # PROJECT CARD
-            # ==================================
+            # ======================================
 
             card_html = f"""
             <div style="
-            background:#FFFFFF;
-            border:1px solid #E5E7EB;
-            border-radius:16px;
-            padding:18px 20px;
-            margin-bottom:6px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.06);
+                background:#FFFFFF;
+                border:1px solid #DDE5E1;
+                border-radius:14px;
+                padding:12px 14px;
+                margin-bottom:10px;
+                box-shadow:0 4px 12px rgba(0,103,71,.06);
+                box-sizing:border-box;
             ">
 
-            <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:20px;
-            margin-bottom:15px;
-            ">
+                <!-- PROJECT HEADER -->
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:12px;
+                    margin-bottom:9px;
+                ">
 
-            <div style="
-            color:#111827;
-            font-size:16px;
-            font-weight:700;
-            flex:1;
-            line-height:1.4;
-            word-break:break-word;
-            ">
-            📁 {project_name}
-            </div>
+                    <div style="
+                        color:#006747;
+                        font-size:14px;
+                        font-weight:750;
+                        line-height:1.3;
+                        flex:1;
+                        word-break:break-word;
+                    ">
+                        📁 {project_name}
+                    </div>
 
-            <div style="
-            background:{status_bg};
-            color:{status_color};
-            padding:6px 12px;
-            border-radius:20px;
-            font-size:10px;
-            font-weight:800;
-            white-space:nowrap;
-            flex-shrink:0;
-            ">
-            {current_status}
-            </div>
+                    <div style="
+                        background:{status_bg};
+                        color:{status_color};
+                        padding:4px 9px;
+                        border-radius:14px;
+                        font-size:9px;
+                        font-weight:800;
+                        white-space:nowrap;
+                        flex-shrink:0;
+                    ">
+                        {current_status}
+                    </div>
 
-            </div>
+                </div>
 
-            <div style="
-            width:100%;
-            height:8px;
-            background:#E5E7EB;
-            border-radius:10px;
-            overflow:hidden;
-            ">
 
-            <div style="
-            width:{progress_percent}%;
-            height:100%;
-            background:#006747;
-            border-radius:10px;
-            ">
-            </div>
+                <!-- PROGRESS LINE -->
 
-            </div>
+                <div style="
+                    width:100%;
+                    height:6px;
+                    background:#E5E7EB;
+                    border-radius:10px;
+                    overflow:hidden;
+                ">
 
-            </div>
+                    <div style="
+                        width:{progress_percent}%;
+                        height:100%;
+                        background:#006747;
+                        border-radius:10px;
+                    ">
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS STEPS -->
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;
+                    margin-top:9px;
+                ">
             """
 
-            st.html(card_html)
 
-            # ==================================
-            # STATUS STEPS
-            # ==================================
-
-            steps_html = """
-            <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            margin:0 0 28px 0;
-            padding:0 5px;
-            ">
-            """
-
-            for i, stage in enumerate(status_stages, start=1):
+            for i, stage in enumerate(
+                status_stages,
+                start=1
+            ):
 
                 if i <= current_stage:
 
@@ -3440,39 +3560,46 @@ elif page == "Analytics":
                     dot_color = "#D1D5DB"
                     text_color = "#9CA3AF"
 
-                steps_html += f"""
-            <div style="
-            flex:1;
-            text-align:center;
-            ">
 
-            <div style="
-            width:10px;
-            height:10px;
-            background:{dot_color};
-            border-radius:50%;
-            margin:auto;
-            ">
-            </div>
+                card_html += f"""
+                    <div style="
+                        flex:1;
+                        text-align:center;
+                    ">
 
-            <div style="
-            margin-top:6px;
-            color:{text_color};
-            font-size:9px;
-            font-weight:700;
-            white-space:nowrap;
-            ">
-            {stage}
-            </div>
+                        <div style="
+                            width:8px;
+                            height:8px;
+                            background:{dot_color};
+                            border-radius:50%;
+                            margin:auto;
+                        ">
+                        </div>
+
+                        <div style="
+                            margin-top:4px;
+                            color:{text_color};
+                            font-size:8px;
+                            font-weight:700;
+                            white-space:nowrap;
+                        ">
+                            {stage}
+                        </div>
+
+                    </div>
+                """
+
+
+            card_html += """
+                </div>
 
             </div>
             """
 
-            steps_html += """
-            </div>
-            """
 
-            st.html(steps_html)
+            st.html(card_html)
+
+
         # ==========================================
         # PROJECT DETAILS
         # ==========================================
@@ -3480,9 +3607,9 @@ elif page == "Analytics":
         display_person_df = person_df.copy()
 
 
-        # ------------------------------------------
+        # ==========================================
         # DATE FORMAT
-        # ------------------------------------------
+        # ==========================================
 
         for col in ["Date", "Live Date"]:
 
@@ -3499,16 +3626,19 @@ elif page == "Analytics":
                     "%Y-%m-%d"
                 )
 
-                # Keep text like BAU
+                # Keep text values like BAU
                 display_person_df[col] = formatted.where(
                     parsed.notna(),
                     original.astype(str)
                 )
 
                 # Blank values
-                display_person_df[col] = display_person_df[col].replace(
-                    ["nan", "NaT", "", "None"],
-                    "TBD"
+                display_person_df[col] = (
+                    display_person_df[col]
+                    .replace(
+                        ["nan", "NaT", "", "None"],
+                        "TBD"
+                    )
                 )
 
 
@@ -3517,176 +3647,203 @@ elif page == "Analytics":
             width="stretch",
             hide_index=True
         )
-    # =====================================================
-    # BAU MONITORING ANALYTICS
-    # =====================================================
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:30px;
-    font-weight:700;
-    margin-top:25px;">
-    🏦 BAU Monitoring
-    </h2>
-
-    <p style="
-    color:#6B7280;
-    font-size:16px;
-    margin-bottom:20px;">
-    Business as Usual projects are monitored separately from delivery projects.
-    </p>
-    """, unsafe_allow_html=True)
 
 
-    # =====================================================
-    # BAU DATA
-    # =====================================================
+# =====================================================
+        # =====================================================
+        # BAU MONITORING ANALYTICS - COMPACT
+        # =====================================================
 
-    bau_df = df[
-        df["Status"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        == "BAU"
-    ].copy()
-
-
-    # =====================================================
-    # BAU KPI
-    # =====================================================
-
-    bau_total = len(bau_df)
-
-    bau_owners = (
-        bau_df["Allocation"]
-        .dropna()
-        .astype(str)
-        .nunique()
-    )
-
-    bau_updates = (
-        bau_df["Update"]
-        .notna()
-        .sum()
-        if "Update" in bau_df.columns
-        else 0
-    )
-
-
-    b1, b2, b3 = st.columns(3)
-
-
-    with b1:
-        analytics_card(
-            "BAU Projects",
-            bau_total,
-            "#607D8B"
+        st.markdown(
+            "<div style='height:6px;'></div>",
+            unsafe_allow_html=True
         )
 
-    with b2:
-        analytics_card(
-            "BAU Owners",
-            bau_owners,
-            "#3949AB"
-        )
-
-    with b3:
-        analytics_card(
-            "BAU Updates",
-            bau_updates,
-            "#00897B"
-        )
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
-    # =====================================================
-    # BAU PROJECTS BY OWNER
-    # =====================================================
-
-    if not bau_df.empty:
 
         st.markdown("""
         <h2 style="
         color:#006747;
-        font-size:26px;
-        font-weight:700;">
-        👥 BAU Projects by Owner
+        font-size:24px;
+        font-weight:700;
+        margin-top:8px;
+        margin-bottom:5px;">
+        🏦 BAU Monitoring
         </h2>
+
+        <p style="
+        color:#6B7280;
+        font-size:13px;
+        margin-top:0;
+        margin-bottom:12px;">
+        Business as Usual projects are monitored separately from delivery projects.
+        </p>
         """, unsafe_allow_html=True)
 
 
-        bau_owner_count = (
-            bau_df["Allocation"]
+        # =====================================================
+        # BAU DATA
+        # =====================================================
+
+        bau_df = df[
+            df["Status"]
             .astype(str)
-            .value_counts()
-            .reset_index()
+            .str.strip()
+            .str.upper()
+            == "BAU"
+        ].copy()
+
+
+        # =====================================================
+        # BAU KPI
+        # =====================================================
+
+        bau_total = len(bau_df)
+
+        bau_owners = (
+            bau_df["Allocation"]
+            .dropna()
+            .astype(str)
+            .nunique()
         )
 
-        bau_owner_count.columns = [
-            "Allocation",
-            "Projects"
-        ]
-
-
-        fig_bau = px.bar(
-            bau_owner_count,
-            x="Allocation",
-            y="Projects",
-            text="Projects",
-            color="Projects",
-            color_continuous_scale="Greens"
+        bau_updates = (
+            bau_df["Update"]
+            .notna()
+            .sum()
+            if "Update" in bau_df.columns
+            else 0
         )
 
 
-        fig_bau.update_traces(
-            textposition="outside",
-            marker_line_width=0
-        )
+        b1, b2, b3 = st.columns(3)
 
 
-        fig_bau.update_layout(
-            height=450,
-            template="plotly_white",
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-            coloraxis_showscale=False,
+        with b1:
 
-            xaxis=dict(
-                title="",
-                showgrid=False
-            ),
-
-            yaxis=dict(
-                title="BAU Projects",
-                gridcolor="#E5E7EB"
-            ),
-
-            margin=dict(
-                l=50,
-                r=30,
-                t=20,
-                b=60
+            analytics_card(
+                "BAU Projects",
+                bau_total,
+                "#607D8B"
             )
-        )
 
 
-        st.plotly_chart(
-            fig_bau,
-            width="stretch"
-        )
-# =====================================================
+        with b2:
+
+            analytics_card(
+                "BAU Owners",
+                bau_owners,
+                "#3949AB"
+            )
+
+
+        with b3:
+
+            analytics_card(
+                "BAU Updates",
+                bau_updates,
+                "#00897B"
+            )
+
+
+        # =====================================================
+        # BAU PROJECTS BY OWNER
+        # =====================================================
+
+        if not bau_df.empty:
+
+            st.markdown("""
+            <h2 style="
+            color:#006747;
+            font-size:22px;
+            font-weight:700;
+            margin-top:8px;
+            margin-bottom:8px;">
+            👥 BAU Projects by Owner
+            </h2>
+            """, unsafe_allow_html=True)
+
+
+            bau_owner_count = (
+                bau_df["Allocation"]
+                .astype(str)
+                .value_counts()
+                .reset_index()
+            )
+
+            bau_owner_count.columns = [
+                "Allocation",
+                "Projects"
+            ]
+
+
+            fig_bau = px.bar(
+                bau_owner_count,
+                x="Allocation",
+                y="Projects",
+                text="Projects",
+                color="Projects",
+                color_continuous_scale="Greens"
+            )
+
+
+            fig_bau.update_traces(
+                textposition="outside",
+                marker_line_width=0,
+                textfont=dict(size=11)
+            )
+
+
+            fig_bau.update_layout(
+                height=370,
+                template="plotly_white",
+                plot_bgcolor="white",
+                paper_bgcolor="white",
+                coloraxis_showscale=False,
+
+                font=dict(
+                    color="#111827",
+                    size=11
+                ),
+
+                xaxis=dict(
+                    title="",
+                    showgrid=False,
+                    tickfont=dict(
+                        color="#374151",
+                        size=11
+                    )
+                ),
+
+                yaxis=dict(
+                    title="BAU Projects",
+                    gridcolor="#E5E7EB",
+                    tickfont=dict(
+                        color="#374151",
+                        size=10
+                    )
+                ),
+
+                margin=dict(
+                    l=35,
+                    r=20,
+                    t=8,
+                    b=45
+                )
+            )
+
+
+            st.plotly_chart(
+                fig_bau,
+                width="stretch"
+            )
+## =====================================================
 # PROJECT TIMELINE
 # =====================================================
 
 elif page == "Project Timeline":
+
     # ==========================================
     # TIMELINE DATA
-    # EXCLUDE BAU PROJECTS
     # ==========================================
 
     timeline_df = df[
@@ -3696,47 +3853,49 @@ elif page == "Project Timeline":
         .str.upper()
         != "BAU"
     ].copy()
+
     # ==========================================
     # HEADER
     # ==========================================
 
     st.html("""
     <div style="
-        background:linear-gradient(180deg,#ffffff,#f8fbff);
-        border-radius:24px;
-        padding:28px;
+        background:linear-gradient(135deg,#ffffff,#f8fbff);
+        border-radius:18px;
+        padding:14px 22px;
         border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        margin-bottom:20px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+        margin-bottom:8px;
+        font-family:Segoe UI,Arial,sans-serif;
+    ">
         <div style="
             color:#006747;
-            font-size:14px;
+            font-size:12px;
             font-weight:700;
-            letter-spacing:2px;
-            margin-bottom:8px;">
+            letter-spacing:1.8px;
+            margin-bottom:4px;
+        ">
             SMARTPAY PROJECT MANAGEMENT
         </div>
 
         <div style="
             color:#006747;
-            font-size:40px;
-            font-weight:700;
-            margin:0;">
-            Project Timeline
+            font-size:28px;
+            font-weight:800;
+            line-height:1.15;
+        ">
+            📅 Project Timeline
         </div>
 
         <div style="
             color:#6B7280;
-            font-size:17px;
-            margin-top:10px;">
+            font-size:14px;
+            margin-top:4px;
+        ">
             Track the current progress of SmartPay projects across every delivery stage.
         </div>
-
     </div>
     """)
-
 
     # ==========================================
     # LEGEND
@@ -3744,129 +3903,123 @@ elif page == "Project Timeline":
 
     st.html("""
     <div style="
-        background:white;
-        border-radius:18px;
-        padding:18px 22px;
+        background:#FFFFFF;
+        border-radius:14px;
+        padding:9px 14px;
         border:1px solid #E5E7EB;
-        box-shadow:0 8px 20px rgba(0,0,0,.06);
-        margin-bottom:25px;
+        box-shadow:0 4px 12px rgba(0,0,0,.05);
+        margin-bottom:10px;
         font-family:Segoe UI,Arial,sans-serif;
     ">
-
         <div style="
             color:#006747;
-            font-size:16px;
+            font-size:13px;
             font-weight:700;
-            margin-bottom:14px;">
+            margin-bottom:7px;
+        ">
             Timeline Status
         </div>
 
         <div style="
             display:flex;
             align-items:center;
-            gap:28px;
-            font-size:14px;
-            font-weight:600;">
-
+            gap:22px;
+            flex-wrap:wrap;
+            font-size:11px;
+            font-weight:600;
+        ">
             <div>
                 <span style="
                     display:inline-block;
-                    width:13px;
-                    height:13px;
+                    width:9px;
+                    height:9px;
                     background:#16A34A;
                     border-radius:50%;
-                    margin-right:7px;">
-                </span>
-                <span style="color:#374151;">
-                    Completed
-                </span>
+                    margin-right:5px;
+                "></span>
+                <span style="color:#374151;">Completed</span>
             </div>
 
             <div>
                 <span style="
                     display:inline-block;
-                    width:13px;
-                    height:13px;
+                    width:9px;
+                    height:9px;
                     background:#F59E0B;
                     border-radius:50%;
-                    margin-right:7px;">
-                </span>
-                <span style="color:#374151;">
-                    Current Stage
-                </span>
+                    margin-right:5px;
+                "></span>
+                <span style="color:#374151;">Current Stage</span>
             </div>
 
             <div>
                 <span style="
                     display:inline-block;
-                    width:13px;
-                    height:13px;
+                    width:9px;
+                    height:9px;
                     background:#D1D5DB;
                     border-radius:50%;
-                    margin-right:7px;">
-                </span>
-                <span style="color:#374151;">
-                    Pending
-                </span>
+                    margin-right:5px;
+                "></span>
+                <span style="color:#374151;">Pending</span>
             </div>
-
         </div>
-
     </div>
     """)
-
 
     # ==========================================
     # SEARCH
     # ==========================================
 
-    st.markdown("""
-    <h2 style="
+    st.html("""
+    <div style="
         color:#006747;
-        font-size:28px;
-        margin-bottom:15px;">
+        font-size:24px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:4px;
+        font-family:Segoe UI,Arial,sans-serif;">
         🔎 Find Project Timeline
-    </h2>
-    """, unsafe_allow_html=True)
-
+    </div>
+    """)
 
     search_type = st.radio(
         "Search By",
         ["Project", "Team Member"],
-        horizontal=True
+        horizontal=True,
+        label_visibility="visible"
     )
 
+    st.markdown(
+        "<div style='height:2px;'></div>",
+        unsafe_allow_html=True
+    )
 
     if search_type == "Project":
 
         selected = st.selectbox(
-        "Select Project",
-        ["All Projects"] +
-        sorted(
-            timeline_df["Mandate"]
-            .dropna()
-            .astype(str)
-            .unique()
+            "Select Project",
+            ["All Projects"] + sorted(
+                timeline_df["Mandate"]
+                .dropna()
+                .astype(str)
+                .unique()
+            ),
+            key="timeline_project_select"
         )
-    )
 
     else:
 
         selected = st.selectbox(
-        "Select Team Member",
-        ["All Members"] +
-        sorted(
-            timeline_df["Allocation"]
-            .dropna()
-            .astype(str)
-            .unique()
+            "Select Team Member",
+            ["All Members"] + sorted(
+                timeline_df["Allocation"]
+                .dropna()
+                .astype(str)
+                .unique()
+            ),
+            key="timeline_member_select"
         )
-    )
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
     # ==========================================
     # STAGES
     # ==========================================
@@ -3879,55 +4032,61 @@ elif page == "Project Timeline":
         "CMC",
         "LIVE"
     ]
-
-
     # ==========================================
-    # TIMELINE FUNCTION
+    # TIMELINE FUNCTION - COMPACT
     # ==========================================
 
     def show_timeline(project):
 
-        current = str(project["Status"]).upper().strip()
+        current = str(
+            project["Status"]
+        ).upper().strip()
 
+
+        # ==========================================
         # STATUS MAPPING
+        # ==========================================
 
         if current in [
             "SIT",
             "UNDER DEVELOPMENT",
             "DEVELOPMENT"
         ]:
+
             current = "DEVELOPMENT"
 
         elif current in [
             "UNDER SCOPING",
             "SCOPING"
         ]:
+
             current = "SCOPING"
 
         elif current not in stages:
+
             current = "SCOPING"
 
 
         current_index = stages.index(current)
 
 
-        # ======================================
-        # PROJECT TITLE
-        # ======================================
+        # ==========================================
+        # PROJECT TITLE - COMPACT
+        # ==========================================
 
         st.html(f"""
         <div style="
             background:linear-gradient(180deg,#ffffff,#f9fbfd);
-            border-radius:22px;
-            padding:25px;
-            margin-bottom:12px;
+            border-radius:15px;
+            padding:11px 15px;
+            margin-bottom:7px;
             border:1px solid #E5E7EB;
-            box-shadow:0 10px 28px rgba(0,0,0,.08);
+            box-shadow:0 4px 12px rgba(0,0,0,.06);
             font-family:Segoe UI,Arial,sans-serif;">
 
             <div style="
                 color:#6B7280;
-                font-size:12px;
+                font-size:10px;
                 font-weight:600;
                 letter-spacing:1px;">
                 PROJECT TIMELINE
@@ -3935,9 +4094,11 @@ elif page == "Project Timeline":
 
             <div style="
                 color:#006747;
-                font-size:25px;
-                font-weight:700;
-                margin-top:5px;">
+                font-size:18px;
+                font-weight:750;
+                line-height:1.3;
+                margin-top:3px;
+                word-break:break-word;">
                 📌 {project["Mandate"]}
             </div>
 
@@ -3945,58 +4106,69 @@ elif page == "Project Timeline":
         """)
 
 
-        # ======================================
-        # TIMELINE HTML
-        # ======================================
+        # ==========================================
+        # TIMELINE - COMPACT
+        # ==========================================
 
         timeline_html = """
         <div style="
             background:white;
-            border-radius:20px;
-            padding:28px 20px;
+            border-radius:15px;
+            padding:15px 12px;
             border:1px solid #E5E7EB;
-            box-shadow:0 8px 22px rgba(0,0,0,.06);
+            box-shadow:0 5px 14px rgba(0,0,0,.05);
             font-family:Segoe UI,Arial,sans-serif;
-            overflow-x:auto;">
+            overflow-x:auto;
+            margin-bottom:8px;">
 
             <div style="
                 display:flex;
                 align-items:flex-start;
-                min-width:700px;">
+                min-width:620px;">
         """
 
 
         for i, stage in enumerate(stages):
 
             if i < current_index:
+
                 color = "#16A34A"
                 symbol = "✓"
 
             elif i == current_index:
+
                 color = "#F59E0B"
                 symbol = "●"
 
             else:
+
                 color = "#D1D5DB"
                 symbol = "○"
 
 
-            # connector
+            # ======================================
+            # CONNECTOR
+            # ======================================
+
             connector = ""
 
             if i < len(stages) - 1:
 
                 if i < current_index:
+
                     line_color = "#16A34A"
+
                 else:
+
                     line_color = "#D1D5DB"
+
 
                 connector = f"""
                 <div style="
                     flex:1;
-                    height:4px;
+                    height:3px;
                     background:{line_color};
-                    margin-top:18px;">
+                    margin-top:14px;">
                 </div>
                 """
 
@@ -4004,29 +4176,30 @@ elif page == "Project Timeline":
             timeline_html += f"""
 
             <div style="
-                width:90px;
+                width:78px;
                 text-align:center;
                 flex-shrink:0;">
 
                 <div style="
-                    width:38px;
-                    height:38px;
+                    width:28px;
+                    height:28px;
                     border-radius:50%;
                     background:{color};
                     color:white;
                     margin:auto;
-                    line-height:38px;
-                    font-size:18px;
+                    line-height:28px;
+                    font-size:13px;
                     font-weight:700;
-                    box-shadow:0 4px 12px rgba(0,0,0,.15);">
+                    box-shadow:0 3px 8px rgba(0,0,0,.12);">
                     {symbol}
                 </div>
 
                 <div style="
-                    margin-top:10px;
+                    margin-top:6px;
                     color:#374151;
-                    font-size:11px;
-                    font-weight:700;">
+                    font-size:9px;
+                    font-weight:700;
+                    white-space:nowrap;">
                     {stage}
                 </div>
 
@@ -4042,15 +4215,14 @@ elif page == "Project Timeline":
         """
 
 
-        st.html(timeline_html)
+        st.html(
+            timeline_html
+        )
 
 
-        st.markdown("<br>", unsafe_allow_html=True)
-
-
-        # ======================================
-        # PROJECT INFORMATION
-        # ======================================
+        # ==========================================
+        # PROJECT INFORMATION - COMPACT
+        # ==========================================
 
         c1, c2, c3 = st.columns(3)
 
@@ -4060,24 +4232,26 @@ elif page == "Project Timeline":
             st.html(f"""
             <div style="
                 background:white;
-                border-radius:16px;
-                padding:18px;
+                border-radius:13px;
+                padding:10px 12px;
                 border:1px solid #E5E7EB;
-                box-shadow:0 5px 15px rgba(0,0,0,.05);
-                font-family:Segoe UI,Arial,sans-serif;">
+                box-shadow:0 3px 10px rgba(0,0,0,.04);
+                font-family:Segoe UI,Arial,sans-serif;
+                min-height:66px;">
 
                 <div style="
                     color:#6B7280;
-                    font-size:12px;
+                    font-size:10px;
                     font-weight:600;">
                     PROJECT
                 </div>
 
                 <div style="
                     color:#111827;
-                    font-size:16px;
+                    font-size:13px;
                     font-weight:700;
-                    margin-top:5px;">
+                    line-height:1.25;
+                    margin-top:3px;">
                     {project["Mandate"]}
                 </div>
 
@@ -4090,24 +4264,25 @@ elif page == "Project Timeline":
             st.html(f"""
             <div style="
                 background:white;
-                border-radius:16px;
-                padding:18px;
+                border-radius:13px;
+                padding:10px 12px;
                 border:1px solid #E5E7EB;
-                box-shadow:0 5px 15px rgba(0,0,0,.05);
+                box-shadow:0 3px 10px rgba(0,0,0,.04);
+                min-height:66px;
                 font-family:Segoe UI,Arial,sans-serif;">
 
                 <div style="
                     color:#6B7280;
-                    font-size:12px;
+                    font-size:10px;
                     font-weight:600;">
                     OWNER
                 </div>
 
                 <div style="
                     color:#006747;
-                    font-size:16px;
+                    font-size:13px;
                     font-weight:700;
-                    margin-top:5px;">
+                    margin-top:3px;">
                     {project["Allocation"]}
                 </div>
 
@@ -4120,24 +4295,25 @@ elif page == "Project Timeline":
             st.html(f"""
             <div style="
                 background:white;
-                border-radius:16px;
-                padding:18px;
+                border-radius:13px;
+                padding:10px 12px;
                 border:1px solid #E5E7EB;
-                box-shadow:0 5px 15px rgba(0,0,0,.05);
+                box-shadow:0 3px 10px rgba(0,0,0,.04);
+                min-height:66px;
                 font-family:Segoe UI,Arial,sans-serif;">
 
                 <div style="
                     color:#92400E;
-                    font-size:12px;
+                    font-size:10px;
                     font-weight:600;">
                     CURRENT STAGE
                 </div>
 
                 <div style="
                     color:#F59E0B;
-                    font-size:16px;
+                    font-size:13px;
                     font-weight:700;
-                    margin-top:5px;">
+                    margin-top:3px;">
                     {current}
                 </div>
 
@@ -4145,7 +4321,10 @@ elif page == "Project Timeline":
             """)
 
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(
+            "<div style='height:8px;'></div>",
+            unsafe_allow_html=True
+        )
 
 
     # ==========================================
@@ -4157,16 +4336,21 @@ elif page == "Project Timeline":
         if selected == "All Projects":
 
             for _, project in timeline_df.iterrows():
+
                 show_timeline(project)
 
         else:
 
             selected_project = timeline_df[
-                timeline_df["Mandate"].astype(str) == selected
+                timeline_df["Mandate"].astype(str)
+                == selected
             ]
 
             if not selected_project.empty:
-                show_timeline(selected_project.iloc[0])
+
+                show_timeline(
+                    selected_project.iloc[0]
+                )
 
 
     else:
@@ -4174,19 +4358,23 @@ elif page == "Project Timeline":
         if selected == "All Members":
 
             for _, project in timeline_df.iterrows():
+
                 show_timeline(project)
 
         else:
 
             member_df = timeline_df[
-                timeline_df["Allocation"].astype(str) == selected
+                timeline_df["Allocation"].astype(str)
+                == selected
             ]
 
             st.success(
-                f"{selected} is handling {len(member_df)} project(s)."
+                f"{selected} is handling "
+                f"{len(member_df)} project(s)."
             )
 
             for _, project in member_df.iterrows():
+
                 show_timeline(project)
 # # =====================================================
 # # TEAM PERFORMANCE
@@ -5327,48 +5515,6 @@ elif page == "Project Timeline":
 elif page == "BAU Monitoring":
 
     # =================================================
-    # HEADER
-    # =================================================
-
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f7fbf9);
-        border-radius:24px;
-        padding:30px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 14px 35px rgba(0,0,0,.08);
-        margin-bottom:20px;
-        font-family:Segoe UI,Arial,sans-serif;
-    ">
-
-        <div style="
-            color:#006747;
-            font-size:14px;
-            font-weight:700;
-            letter-spacing:2px;
-            margin-bottom:8px;">
-            SMARTPAY BUSINESS AS USUAL
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:40px;
-            font-weight:800;">
-            🏦 BAU Monitoring
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:17px;
-            margin-top:10px;">
-            Live Business Operations Monitoring, ownership and ongoing updates.
-        </div>
-
-    </div>
-    """)
-
-
-    # =================================================
     # BAU DATA
     # =================================================
 
@@ -5379,6 +5525,49 @@ elif page == "BAU Monitoring":
         .str.upper()
         == "BAU"
     ].copy()
+
+
+    # =================================================
+    # COMPACT HEADER
+    # =================================================
+
+    st.html("""
+    <div style="
+        background:linear-gradient(135deg,#ffffff,#f7fbf9);
+        border-radius:18px;
+        padding:14px 22px;
+        border:1px solid #E5E7EB;
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+        margin-bottom:8px;
+        font-family:Segoe UI,Arial,sans-serif;
+    ">
+
+        <div style="
+            color:#006747;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:1.8px;
+            margin-bottom:4px;">
+            SMARTPAY BUSINESS AS USUAL
+        </div>
+
+        <div style="
+            color:#006747;
+            font-size:28px;
+            font-weight:800;
+            line-height:1.15;">
+            🏦 BAU Monitoring
+        </div>
+
+        <div style="
+            color:#6B7280;
+            font-size:14px;
+            margin-top:4px;">
+            Live Business Operations Monitoring, ownership and ongoing updates.
+        </div>
+
+    </div>
+    """)
 
 
     # =================================================
@@ -5413,7 +5602,7 @@ elif page == "BAU Monitoring":
 
 
     # =================================================
-    # KPI CARDS
+    # COMPACT KPI CARDS
     # =================================================
 
     k1, k2, k3, k4 = st.columns(4)
@@ -5424,29 +5613,31 @@ elif page == "BAU Monitoring":
         st.html(
             f"""
             <div style="
-                background:white;
-                border-radius:20px;
-                padding:22px 16px;
-                height:135px;
-                border-top:7px solid {color};
-                box-shadow:0 8px 22px rgba(0,0,0,.08);
+                background:#FFFFFF;
+                border-radius:14px;
+                padding:10px 8px;
+                height:88px;
+                border-top:5px solid {color};
+                box-shadow:0 4px 12px rgba(0,0,0,.06);
                 display:flex;
                 flex-direction:column;
-                justify-content:space-between;
+                justify-content:center;
                 align-items:center;
                 text-align:center;
+                font-family:Segoe UI,Arial,sans-serif;
             ">
 
                 <div style="
                     color:#6B7280;
-                    font-size:14px;
-                    font-weight:600;">
+                    font-size:11px;
+                    font-weight:700;
+                    margin-bottom:5px;">
                     {title}
                 </div>
 
                 <div style="
                     color:{color};
-                    font-size:44px;
+                    font-size:28px;
                     font-weight:800;
                     line-height:1;">
                     {value}
@@ -5486,22 +5677,27 @@ elif page == "BAU Monitoring":
         )
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True
+    )
 
 
     # =================================================
     # FILTERS
     # =================================================
 
-    st.markdown("""
-    <h2 style="
+    st.html("""
+    <div style="
         color:#006747;
-        font-size:28px;
+        font-size:24px;
         font-weight:700;
-        margin-bottom:18px;">
+        margin-top:2px;
+        margin-bottom:5px;
+        font-family:Segoe UI,Arial,sans-serif;">
         🎯 BAU Filters
-    </h2>
-    """, unsafe_allow_html=True)
+    </div>
+    """)
 
 
     f1, f2 = st.columns(2)
@@ -5597,22 +5793,27 @@ elif page == "BAU Monitoring":
         ]
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True
+    )
 
 
     # =================================================
     # OWNER SUMMARY
     # =================================================
 
-    st.markdown("""
-    <h2 style="
+    st.html("""
+    <div style="
         color:#006747;
-        font-size:28px;
+        font-size:24px;
         font-weight:700;
-        margin-bottom:18px;">
+        margin-top:2px;
+        margin-bottom:7px;
+        font-family:Segoe UI,Arial,sans-serif;">
         👥 BAU Owner Summary
-    </h2>
-    """, unsafe_allow_html=True)
+    </div>
+    """)
 
 
     owner_summary = (
@@ -5655,45 +5856,47 @@ elif page == "BAU Monitoring":
                             #f7fbf9
                         );
                         border:1px solid #E5E7EB;
-                        border-radius:20px;
-                        padding:18px;
+                        border-radius:14px;
+                        padding:10px 8px;
                         text-align:center;
-                        box-shadow:
-                            0 8px 20px rgba(0,0,0,.06);
-                        margin-bottom:15px;
+                        box-shadow:0 4px 12px rgba(0,0,0,.05);
+                        margin-bottom:8px;
+                        font-family:Segoe UI,Arial,sans-serif;
                     ">
 
                         <div style="
-                            font-size:30px;">
+                            font-size:22px;
+                            line-height:1;">
                             👤
                         </div>
 
                         <div style="
                             color:#006747;
-                            font-size:18px;
+                            font-size:14px;
                             font-weight:700;
-                            margin-top:6px;">
+                            margin-top:5px;">
                             {owner["Allocation"]}
                         </div>
 
                         <div style="
                             color:#111827;
-                            font-size:38px;
+                            font-size:26px;
                             font-weight:800;
-                            margin-top:6px;">
+                            margin-top:4px;
+                            line-height:1;">
                             {owner["Projects"]}
                         </div>
 
                         <div style="
                             color:#6B7280;
-                            font-size:13px;">
+                            font-size:10px;
+                            margin-top:3px;">
                             BAU Projects
                         </div>
 
                     </div>
                     """
                 )
-
 
     # =================================================
     # BAU PROJECT TABLE
