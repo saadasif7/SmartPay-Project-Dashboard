@@ -4033,7 +4033,8 @@ elif page == "Project Timeline":
         "LIVE"
     ]
     # ==========================================
-    # TIMELINE FUNCTION - COMPACT
+    # ==========================================
+    # TIMELINE FUNCTION - ONE BOX PER PROJECT
     # ==========================================
 
     def show_timeline(project):
@@ -4071,62 +4072,66 @@ elif page == "Project Timeline":
 
 
         # ==========================================
-        # PROJECT TITLE - COMPACT
+        # COMPLETE PROJECT BOX
         # ==========================================
 
-        st.html(f"""
+        project_html = f"""
         <div style="
-            background:linear-gradient(180deg,#ffffff,#f9fbfd);
-            border-radius:15px;
-            padding:11px 15px;
-            margin-bottom:7px;
-            border:1px solid #E5E7EB;
-            box-shadow:0 4px 12px rgba(0,0,0,.06);
-            font-family:Segoe UI,Arial,sans-serif;">
+            background:#FFFFFF;
+            border:1px solid #D5E3DD;
+            border-radius:16px;
+            padding:12px;
+            margin-bottom:10px;
+            box-shadow:0 4px 14px rgba(0,103,71,.07);
+            font-family:Segoe UI,Arial,sans-serif;
+        ">
+
+            <!-- PROJECT NAME -->
 
             <div style="
                 color:#6B7280;
-                font-size:10px;
+                font-size:9px;
                 font-weight:600;
-                letter-spacing:1px;">
+                letter-spacing:1px;
+                margin-bottom:2px;
+            ">
                 PROJECT TIMELINE
             </div>
 
             <div style="
                 color:#006747;
-                font-size:18px;
+                font-size:17px;
                 font-weight:750;
                 line-height:1.3;
-                margin-top:3px;
-                word-break:break-word;">
+                word-break:break-word;
+                margin-bottom:8px;
+            ">
                 📌 {project["Mandate"]}
             </div>
 
-        </div>
-        """)
 
-
-        # ==========================================
-        # TIMELINE - COMPACT
-        # ==========================================
-
-        timeline_html = """
-        <div style="
-            background:white;
-            border-radius:15px;
-            padding:15px 12px;
-            border:1px solid #E5E7EB;
-            box-shadow:0 5px 14px rgba(0,0,0,.05);
-            font-family:Segoe UI,Arial,sans-serif;
-            overflow-x:auto;
-            margin-bottom:8px;">
+            <!-- TIMELINE -->
 
             <div style="
-                display:flex;
-                align-items:flex-start;
-                min-width:620px;">
+                background:#F9FBFD;
+                border:1px solid #E5E7EB;
+                border-radius:12px;
+                padding:12px 10px;
+                overflow-x:auto;
+                margin-bottom:8px;
+            ">
+
+                <div style="
+                    display:flex;
+                    align-items:flex-start;
+                    min-width:620px;
+                ">
         """
 
+
+        # ==========================================
+        # TIMELINE STAGES
+        # ==========================================
 
         for i, stage in enumerate(stages):
 
@@ -4146,10 +4151,6 @@ elif page == "Project Timeline":
                 symbol = "○"
 
 
-            # ======================================
-            # CONNECTOR
-            # ======================================
-
             connector = ""
 
             if i < len(stages) - 1:
@@ -4168,17 +4169,17 @@ elif page == "Project Timeline":
                     flex:1;
                     height:3px;
                     background:{line_color};
-                    margin-top:14px;">
-                </div>
+                    margin-top:13px;
+                "></div>
                 """
 
 
-            timeline_html += f"""
-
+            project_html += f"""
             <div style="
                 width:78px;
                 text-align:center;
-                flex-shrink:0;">
+                flex-shrink:0;
+            ">
 
                 <div style="
                     width:28px;
@@ -4190,16 +4191,18 @@ elif page == "Project Timeline":
                     line-height:28px;
                     font-size:13px;
                     font-weight:700;
-                    box-shadow:0 3px 8px rgba(0,0,0,.12);">
+                    box-shadow:0 3px 8px rgba(0,0,0,.12);
+                ">
                     {symbol}
                 </div>
 
                 <div style="
-                    margin-top:6px;
+                    margin-top:5px;
                     color:#374151;
                     font-size:9px;
                     font-weight:700;
-                    white-space:nowrap;">
+                    white-space:nowrap;
+                ">
                     {stage}
                 </div>
 
@@ -4209,124 +4212,117 @@ elif page == "Project Timeline":
             """
 
 
-        timeline_html += """
+        # ==========================================
+        # PROJECT INFO + CLOSE BOX
+        # ==========================================
+
+        project_html += f"""
+                </div>
             </div>
+
+
+            <!-- PROJECT INFORMATION -->
+
+            <div style="
+                display:flex;
+                gap:8px;
+                width:100%;
+            ">
+
+                <div style="
+                    flex:1;
+                    background:#F9FBFD;
+                    border:1px solid #E5E7EB;
+                    border-radius:10px;
+                    padding:8px 10px;
+                    min-height:56px;
+                ">
+
+                    <div style="
+                        color:#6B7280;
+                        font-size:9px;
+                        font-weight:600;
+                    ">
+                        PROJECT
+                    </div>
+
+                    <div style="
+                        color:#111827;
+                        font-size:12px;
+                        font-weight:700;
+                        line-height:1.25;
+                        margin-top:3px;
+                    ">
+                        {project["Mandate"]}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    flex:1;
+                    background:#F9FBFD;
+                    border:1px solid #E5E7EB;
+                    border-radius:10px;
+                    padding:8px 10px;
+                    min-height:56px;
+                ">
+
+                    <div style="
+                        color:#6B7280;
+                        font-size:9px;
+                        font-weight:600;
+                    ">
+                        OWNER
+                    </div>
+
+                    <div style="
+                        color:#006747;
+                        font-size:12px;
+                        font-weight:700;
+                        margin-top:3px;
+                    ">
+                        {project["Allocation"]}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    flex:1;
+                    background:#F9FBFD;
+                    border:1px solid #E5E7EB;
+                    border-radius:10px;
+                    padding:8px 10px;
+                    min-height:56px;
+                ">
+
+                    <div style="
+                        color:#92400E;
+                        font-size:9px;
+                        font-weight:600;
+                    ">
+                        CURRENT STAGE
+                    </div>
+
+                    <div style="
+                        color:#F59E0B;
+                        font-size:12px;
+                        font-weight:700;
+                        margin-top:3px;
+                    ">
+                        {current}
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
         """
 
 
-        st.html(
-            timeline_html
-        )
-
-
-        # ==========================================
-        # PROJECT INFORMATION - COMPACT
-        # ==========================================
-
-        c1, c2, c3 = st.columns(3)
-
-
-        with c1:
-
-            st.html(f"""
-            <div style="
-                background:white;
-                border-radius:13px;
-                padding:10px 12px;
-                border:1px solid #E5E7EB;
-                box-shadow:0 3px 10px rgba(0,0,0,.04);
-                font-family:Segoe UI,Arial,sans-serif;
-                min-height:66px;">
-
-                <div style="
-                    color:#6B7280;
-                    font-size:10px;
-                    font-weight:600;">
-                    PROJECT
-                </div>
-
-                <div style="
-                    color:#111827;
-                    font-size:13px;
-                    font-weight:700;
-                    line-height:1.25;
-                    margin-top:3px;">
-                    {project["Mandate"]}
-                </div>
-
-            </div>
-            """)
-
-
-        with c2:
-
-            st.html(f"""
-            <div style="
-                background:white;
-                border-radius:13px;
-                padding:10px 12px;
-                border:1px solid #E5E7EB;
-                box-shadow:0 3px 10px rgba(0,0,0,.04);
-                min-height:66px;
-                font-family:Segoe UI,Arial,sans-serif;">
-
-                <div style="
-                    color:#6B7280;
-                    font-size:10px;
-                    font-weight:600;">
-                    OWNER
-                </div>
-
-                <div style="
-                    color:#006747;
-                    font-size:13px;
-                    font-weight:700;
-                    margin-top:3px;">
-                    {project["Allocation"]}
-                </div>
-
-            </div>
-            """)
-
-
-        with c3:
-
-            st.html(f"""
-            <div style="
-                background:white;
-                border-radius:13px;
-                padding:10px 12px;
-                border:1px solid #E5E7EB;
-                box-shadow:0 3px 10px rgba(0,0,0,.04);
-                min-height:66px;
-                font-family:Segoe UI,Arial,sans-serif;">
-
-                <div style="
-                    color:#92400E;
-                    font-size:10px;
-                    font-weight:600;">
-                    CURRENT STAGE
-                </div>
-
-                <div style="
-                    color:#F59E0B;
-                    font-size:13px;
-                    font-weight:700;
-                    margin-top:3px;">
-                    {current}
-                </div>
-
-            </div>
-            """)
-
-
-        st.markdown(
-            "<div style='height:8px;'></div>",
-            unsafe_allow_html=True
-        )
-
-
+        st.html(project_html)
     # ==========================================
     # DISPLAY PROJECTS
     # ==========================================
