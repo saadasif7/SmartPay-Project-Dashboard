@@ -6255,46 +6255,60 @@ elif page == "CRPL":
     # HEADER
     # =====================================================
 
-    st.markdown("""
+    st.html("""
     <div style="
-    background:linear-gradient(180deg,#ffffff,#f8fbff);
-    border-radius:25px;
-    padding:30px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 12px 35px rgba(0,0,0,.08);">
+        background:linear-gradient(135deg,#ffffff,#f8fbff);
+        border-radius:18px;
+        padding:14px 22px;
+        border:1px solid #E5E7EB;
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+        box-sizing:border-box;
+        margin-bottom:2px;
+        font-family:Segoe UI,Arial,sans-serif;">
 
-    <h1 style="
-    color:#006747;
-    margin:0;
-    font-size:42px;
-    font-weight:700;">
-    🏦 CRPL
-    </h1>
+        <div style="
+            color:#006747;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:1.8px;
+            margin-bottom:4px;">
+            CRPL MONITORING
+        </div>
 
-    <p style="
-    margin-top:10px;
-    color:#6B7280;
-    font-size:18px;">
-    CRPL Issues &amp; Progress Tracking
-    </p>
+        <div style="
+            color:#006747;
+            font-size:28px;
+            font-weight:800;
+            line-height:1.15;">
+            🏦 CRPL
+        </div>
+
+        <div style="
+            color:#6B7280;
+            font-size:14px;
+            margin-top:4px;">
+            CRPL Issues &amp; Progress Tracking
+        </div>
 
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # =====================================================
     # FILTERS
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:28px;
-    font-weight:700;">
-    🎯 Filters
-    </h2>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:0;
+        margin-bottom:3px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        🎯 Filters
+    </div>
+    """)
 
     c1, c2 = st.columns(2)
 
@@ -6422,29 +6436,29 @@ elif page == "CRPL":
     .st-key-crpl_kpis div[data-testid="stButton"] button {
 
         width:100% !important;
-        min-height:125px !important;
+        min-height:88px !important;
 
         background:#FFFFFF !important;
 
         border:1px solid #E5E7EB !important;
-        border-radius:20px !important;
+        border-radius:14px !important;
 
-        padding:18px 10px !important;
+        padding:10px 6px !important;
 
         box-shadow:
-            0 8px 22px rgba(0,0,0,.08) !important;
+            0 4px 12px rgba(0,0,0,.06) !important;
 
         color:#111827 !important;
 
-        font-size:15px !important;
-        font-weight:600 !important;
+        font-size:13px !important;
+        font-weight:700 !important;
 
         font-family:
             "Segoe UI",
             Arial,
             sans-serif !important;
 
-        line-height:1.7 !important;
+        line-height:1.25 !important;
 
         white-space:pre-line !important;
 
@@ -6464,10 +6478,10 @@ elif page == "CRPL":
 
         color:#111827 !important;
 
-        transform:translateY(-3px);
+        transform:translateY(-2px);
 
         box-shadow:
-            0 12px 28px rgba(0,0,0,.12) !important;
+            0 8px 18px rgba(0,0,0,.10) !important;
     }
 
     .st-key-crpl_kpis
@@ -6491,8 +6505,8 @@ elif page == "CRPL":
         border:2px solid #006747 !important;
 
         box-shadow:
-            0 0 0 3px rgba(0,103,71,0.15),
-            0 12px 28px rgba(0,103,71,0.18) !important;
+            0 0 0 3px rgba(0,103,71,0.12),
+            0 8px 18px rgba(0,103,71,0.15) !important;
 
         color:#006747 !important;
     }
@@ -6515,7 +6529,7 @@ elif page == "CRPL":
     div[data-testid="stColumn"]:nth-child(1)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #006747 !important;
+        border-top:5px solid #006747 !important;
     }
 
 
@@ -6528,7 +6542,7 @@ elif page == "CRPL":
     div[data-testid="stColumn"]:nth-child(2)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #607D8B !important;
+        border-top:5px solid #607D8B !important;
     }
 
 
@@ -6541,7 +6555,7 @@ elif page == "CRPL":
     div[data-testid="stColumn"]:nth-child(3)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #FF9800 !important;
+        border-top:5px solid #FF9800 !important;
     }
 
 
@@ -6554,7 +6568,7 @@ elif page == "CRPL":
     div[data-testid="stColumn"]:nth-child(4)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #00C853 !important;
+        border-top:5px solid #00C853 !important;
     }
 
 
@@ -6567,7 +6581,7 @@ elif page == "CRPL":
     div[data-testid="stColumn"]:nth-child(5)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #F9A825 !important;
+        border-top:5px solid #F9A825 !important;
     }
 
 
@@ -6583,11 +6597,11 @@ elif page == "CRPL":
             Arial,
             sans-serif !important;
 
-        font-size:15px !important;
+        font-size:13px !important;
 
-        font-weight:600 !important;
+        font-weight:700 !important;
 
-        line-height:1.8 !important;
+        line-height:1.3 !important;
 
         color:#111827 !important;
     }
@@ -6611,7 +6625,7 @@ elif page == "CRPL":
     .st-key-crpl_kpis
     div[data-testid="stHorizontalBlock"] {
 
-        gap:10px !important;
+        gap:8px !important;
     }
 
     </style>
@@ -6631,7 +6645,7 @@ elif page == "CRPL":
         with c1:
 
             if st.button(
-                f"ALL\n\n{len(df)}",
+                f"ALL\n{len(df)}",
                 key="crpl_all",
                 use_container_width=True
             ):
@@ -6643,7 +6657,7 @@ elif page == "CRPL":
         with c2:
 
             if st.button(
-                f"HOLD\n\n{hold_count}",
+                f"HOLD\n{hold_count}",
                 key="crpl_hold",
                 use_container_width=True
             ):
@@ -6655,7 +6669,7 @@ elif page == "CRPL":
         with c3:
 
             if st.button(
-                f"WIP\n\n{wip_count}",
+                f"WIP\n{wip_count}",
                 key="crpl_wip",
                 use_container_width=True
             ):
@@ -6667,7 +6681,7 @@ elif page == "CRPL":
         with c4:
 
             if st.button(
-                f"LIVE\n\n{live_count}",
+                f"LIVE\n{live_count}",
                 key="crpl_live",
                 use_container_width=True
             ):
@@ -6679,7 +6693,7 @@ elif page == "CRPL":
         with c5:
 
             if st.button(
-                f"UAT\n\n{uat_count}",
+                f"UAT\n{uat_count}",
                 key="crpl_uat",
                 use_container_width=True
             ):
@@ -6687,7 +6701,10 @@ elif page == "CRPL":
                 st.rerun()
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True
+    )
     # =====================================================
     # CARD FILTER
     # =====================================================
@@ -6722,23 +6739,26 @@ elif page == "CRPL":
                 == selected_card
             ]
 
+
     # =====================================================
     # TABLE TITLE
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:30px;
-    font-weight:700;
-    margin-top:20px;
-    margin-bottom:18px;">
-    📋 CRPL Details
-    </h2>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:3px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        📋 CRPL Details
+    </div>
+    """)
+
 
     # =====================================================
-    # VIP TABLE CSS
+    # VIP TABLE CSS - GREEN THEME
     # =====================================================
 
     st.markdown("""
@@ -6840,13 +6860,18 @@ elif page == "CRPL":
     </style>
     """, unsafe_allow_html=True)
 
+
     # =====================================================
     # TABLE DATA
     # =====================================================
 
     display_df = filtered_df.copy()
 
+
+    # =====================================================
     # CRF NAME
+    # =====================================================
+
     display_df["CRF Name"] = display_df[
         "CRF Name"
     ].apply(
@@ -6854,19 +6879,26 @@ elif page == "CRPL":
         f'<span class="crf-name">{x}</span>'
     )
 
+
+    # =====================================================
     # STAGE BADGE
+    # =====================================================
+
     def stage_badge(value):
 
         value = str(value).strip()
         upper = value.upper()
 
         if upper == "HOLD":
+
             css = "stage-hold"
 
         elif upper == "WIP":
+
             css = "stage-wip"
 
         elif upper == "UAT":
+
             css = "stage-uat"
 
         elif upper in [
@@ -6875,9 +6907,11 @@ elif page == "CRPL":
             "LIVE / PRODUCTION",
             "LIVE/PRODUCTION"
         ]:
+
             css = "stage-live"
 
         else:
+
             css = "stage-default"
 
         return (
@@ -6886,9 +6920,11 @@ elif page == "CRPL":
             f'</span>'
         )
 
+
     display_df["Stage"] = display_df[
         "Stage"
     ].apply(stage_badge)
+
 
     # =====================================================
     # HTML TABLE
@@ -6899,6 +6935,7 @@ elif page == "CRPL":
         escape=False,
         classes="crpl-table"
     )
+
 
     st.markdown(
         f"""
@@ -7443,52 +7480,60 @@ elif page == "PAYSYS":
     # HEADER
     # =====================================================
 
-    st.markdown("""
+    st.html("""
     <div style="
-    background:linear-gradient(180deg,#ffffff,#f8fbf9);
-    border-radius:25px;
-    padding:30px;
-    border:1px solid #DDE5E1;
-    box-shadow:0 12px 35px rgba(0,103,71,.08);">
+        background:linear-gradient(135deg,#ffffff,#f8fbff);
+        border-radius:18px;
+        padding:14px 22px;
+        border:1px solid #E5E7EB;
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+        box-sizing:border-box;
+        margin-bottom:2px;
+        font-family:Segoe UI,Arial,sans-serif;">
 
-    <h1 style="
-    color:#006747;
-    margin:0;
-    font-size:42px;
-    font-weight:700;">
-    💳 PAYSYS
-    </h1>
+        <div style="
+            color:#006747;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:1.8px;
+            margin-bottom:4px;">
+            PAYSYS MONITORING
+        </div>
 
-    <p style="
-    margin-top:10px;
-    color:#6B7280;
-    font-size:18px;">
-    PAYSYS Issues &amp; Progress Tracking
-    </p>
+        <div style="
+            color:#006747;
+            font-size:28px;
+            font-weight:800;
+            line-height:1.15;">
+            💳 PAYSYS
+        </div>
+
+        <div style="
+            color:#6B7280;
+            font-size:14px;
+            margin-top:4px;">
+            PAYSYS Issues &amp; Progress Tracking
+        </div>
 
     </div>
-    """, unsafe_allow_html=True)
-
-
-    st.markdown(
-        "<br>",
-        unsafe_allow_html=True
-    )
+    """)
 
 
     # =====================================================
     # FILTERS
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:28px;
-    font-weight:700;">
-    🎯 Filters
-    </h2>
-    """, unsafe_allow_html=True)
-
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:0;
+        margin-bottom:3px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        🎯 Filters
+    </div>
+    """)
 
     c1, c2 = st.columns(2)
 
@@ -7565,6 +7610,7 @@ elif page == "PAYSYS":
         ]
 
 
+   # =====================================================
     # =====================================================
     # KPI COUNTS
     # =====================================================
@@ -7576,11 +7622,9 @@ elif page == "PAYSYS":
         .str.upper()
     )
 
-
     uat_count = (
         stage == "UAT"
     ).sum()
-
 
     live_count = (
         stage.isin([
@@ -7613,29 +7657,29 @@ elif page == "PAYSYS":
     .st-key-paysys_kpis div[data-testid="stButton"] button {
 
         width:100% !important;
-        min-height:125px !important;
+        min-height:88px !important;
 
         background:#FFFFFF !important;
 
         border:1px solid #E5E7EB !important;
-        border-radius:20px !important;
+        border-radius:14px !important;
 
-        padding:18px 10px !important;
+        padding:10px 6px !important;
 
         box-shadow:
-            0 8px 22px rgba(0,0,0,.08) !important;
+            0 4px 12px rgba(0,0,0,.06) !important;
 
         color:#111827 !important;
 
-        font-size:15px !important;
-        font-weight:600 !important;
+        font-size:13px !important;
+        font-weight:700 !important;
 
         font-family:
             "Segoe UI",
             Arial,
             sans-serif !important;
 
-        line-height:1.7 !important;
+        line-height:1.25 !important;
 
         white-space:pre-line !important;
 
@@ -7655,10 +7699,10 @@ elif page == "PAYSYS":
 
         color:#111827 !important;
 
-        transform:translateY(-3px);
+        transform:translateY(-2px);
 
         box-shadow:
-            0 12px 28px rgba(0,0,0,.12) !important;
+            0 8px 18px rgba(0,0,0,.10) !important;
     }
 
 
@@ -7683,8 +7727,8 @@ elif page == "PAYSYS":
         border:2px solid #006747 !important;
 
         box-shadow:
-            0 0 0 3px rgba(0,103,71,0.15),
-            0 12px 28px rgba(0,103,71,0.18) !important;
+            0 0 0 3px rgba(0,103,71,0.12),
+            0 8px 18px rgba(0,103,71,0.15) !important;
 
         color:#006747 !important;
     }
@@ -7708,7 +7752,7 @@ elif page == "PAYSYS":
     div[data-testid="stColumn"]:nth-child(1)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #006747 !important;
+        border-top:5px solid #006747 !important;
     }
 
 
@@ -7721,7 +7765,7 @@ elif page == "PAYSYS":
     div[data-testid="stColumn"]:nth-child(2)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #F9A825 !important;
+        border-top:5px solid #F9A825 !important;
     }
 
 
@@ -7734,7 +7778,7 @@ elif page == "PAYSYS":
     div[data-testid="stColumn"]:nth-child(3)
     div[data-testid="stButton"] button {
 
-        border-top:7px solid #00C853 !important;
+        border-top:5px solid #00C853 !important;
     }
 
 
@@ -7750,11 +7794,11 @@ elif page == "PAYSYS":
             Arial,
             sans-serif !important;
 
-        font-size:15px !important;
+        font-size:13px !important;
 
-        font-weight:600 !important;
+        font-weight:700 !important;
 
-        line-height:1.8 !important;
+        line-height:1.3 !important;
 
         color:#111827 !important;
     }
@@ -7767,7 +7811,7 @@ elif page == "PAYSYS":
     .st-key-paysys_kpis
     div[data-testid="stHorizontalBlock"] {
 
-        gap:10px !important;
+        gap:8px !important;
     }
 
 
@@ -7801,7 +7845,7 @@ elif page == "PAYSYS":
         with c1:
 
             if st.button(
-                f"ALL\n\n{len(df)}",
+                f"ALL\n{len(df)}",
                 key="paysys_all",
                 use_container_width=True
             ):
@@ -7818,7 +7862,7 @@ elif page == "PAYSYS":
         with c2:
 
             if st.button(
-                f"UAT\n\n{uat_count}",
+                f"UAT\n{uat_count}",
                 key="paysys_uat",
                 use_container_width=True
             ):
@@ -7835,7 +7879,7 @@ elif page == "PAYSYS":
         with c3:
 
             if st.button(
-                f"LIVE\n\n{live_count}",
+                f"LIVE\n{live_count}",
                 key="paysys_live",
                 use_container_width=True
             ):
@@ -7845,7 +7889,11 @@ elif page == "PAYSYS":
                 st.rerun()
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:2px;'></div>",
+        unsafe_allow_html=True
+    )
+
 
     # =====================================================
     # CARD FILTER
@@ -7887,16 +7935,17 @@ elif page == "PAYSYS":
     # TABLE TITLE
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:30px;
-    font-weight:700;
-    margin-top:20px;
-    margin-bottom:18px;">
-    📋 PAYSYS Details
-    </h2>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:3px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        📋 PAYSYS Details
+    </div>
+    """)
 
 
     # =====================================================
@@ -7991,8 +8040,8 @@ elif page == "PAYSYS":
 
 
     /* =====================================================
-       PAYSYS KPI BUTTONS
-       ===================================================== */
+    PAYSYS KPI BUTTONS
+    ===================================================== */
 
     div.stButton > button {
         background-color:#006747 !important;
@@ -8080,7 +8129,6 @@ elif page == "PAYSYS":
         """,
         unsafe_allow_html=True
     )
-
 
     # =====================================================
     # EDIT PAYSYS BUTTON
@@ -8493,40 +8541,39 @@ elif page == "Export":
     st.html("""
     <div style="
         background:linear-gradient(135deg,#ffffff,#f4fbf8);
-        border-radius:24px;
-        padding:30px;
+        border-radius:18px;
+        padding:14px 22px;
         border:1px solid #DDEBE5;
-        box-shadow:0 14px 35px rgba(0,0,0,.10);
-        margin-bottom:22px;
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+        margin-bottom:8px;
         font-family:Segoe UI,Arial,sans-serif;">
 
         <div style="
             color:#006747;
-            font-size:14px;
+            font-size:12px;
             font-weight:700;
-            letter-spacing:2px;
-            margin-bottom:8px;">
+            letter-spacing:1.8px;
+            margin-bottom:4px;">
             SMARTPAY PROJECT MANAGEMENT
         </div>
 
         <div style="
             color:#006747;
-            font-size:40px;
-            font-weight:700;">
+            font-size:28px;
+            font-weight:800;
+            line-height:1.15;">
             Executive Report Center
         </div>
 
         <div style="
             color:#6B7280;
-            font-size:17px;
-            margin-top:10px;">
+            font-size:14px;
+            margin-top:4px;">
             Generate, preview and download SmartPay project reports.
         </div>
 
     </div>
     """)
-
-    st.markdown("<br>", unsafe_allow_html=True)
 
 
     # ==========================================
@@ -8535,25 +8582,26 @@ elif page == "Export":
 
     st.html("""
     <div style="
-        background:white;
-        border-radius:20px;
-        padding:24px;
+        background:#FFFFFF;
+        border-radius:14px;
+        padding:12px 16px;
         border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.06);
-        margin-bottom:22px;">
+        box-shadow:0 4px 12px rgba(0,0,0,.06);
+        margin-bottom:8px;
+        font-family:Segoe UI,Arial,sans-serif;">
 
         <div style="
             color:#006747;
-            font-size:20px;
+            font-size:18px;
             font-weight:700;
-            margin-bottom:15px;">
+            margin-bottom:8px;">
             📋 Report Includes
         </div>
 
         <div style="
             color:#374151;
-            font-size:15px;
-            line-height:2;">
+            font-size:13px;
+            line-height:1.7;">
 
             ✅ Dashboard Summary<br>
             ✅ KPI Overview<br>
@@ -8580,13 +8628,14 @@ elif page == "Export":
     <div style="
         background:#F0FDF4;
         border:1px solid #BBF7D0;
-        border-radius:16px;
-        padding:16px 20px;
-        margin-bottom:25px;">
+        border-radius:12px;
+        padding:9px 14px;
+        margin-bottom:8px;
+        font-family:Segoe UI,Arial,sans-serif;">
 
         <div style="
             color:#166534;
-            font-size:12px;
+            font-size:10px;
             font-weight:700;
             text-transform:uppercase;
             letter-spacing:1px;">
@@ -8595,9 +8644,9 @@ elif page == "Export":
 
         <div style="
             color:#166534;
-            font-size:18px;
+            font-size:15px;
             font-weight:700;
-            margin-top:5px;">
+            margin-top:3px;">
             {generated_time}
         </div>
 
@@ -8609,15 +8658,20 @@ elif page == "Export":
     # EXPORT OPTIONS
     # ==========================================
 
-    st.markdown("""
-    <h2 style="
+    st.html("""
+    <div style="
         color:#006747;
-        font-size:28px;
-        margin-bottom:15px;">
+        font-size:24px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:5px;
+        font-family:Segoe UI,Arial,sans-serif;">
         📤 Export Reports
-    </h2>
-    """, unsafe_allow_html=True)
-        # ==========================================
+    </div>
+    """)
+
+
+    # ==========================================
     # LOAD ALL DATA
     # ==========================================
 
@@ -8649,8 +8703,7 @@ elif page == "Export":
 
         crpl_export_df = pd.DataFrame()
 
-
-    # ------------------------------------------
+        # ------------------------------------------
     # PAYSYS DATA
     # ------------------------------------------
 
@@ -8702,7 +8755,10 @@ elif page == "Export":
         )
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
 
 
     # ==========================================
@@ -8823,57 +8879,58 @@ elif page == "Export":
                     45
                 )
 
-
             # ----------------------------------
-            # EXCEL TABLE
-            # ----------------------------------
+    # EXCEL TABLE
+    # ----------------------------------
 
-            last_row = worksheet.max_row
-            last_col = worksheet.max_column
-
-
-            if last_row > 1 and last_col > 0:
-
-                last_col_letter = get_column_letter(
-                    last_col
-                )
+    last_row = worksheet.max_row
+    last_col = worksheet.max_column
 
 
-                table_ref = (
-                    f"A1:{last_col_letter}{last_row}"
-                )
+    if last_row > 1 and last_col > 0:
+
+        last_col_letter = get_column_letter(
+            last_col
+        )
 
 
-                safe_name = (
-                    sheet_name
-                    .replace(" ", "")
-                    .replace("-", "")
-                    .replace("/", "")
-                )
+        table_ref = (
+            f"A1:{last_col_letter}{last_row}"
+        )
 
 
-                table = Table(
-                    displayName=f"{safe_name}Table",
-                    ref=table_ref
-                )
+        safe_name = (
+            sheet_name
+            .replace(" ", "")
+            .replace("-", "")
+            .replace("/", "")
+        )
 
 
-                style = TableStyleInfo(
-                    name="TableStyleMedium4",
-                    showFirstColumn=False,
-                    showLastColumn=False,
-                    showRowStripes=True,
-                    showColumnStripes=False
-                )
+        table = Table(
+            displayName=f"{safe_name}Table",
+            ref=table_ref
+        )
 
 
-                table.tableStyleInfo = style
+        style = TableStyleInfo(
+            name="TableStyleMedium4",
+            showFirstColumn=False,
+            showLastColumn=False,
+            showRowStripes=True,
+            showColumnStripes=False
+        )
 
-                worksheet.add_table(table)
+
+        table.tableStyleInfo = style
+
+        worksheet.add_table(table)
 
 
     excel_data = excel_buffer.getvalue()
-        # ==========================================
+
+
+    # ==========================================
     # EXCLUSIVE EXECUTIVE PDF
     # ==========================================
 
@@ -8884,55 +8941,81 @@ elif page == "Export":
         pagesize=landscape(A4),
         rightMargin=25,
         leftMargin=25,
-        topMargin=25,
-        bottomMargin=25
+        topMargin=20,
+        bottomMargin=20
     )
 
+
     pdf_styles = getSampleStyleSheet()
+
+
+    # ==========================================
+    # PDF TITLE STYLE
+    # ==========================================
 
     pdf_title_style = ParagraphStyle(
         "PDFTitle",
         parent=pdf_styles["Title"],
-        fontSize=26,
-        leading=30,
+        fontSize=22,
+        leading=26,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#006747"),
-        spaceAfter=12
+        spaceAfter=8
     )
+
+
+    # ==========================================
+    # PDF HEADING STYLE
+    # ==========================================
 
     pdf_heading_style = ParagraphStyle(
         "PDFHeading",
         parent=pdf_styles["Heading2"],
-        fontSize=18,
-        leading=22,
+        fontSize=16,
+        leading=19,
         textColor=colors.HexColor("#006747"),
-        spaceBefore=10,
-        spaceAfter=12
+        spaceBefore=8,
+        spaceAfter=8
     )
+
+
+    # ==========================================
+    # PDF CELL STYLE
+    # ==========================================
 
     pdf_cell_style = ParagraphStyle(
         "PDFCell",
         parent=pdf_styles["Normal"],
-        fontSize=6.5,
+        fontSize=7,
         leading=8
     )
+
+
+    # ==========================================
+    # PDF HEADER STYLE
+    # ==========================================
 
     pdf_header_style = ParagraphStyle(
         "PDFHeader",
         parent=pdf_styles["Normal"],
         fontSize=7,
-        leading=9,
+        leading=8,
         textColor=colors.white,
         fontName="Helvetica-Bold"
     )
 
+
     pdf_story = []
+
 
     # ==========================================
     # PDF COVER
     # ==========================================
 
-    pdf_story.append(Spacer(1, 0.5 * inch))
+    pdf_story.append(
+        Spacer(1, 0.25 * inch)
+    )
+
 
     pdf_story.append(
         Paragraph(
@@ -8941,6 +9024,7 @@ elif page == "Export":
         )
     )
 
+
     pdf_story.append(
         Paragraph(
             "Executive Report",
@@ -8948,12 +9032,19 @@ elif page == "Export":
                 "PDFSubTitle",
                 parent=pdf_styles["Heading2"],
                 alignment=TA_CENTER,
-                textColor=colors.HexColor("#6B7280")
+                fontSize=15,
+                leading=18,
+                textColor=colors.HexColor("#6B7280"),
+                spaceAfter=5
             )
         )
     )
 
-    pdf_story.append(Spacer(1, 0.25 * inch))
+
+    pdf_story.append(
+        Spacer(1, 0.12 * inch)
+    )
+
 
     pdf_story.append(
         Paragraph(
@@ -8963,13 +9054,17 @@ elif page == "Export":
                 "PDFDate",
                 parent=pdf_styles["Normal"],
                 alignment=TA_CENTER,
-                fontSize=10,
+                fontSize=9,
                 textColor=colors.HexColor("#555555")
             )
         )
     )
 
-    pdf_story.append(Spacer(1, 0.5 * inch))
+
+    pdf_story.append(
+        Spacer(1, 0.25 * inch)
+    )
+
 
     # ==========================================
     # EXECUTIVE SUMMARY
@@ -8977,15 +9072,29 @@ elif page == "Export":
 
     summary_data = [
         ["REPORT", "TOTAL RECORDS"],
-        ["SmartPay Projects", str(len(projects_export_df))],
-        ["CRPL", str(len(crpl_export_df))],
-        ["PAYSYS", str(len(paysys_export_df))]
+        [
+            "SmartPay Projects",
+            str(len(projects_export_df))
+        ],
+        [
+            "CRPL",
+            str(len(crpl_export_df))
+        ],
+        [
+            "PAYSYS",
+            str(len(paysys_export_df))
+        ]
     ]
+
 
     summary_table = PDFTable(
         summary_data,
-        colWidths=[5 * inch, 2 * inch]
+        colWidths=[
+            5 * inch,
+            2 * inch
+        ]
     )
+
 
     summary_table.setStyle(
         TableStyle([
@@ -9006,6 +9115,12 @@ elif page == "Export":
                 (0, 0),
                 (-1, 0),
                 "Helvetica-Bold"
+            ),
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                8
             ),
             (
                 "ALIGN",
@@ -9030,21 +9145,26 @@ elif page == "Export":
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                9
+                6
             ),
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
-                9
+                6
             )
         ])
     )
 
-    pdf_story.append(summary_table)
 
-    pdf_story.append(PageBreak())
+    pdf_story.append(
+        summary_table
+    )
 
+
+    pdf_story.append(
+        PageBreak()
+    )
 
     # ==========================================
     # DATAFRAME → PDF FUNCTION
@@ -9193,7 +9313,7 @@ elif page == "Export":
         pdf_story.append(pdf_table)
 
         pdf_story.append(
-            Spacer(1, 0.25 * inch)
+            Spacer(1, 0.15 * inch)
         )
 
         pdf_story.append(PageBreak())
@@ -9245,24 +9365,25 @@ elif page == "Export":
 
         st.html("""
         <div style="
-            background:white;
-            border-radius:18px;
-            padding:22px;
+            background:#FFFFFF;
+            border-radius:14px;
+            padding:12px 14px;
             border:1px solid #DDEBE5;
-            border-top:5px solid #006747;
-            box-shadow:0 8px 22px rgba(0,0,0,.07);">
+            border-top:4px solid #006747;
+            box-shadow:0 4px 12px rgba(0,0,0,.06);
+            font-family:Segoe UI,Arial,sans-serif;">
 
             <div style="
                 color:#006747;
-                font-size:18px;
+                font-size:16px;
                 font-weight:700;">
                 SmartPay Projects
             </div>
 
             <div style="
                 color:#6B7280;
-                font-size:13px;
-                margin-top:6px;">
+                font-size:12px;
+                margin-top:4px;">
                 Download SmartPay project data
             </div>
 
@@ -9277,46 +9398,50 @@ elif page == "Export":
             "text/csv",
             use_container_width=True
         )
-            # ==========================================
-        # EXECUTIVE PDF EXPORT
         # ==========================================
+    # EXECUTIVE PDF EXPORT
+    # ==========================================
 
-        st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:2px;'></div>",
+        unsafe_allow_html=True
+    )
 
-        st.html("""
+    st.html("""
+    <div style="
+        background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
+        border-radius:14px;
+        padding:12px 16px;
+        border:1px solid #BBF7D0;
+        border-left:4px solid #006747;
+        box-shadow:0 4px 12px rgba(0,0,0,.06);
+        font-family:Segoe UI,Arial,sans-serif;">
+
         <div style="
-            background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
-            border-radius:20px;
-            padding:25px;
-            border:1px solid #BBF7D0;
-            border-left:6px solid #006747;
-            box-shadow:0 8px 22px rgba(0,0,0,.07);">
-
-            <div style="
-                color:#006747;
-                font-size:22px;
-                font-weight:700;">
-                📕 Exclusive Executive PDF Report
-            </div>
-
-            <div style="
-                color:#6B7280;
-                font-size:14px;
-                margin-top:7px;">
-                Complete executive PDF containing SmartPay,
-                CRPL and PAYSYS project information.
-            </div>
-
+            color:#006747;
+            font-size:18px;
+            font-weight:700;">
+            📕 Exclusive Executive PDF Report
         </div>
-        """)
 
-        st.download_button(
-            "⬇ Download Exclusive Executive PDF",
-            executive_pdf,
-            "SmartPay_Exclusive_Executive_Report.pdf",
-            "application/pdf",
-            use_container_width=True
-        )
+        <div style="
+            color:#6B7280;
+            font-size:12px;
+            margin-top:4px;">
+            Complete executive PDF containing SmartPay,
+            CRPL and PAYSYS project information.
+        </div>
+
+    </div>
+    """)
+
+    st.download_button(
+        "⬇ Download Exclusive Executive PDF",
+        executive_pdf,
+        "SmartPay_Exclusive_Executive_Report.pdf",
+        "application/pdf",
+        use_container_width=True
+    )
 
 
     # ==========================================
@@ -9327,30 +9452,30 @@ elif page == "Export":
 
         st.html("""
         <div style="
-            background:white;
-            border-radius:18px;
-            padding:22px;
+            background:#FFFFFF;
+            border-radius:14px;
+            padding:12px 14px;
             border:1px solid #DDEBE5;
-            border-top:5px solid #FF9800;
-            box-shadow:0 8px 22px rgba(0,0,0,.07);">
+            border-top:4px solid #FF9800;
+            box-shadow:0 4px 12px rgba(0,0,0,.06);
+            font-family:Segoe UI,Arial,sans-serif;">
 
             <div style="
                 color:#E65100;
-                font-size:18px;
+                font-size:16px;
                 font-weight:700;">
                 CRPL
             </div>
 
             <div style="
                 color:#6B7280;
-                font-size:13px;
-                margin-top:6px;">
+                font-size:12px;
+                margin-top:4px;">
                 Download CRPL vendor data
             </div>
 
         </div>
         """)
-
 
         st.download_button(
             "⬇ Download CRPL CSV",
@@ -9369,30 +9494,30 @@ elif page == "Export":
 
         st.html("""
         <div style="
-            background:white;
-            border-radius:18px;
-            padding:22px;
+            background:#FFFFFF;
+            border-radius:14px;
+            padding:12px 14px;
             border:1px solid #DDEBE5;
-            border-top:5px solid #3949AB;
-            box-shadow:0 8px 22px rgba(0,0,0,.07);">
+            border-top:4px solid #3949AB;
+            box-shadow:0 4px 12px rgba(0,0,0,.06);
+            font-family:Segoe UI,Arial,sans-serif;">
 
             <div style="
                 color:#3949AB;
-                font-size:18px;
+                font-size:16px;
                 font-weight:700;">
                 PAYSYS
             </div>
 
             <div style="
                 color:#6B7280;
-                font-size:13px;
-                margin-top:6px;">
+                font-size:12px;
+                margin-top:4px;">
                 Download PAYSYS vendor data
             </div>
 
         </div>
         """)
-
 
         st.download_button(
             "⬇ Download PAYSYS CSV",
@@ -9407,36 +9532,38 @@ elif page == "Export":
     # COMPLETE EXCEL EXPORT
     # ==========================================
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
 
     st.html("""
     <div style="
         background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
-        border-radius:20px;
-        padding:25px;
+        border-radius:14px;
+        padding:12px 16px;
         border:1px solid #BBF7D0;
-        border-left:6px solid #006747;
-        box-shadow:0 8px 22px rgba(0,0,0,.07);">
+        border-left:4px solid #006747;
+        box-shadow:0 4px 12px rgba(0,0,0,.06);
+        font-family:Segoe UI,Arial,sans-serif;">
 
         <div style="
             color:#006747;
-            font-size:22px;
+            font-size:18px;
             font-weight:700;">
             📊 Complete Executive Excel Report
         </div>
 
         <div style="
             color:#6B7280;
-            font-size:14px;
-            margin-top:7px;">
+            font-size:12px;
+            margin-top:4px;">
             One Excel file containing SmartPay Projects, CRPL and PAYSYS
             in separate worksheets.
         </div>
 
     </div>
     """)
-
 
     st.download_button(
         "⬇ Download Complete Excel Report",
@@ -9447,7 +9574,10 @@ elif page == "Export":
     )
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
 
     st.markdown("---")
 
@@ -9456,14 +9586,17 @@ elif page == "Export":
     # REPORT PREVIEW
     # ==========================================
 
-    st.markdown("""
-    <h2 style="
+    st.html("""
+    <div style="
         color:#006747;
-        font-size:28px;
-        margin-bottom:15px;">
+        font-size:24px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:5px;
+        font-family:Segoe UI,Arial,sans-serif;">
         👁️ Report Preview
-    </h2>
-    """, unsafe_allow_html=True)
+    </div>
+    """)
 
 
     # ==========================================
@@ -9485,16 +9618,16 @@ elif page == "Export":
 
     with preview_projects:
 
-        st.markdown("""
-        <h3 style="
+        st.html("""
+        <div style="
             color:#006747;
-            font-size:22px;
+            font-size:18px;
             font-weight:700;
-            margin-bottom:12px;">
+            margin-bottom:5px;
+            font-family:Segoe UI,Arial,sans-serif;">
             SmartPay Project Data
-        </h3>
-        """, unsafe_allow_html=True)
-
+        </div>
+        """)
 
         st.dataframe(
             projects_export_df,
@@ -9510,16 +9643,16 @@ elif page == "Export":
 
     with preview_crpl:
 
-        st.markdown("""
-        <h3 style="
+        st.html("""
+        <div style="
             color:#E65100;
-            font-size:22px;
+            font-size:18px;
             font-weight:700;
-            margin-bottom:12px;">
+            margin-bottom:5px;
+            font-family:Segoe UI,Arial,sans-serif;">
             CRPL Data
-        </h3>
-        """, unsafe_allow_html=True)
-
+        </div>
+        """)
 
         if not crpl_export_df.empty:
 
@@ -9543,16 +9676,16 @@ elif page == "Export":
 
     with preview_paysys:
 
-        st.markdown("""
-        <h3 style="
+        st.html("""
+        <div style="
             color:#3949AB;
-            font-size:22px;
+            font-size:18px;
             font-weight:700;
-            margin-bottom:12px;">
+            margin-bottom:5px;
+            font-family:Segoe UI,Arial,sans-serif;">
             PAYSYS Data
-        </h3>
-        """, unsafe_allow_html=True)
-
+        </div>
+        """)
 
         if not paysys_export_df.empty:
 
@@ -9580,5 +9713,3 @@ elif page == "Export":
         f"{len(crpl_export_df)} CRPL Records | "
         f"{len(paysys_export_df)} PAYSYS Records"
     )
-
-   
