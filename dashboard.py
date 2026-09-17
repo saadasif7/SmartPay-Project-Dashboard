@@ -509,6 +509,7 @@ Project Dashboard
 
 st.sidebar.markdown("---")
 
+
 # =====================================================
 # NAVIGATION
 # =====================================================
@@ -569,109 +570,61 @@ else:
 # FORCE MAIN PAGE TO TOP AFTER NAVIGATION
 # =====================================================
 
+def scroll_main_to_top(nonce: str, duration_ms: int = 1200):
+    components.html(
+        f"""
+        <script>
+        (() => {{
+            // nonce: {nonce}  <-- forces a fresh iframe on every page change
+            const doc = window.parent.document;
+            const START = Date.now();
+            let userTookOver = false;
+
+            function targets() {{
+                const sels = [
+                    'section.stMain',
+                    '[data-testid="stMain"]',
+                    'section.main',
+                    '[data-testid="stAppViewContainer"] > section'
+                ];
+                const found = new Set();
+                sels.forEach(s => doc.querySelectorAll(s).forEach(el => found.add(el)));
+                return [...found];
+            }}
+
+            function toTop() {{
+                targets().forEach(el => {{ el.scrollTop = 0; }});
+                doc.documentElement.scrollTop = 0;
+                doc.body.scrollTop = 0;
+            }}
+
+            // Bail out the moment the user scrolls, so we never fight them
+            ['wheel', 'touchstart', 'keydown'].forEach(ev =>
+                doc.addEventListener(ev, () => {{ userTookOver = true; }},
+                                     {{ once: true, passive: true }})
+            );
+
+            function clamp() {{
+                if (userTookOver) return;
+                toTop();
+                if (Date.now() - START < {duration_ms}) {{
+                    window.requestAnimationFrame(clamp);
+                }}
+            }}
+
+            toTop();
+            clamp();
+        }})();
+        </script>
+        """,
+        height=0,
+    )
+
+
 if st.session_state.get("page_changed", False):
+    st.session_state["scroll_nonce"] = st.session_state.get("scroll_nonce", 0) + 1
+    scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
-    st.markdown("""
-    <script>
-    (() => {
-
-        const doc = window.parent.document;
-
-        function resetMainScroll() {
-            const main = doc.querySelector("section.stMain");
-
-            if (main) {
-                main.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: "instant"
-                });
-
-                main.scrollTop = 0;
-            }
-        }
-
-        // Disable browser restoration
-        try {
-            window.parent.history.scrollRestoration = "manual";
-        } catch (e) {}
-
-        // Initial reset
-        resetMainScroll();
-
-        // Observe Streamlit DOM changes
-        const observer = new MutationObserver(() => {
-            resetMainScroll();
-        });
-
-        const main = doc.querySelector("section.stMain");
-
-        if (main) {
-            observer.observe(main, {
-                childList: true,
-                subtree: true
-            });
-        }
-
-        // Keep checking during page transition
-        let count = 0;
-
-        const timer = setInterval(() => {
-
-            resetMainScroll();
-
-            count++;
-
-            if (count >= 20) {
-                clearInterval(timer);
-                observer.disconnect();
-            }
-
-        }, 100);
-
-    })();
-    </script>
-    """, unsafe_allow_html=True)
-
-# =====================================================
-# INFORMATION
-# =====================================================
-
-st.sidebar.markdown("""
-<div style="
-background:rgba(255,255,255,.12);
-padding:12px;
-border-radius:12px;
-color:white;
-font-size:14px;
-line-height:1.5;">
-
-<b>Department</b><br>
-Digital Banking Group
-
-<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
-
-<b>Organization</b><br>
-National Bank of Pakistan
-
-<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
-
-<b>Version</b><br>
-2.0
-
-<hr style="margin:8px 0;border:.5px solid rgba(255,255,255,.25);">
-
-<b>Developer</b><br>
-Muhammad Saad Asif
-
-</div>
-""", unsafe_allow_html=True)
-
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
-
-st.sidebar.caption(
-    "© 2026 SmartPay Dashboard"
-)
 # =====================================================
 # DASHBOARD
 # =====================================================
