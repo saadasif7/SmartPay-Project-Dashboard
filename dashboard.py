@@ -1124,7 +1124,7 @@ if page == "Dashboard":
 
 
     # =====================================================
-    
+
     # SMART SEARCH - GLOBAL VIP SEARCH
     # =====================================================
 
@@ -1989,13 +1989,16 @@ if page == "Dashboard":
         color:#006747 !important;
     }
 
-    .st-key-team_overview_kpis
+    .st-key-team_overview_kpis 
     div[data-testid="stButton"] button p {
 
         font-size:13px !important;
         font-weight:700 !important;
-        line-height:1.3 !important;
+        line-height:1.5 !important;
         color:#111827 !important;
+
+        white-space:pre-line !important;
+        text-align:center !important;
     }
 
     .st-key-team_overview_kpis
