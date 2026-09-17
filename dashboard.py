@@ -539,11 +539,12 @@ page = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 # ==========================================
-# RESET SEARCH + SCROLL WHEN PAGE CHANGES
+# PAGE CHANGE DETECTION
 # ==========================================
 
 if "previous_page" not in st.session_state:
     st.session_state.previous_page = page
+    st.session_state.page_changed = False
 
 elif st.session_state.previous_page != page:
 
@@ -556,23 +557,81 @@ elif st.session_state.previous_page != page:
         "selected_project",
         "selected_member"
     ]:
-        if key in st.session_state:
-            del st.session_state[key]
+        st.session_state.pop(key, None)
 
-    # New page remember
+    # Mark page changed
     st.session_state.previous_page = page
+    st.session_state.page_changed = True
 
-    # Scroll to top
-    # Scroll position reset
+else:
+    st.session_state.page_changed = False
+# =====================================================
+# FORCE MAIN PAGE TO TOP AFTER NAVIGATION
+# =====================================================
+
+if st.session_state.get("page_changed", False):
+
     st.markdown("""
     <script>
-    window.parent.scrollTo(0, 0);
-    window.parent.document.documentElement.scrollTop = 0;
-    window.parent.document.body.scrollTop = 0;
+    (() => {
+
+        const doc = window.parent.document;
+
+        function resetMainScroll() {
+            const main = doc.querySelector("section.stMain");
+
+            if (main) {
+                main.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: "instant"
+                });
+
+                main.scrollTop = 0;
+            }
+        }
+
+        // Disable browser restoration
+        try {
+            window.parent.history.scrollRestoration = "manual";
+        } catch (e) {}
+
+        // Initial reset
+        resetMainScroll();
+
+        // Observe Streamlit DOM changes
+        const observer = new MutationObserver(() => {
+            resetMainScroll();
+        });
+
+        const main = doc.querySelector("section.stMain");
+
+        if (main) {
+            observer.observe(main, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // Keep checking during page transition
+        let count = 0;
+
+        const timer = setInterval(() => {
+
+            resetMainScroll();
+
+            count++;
+
+            if (count >= 20) {
+                clearInterval(timer);
+                observer.disconnect();
+            }
+
+        }, 100);
+
+    })();
     </script>
     """, unsafe_allow_html=True)
-
-    st.rerun()
 
 # =====================================================
 # INFORMATION
@@ -10363,3 +10422,4 @@ elif page == "Export":
         f"{len(crpl_export_df)} CRPL Records | "
         f"{len(paysys_export_df)} PAYSYS Records"
     )
+
