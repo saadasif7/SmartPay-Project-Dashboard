@@ -1123,168 +1123,938 @@ if page == "Dashboard":
                 st.rerun()
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
     # =====================================================
-    # TEAM OVERVIEW
+    
+    # SMART SEARCH - GLOBAL VIP SEARCH
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:26px;
-    font-weight:700;
-    margin-bottom:10px;">
-    👥 Team Overview
-    </h2>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:8px;
+        margin-bottom:6px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        🔍 Smart Search
+    </div>
+    """)
 
+
+    # =====================================================
+    # GLOBAL SEARCH INPUT
+    # =====================================================
+
+    global_search = st.text_input(
+        "Search",
+        placeholder="🔍 Search Projects, CRPL, PAYSYS, person name, issue, project name...",
+        label_visibility="collapsed",
+        key="global_smart_search"
+    )
+
+
+    # =====================================================
+    # LOAD SEARCH DATA
+    # =====================================================
+
+    smartpay_search_df = df.copy()
+
+    crpl_search_df = pd.DataFrame()
+    paysys_search_df = pd.DataFrame()
+
+
+    # =====================================================
+    # LOAD CRPL
+    # =====================================================
+
+    try:
+
+        crpl_file_search = os.path.join(
+            os.path.dirname(__file__),
+            "data",
+            "CRPL_All_Data_Exactly_20.xlsx"
+        )
+
+        crpl_raw_search = pd.read_excel(
+            crpl_file_search,
+            sheet_name="CRPL",
+            header=None
+        )
+
+        crpl_header_row = None
+
+        for i in range(
+            min(20, len(crpl_raw_search))
+        ):
+
+            row = " ".join(
+                str(x).lower()
+                for x in crpl_raw_search.iloc[i]
+                if pd.notna(x)
+            )
+
+            if (
+                "crf no" in row
+                and "crf name" in row
+            ):
+
+                crpl_header_row = i
+                break
+
+
+        if crpl_header_row is not None:
+
+            crpl_search_df = pd.read_excel(
+                crpl_file_search,
+                sheet_name="CRPL",
+                header=crpl_header_row
+            )
+
+            crpl_search_df.columns = [
+                str(x).strip()
+                for x in crpl_search_df.columns
+            ]
+
+            crpl_search_df = (
+                crpl_search_df
+                .dropna(how="all")
+                .reset_index(drop=True)
+            )
+
+    except Exception:
+
+        crpl_search_df = pd.DataFrame()
+
+
+    # =====================================================
+    # LOAD PAYSYS
+    # =====================================================
+
+    try:
+
+        paysys_file_search = os.path.join(
+            os.path.dirname(__file__),
+            "data",
+            "PAYSYS_Weekly_Project_Update_04-Sep-2026.xlsx"
+        )
+
+        paysys_excel_search = pd.ExcelFile(
+            paysys_file_search
+        )
+
+        paysys_sheet_search = (
+            paysys_excel_search.sheet_names[0]
+        )
+
+        paysys_raw_search = pd.read_excel(
+            paysys_file_search,
+            sheet_name=paysys_sheet_search,
+            header=None
+        )
+
+        paysys_header_row = None
+
+        for i in range(
+            min(20, len(paysys_raw_search))
+        ):
+
+            row = " ".join(
+                str(x).lower()
+                for x in paysys_raw_search.iloc[i]
+                if pd.notna(x)
+            )
+
+            if (
+                "uat/live" in row
+                and "paysys response" in row
+            ):
+
+                paysys_header_row = i
+                break
+
+
+        if paysys_header_row is not None:
+
+            paysys_search_df = pd.read_excel(
+                paysys_file_search,
+                sheet_name=paysys_sheet_search,
+                header=paysys_header_row
+            )
+
+            paysys_search_df.columns = [
+                str(x).strip()
+                for x in paysys_search_df.columns
+            ]
+
+            paysys_search_df = (
+                paysys_search_df
+                .dropna(how="all")
+                .reset_index(drop=True)
+            )
+
+    except Exception:
+
+        paysys_search_df = pd.DataFrame()
+
+
+    # =====================================================
+    # SEARCH FUNCTION
+    # =====================================================
+
+    def global_search_dataframe(
+        dataframe,
+        query,
+        source_keywords
+    ):
+
+        if dataframe.empty:
+            return dataframe.copy()
+
+        query_clean = str(
+            query
+        ).strip().lower()
+
+        # ---------------------------------------------
+        # SOURCE SEARCH
+        # ---------------------------------------------
+
+        if query_clean in source_keywords:
+
+            return dataframe.copy()
+
+
+        # ---------------------------------------------
+        # SEARCH ALL COLUMNS
+        # ---------------------------------------------
+
+        search_mask = pd.Series(
+            False,
+            index=dataframe.index
+        )
+
+        for col in dataframe.columns:
+
+            search_mask = (
+                search_mask
+                |
+                dataframe[col]
+                .astype(str)
+                .str.contains(
+                    query,
+                    case=False,
+                    na=False,
+                    regex=False
+                )
+            )
+
+        return dataframe[
+            search_mask
+        ].copy()
+
+
+    # =====================================================
+    # VIP TABLE FUNCTION
+    # =====================================================
+
+    def show_global_search_table(
+        dataframe,
+        source
+    ):
+
+        if dataframe.empty:
+            return
+
+
+        display_df = dataframe.copy()
+
+
+        # =================================================
+        # SOURCE-SPECIFIC STYLING
+        # =================================================
+
+        if source == "Projects":
+
+            if "Mandate" in display_df.columns:
+
+                display_df["Mandate"] = (
+                    display_df["Mandate"]
+                    .apply(
+                        lambda x:
+                        f'<span class="global-project-name">'
+                        f'{x}</span>'
+                    )
+                )
+
+            if "Status" in display_df.columns:
+
+                def project_status_badge(
+                    value
+                ):
+
+                    value = str(value).strip()
+
+                    upper = value.upper()
+
+                    if upper == "LIVE":
+
+                        css = "global-stage-live"
+
+                    elif upper == "UAT":
+
+                        css = "global-stage-uat"
+
+                    elif upper == "CMC":
+
+                        css = "global-stage-cmc"
+
+                    elif upper == "IS REVIEW":
+
+                        css = "global-stage-review"
+
+                    elif upper in [
+                        "SCOPING",
+                        "UNDER SCOPING"
+                    ]:
+
+                        css = "global-stage-scoping"
+
+                    elif upper == "BAU":
+
+                        css = "global-stage-bau"
+
+                    else:
+
+                        css = "global-stage-default"
+
+                    return (
+                        f'<span class="global-stage-badge '
+                        f'{css}">{value}</span>'
+                    )
+
+                display_df["Status"] = (
+                    display_df["Status"]
+                    .apply(project_status_badge)
+                )
+
+
+        elif source == "CRPL":
+
+            if "CRF Name" in display_df.columns:
+
+                display_df["CRF Name"] = (
+                    display_df["CRF Name"]
+                    .apply(
+                        lambda x:
+                        f'<span class="global-project-name">'
+                        f'{x}</span>'
+                    )
+                )
+
+            if "Stage" in display_df.columns:
+
+                def crpl_stage_badge(
+                    value
+                ):
+
+                    value = str(value).strip()
+
+                    upper = value.upper()
+
+                    if upper == "HOLD":
+
+                        css = "global-stage-hold"
+
+                    elif upper == "WIP":
+
+                        css = "global-stage-wip"
+
+                    elif upper == "UAT":
+
+                        css = "global-stage-uat"
+
+                    elif upper in [
+                        "LIVE",
+                        "PRODUCTION",
+                        "LIVE / PRODUCTION",
+                        "LIVE/PRODUCTION"
+                    ]:
+
+                        css = "global-stage-live"
+
+                    else:
+
+                        css = "global-stage-default"
+
+                    return (
+                        f'<span class="global-stage-badge '
+                        f'{css}">{value}</span>'
+                    )
+
+                display_df["Stage"] = (
+                    display_df["Stage"]
+                    .apply(crpl_stage_badge)
+                )
+
+
+        elif source == "PAYSYS":
+
+            if "Project / Issue" in display_df.columns:
+
+                display_df["Project / Issue"] = (
+                    display_df["Project / Issue"]
+                    .apply(
+                        lambda x:
+                        f'<span class="global-project-name">'
+                        f'{x}</span>'
+                    )
+                )
+
+            if "UAT/Live" in display_df.columns:
+
+                def paysys_stage_badge(
+                    value
+                ):
+
+                    value = str(value).strip()
+
+                    upper = value.upper()
+
+                    if upper == "UAT":
+
+                        css = "global-stage-uat"
+
+                    elif upper in [
+                        "LIVE",
+                        "PRODUCTION",
+                        "LIVE / PRODUCTION",
+                        "LIVE/PRODUCTION"
+                    ]:
+
+                        css = "global-stage-live"
+
+                    else:
+
+                        css = "global-stage-default"
+
+                    return (
+                        f'<span class="global-stage-badge '
+                        f'{css}">{value}</span>'
+                    )
+
+                display_df["UAT/Live"] = (
+                    display_df["UAT/Live"]
+                    .apply(paysys_stage_badge)
+                )
+
+
+        # =================================================
+        # HTML TABLE
+        # =================================================
+
+        table_html = display_df.to_html(
+            index=False,
+            escape=False,
+            classes="global-search-table"
+        )
+
+
+        # =================================================
+        # SOURCE TITLE
+        # =================================================
+
+        source_icon = {
+
+            "Projects": "📁",
+            "CRPL": "🏦",
+            "PAYSYS": "💳"
+
+        }.get(
+            source,
+            "📋"
+        )
+
+
+        st.html(
+            f"""
+            <div class="global-search-source-title">
+                {source_icon} {source}
+                <span>
+                    {len(dataframe)} result(s)
+                </span>
+            </div>
+
+            <div class="global-search-table-wrapper">
+                {table_html}
+            </div>
+            """
+        )
+
+
+    # =====================================================
+    # GLOBAL SEARCH CSS
+    # =====================================================
+
+    st.html("""
+    <style>
+
+    .global-search-source-title {
+        color:#006747;
+        font-size:18px;
+        font-weight:700;
+        margin-top:10px;
+        margin-bottom:5px;
+        font-family:Segoe UI,Arial,sans-serif;
+    }
+
+    .global-search-source-title span {
+        color:#6B7280;
+        font-size:11px;
+        font-weight:600;
+        margin-left:7px;
+    }
+
+
+    .global-search-table-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:16px;
+        padding:6px;
+        box-shadow:0 6px 20px rgba(0,103,71,0.08);
+        overflow:hidden;
+        margin-bottom:10px;
+    }
+
+
+    .global-search-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:13px;
+        table-layout:fixed;
+    }
+
+
+    .global-search-table thead th {
+        background:#006747;
+        color:#FFFFFF;
+        font-weight:700;
+        padding:11px 10px;
+        text-align:left;
+    }
+
+
+    .global-search-table thead th:first-child {
+        border-top-left-radius:10px;
+    }
+
+
+    .global-search-table thead th:last-child {
+        border-top-right-radius:10px;
+    }
+
+
+    .global-search-table tbody td {
+        padding:10px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
+
+        white-space:normal !important;
+        word-wrap:break-word !important;
+        overflow-wrap:anywhere !important;
+        vertical-align:top;
+        line-height:1.45;
+    }
+
+
+    .global-search-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+
+    .global-search-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+
+    .global-project-name {
+        color:#006747 !important;
+        font-weight:700;
+    }
+
+
+    .global-stage-badge {
+        display:inline-block;
+        padding:4px 9px;
+        border-radius:16px;
+        font-size:10px;
+        font-weight:800;
+        white-space:nowrap;
+    }
+
+
+    .global-stage-live {
+        background:#DCFCE7;
+        color:#166534;
+    }
+
+
+    .global-stage-uat {
+        background:#FEF3C7;
+        color:#92400E;
+    }
+
+
+    .global-stage-wip {
+        background:#DBEAFE;
+        color:#1E40AF;
+    }
+
+
+    .global-stage-hold {
+        background:#FEE2E2;
+        color:#991B1B;
+    }
+
+
+    .global-stage-cmc {
+        background:#EDE9FE;
+        color:#5B21B6;
+    }
+
+
+    .global-stage-review {
+        background:#E0F2FE;
+        color:#075985;
+    }
+
+
+    .global-stage-scoping {
+        background:#F3F4F6;
+        color:#374151;
+    }
+
+
+    .global-stage-bau {
+        background:#E0F2FE;
+        color:#075985;
+    }
+
+
+    .global-stage-default {
+        background:#F3F4F6;
+        color:#374151;
+    }
+
+    </style>
+    """)
+
+
+    # =====================================================
+    # PERFORM GLOBAL SEARCH
+    # =====================================================
+
+    if global_search:
+
+        projects_result = global_search_dataframe(
+            smartpay_search_df,
+            global_search,
+            {
+                "project",
+                "projects",
+                "smartpay",
+                "smartpay projects"
+            }
+        )
+
+
+        crpl_result = global_search_dataframe(
+            crpl_search_df,
+            global_search,
+            {
+                "crpl"
+            }
+        )
+
+
+        paysys_result = global_search_dataframe(
+            paysys_search_df,
+            global_search,
+            {
+                "paysys"
+            }
+        )
+
+
+        total_results = (
+            len(projects_result)
+            + len(crpl_result)
+            + len(paysys_result)
+        )
+
+
+        # =================================================
+        # SEARCH SUMMARY
+        # =================================================
+
+        if total_results == 0:
+
+            st.html("""
+            <div style="
+                background:#FEF2F2;
+                border:1px solid #FECACA;
+                border-left:4px solid #DC2626;
+                border-radius:10px;
+                padding:9px 12px;
+                margin-top:7px;
+                color:#991B1B;
+                font-size:13px;
+                font-weight:600;
+                font-family:Segoe UI,Arial,sans-serif;">
+                ❌ No matching records found.
+            </div>
+            """)
+
+        else:
+
+            st.html(
+                f"""
+                <div style="
+                    background:#ECFDF5;
+                    border:1px solid #A7F3D0;
+                    border-left:4px solid #006747;
+                    border-radius:10px;
+                    padding:9px 12px;
+                    margin-top:7px;
+                    margin-bottom:6px;
+                    color:#006747;
+                    font-size:13px;
+                    font-weight:700;
+                    font-family:Segoe UI,Arial,sans-serif;">
+                    ✅ {total_results} matching record(s) found
+                </div>
+                """
+            )
+
+
+            # =============================================
+            # PROJECTS RESULTS
+            # =============================================
+
+            if not projects_result.empty:
+
+                show_global_search_table(
+                    projects_result,
+                    "Projects"
+                )
+
+
+            # =============================================
+            # CRPL RESULTS
+            # =============================================
+
+            if not crpl_result.empty:
+
+                show_global_search_table(
+                    crpl_result,
+                    "CRPL"
+                )
+
+
+            # =============================================
+            # PAYSYS RESULTS
+            # =============================================
+
+            if not paysys_result.empty:
+
+                show_global_search_table(
+                    paysys_result,
+                    "PAYSYS"
+                )
+
+
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
+    # =====================================================
+    # TEAM OVERVIEW - DYNAMIC CLICKABLE KPI CARDS
+    # =====================================================
+
+    st.html("""
+    <div style="
+        color:#006747;
+        font-size:26px;
+        font-weight:700;
+        margin-top:2px;
+        margin-bottom:8px;
+        font-family:Segoe UI,Arial,sans-serif;">
+        👥 Team Overview
+    </div>
+    """)
+
+
+    # =====================================================
+    # DYNAMIC TEAM DATA
+    # =====================================================
 
     allocation = (
         df["Allocation"]
-        .value_counts()
-        .reset_index()
+        .dropna()
+        .astype(str)
+        .str.strip()
     )
 
-    allocation.columns = ["Allocation", "Projects"]
+    allocation = allocation[
+        allocation != ""
+    ].value_counts().reset_index()
 
-
-    cols = st.columns(4)
-
-    for i, row in allocation.iterrows():
-
-        with cols[i % 4]:
-
-            st.markdown(f"""
-    <div style="
-    background:linear-gradient(180deg,#ffffff,#f7f9fc);
-    border-radius:14px;
-    padding:9px 8px;
-    text-align:center;
-    border:1px solid #E5E7EB;
-    box-shadow:0 4px 12px rgba(0,0,0,.05);
-    min-height:100px;
-    box-sizing:border-box;">
-
-    <div style="
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:#E8F5E9;
-    margin:auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:17px;">
-    👤
-    </div>
-
-    <div style="
-    margin-top:5px;
-    font-size:14px;
-    font-weight:700;
-    line-height:1.2;
-    color:#006747;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;">
-    {row["Allocation"]}
-    </div>
-
-    <div style="
-    margin-top:2px;
-    font-size:26px;
-    font-weight:800;
-    line-height:1;
-    color:#111827;">
-    {row["Projects"]}
-    </div>
-
-    <div style="
-    margin-top:2px;
-    font-size:10px;
-    line-height:1.1;
-    color:#6B7280;">
-    Projects Assigned
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
+    allocation.columns = [
+        "Allocation",
+        "Projects"
+    ]
 
 
     # =====================================================
-    # TEAM WORKLOAD - COMPACT
+    # TEAM CARD CSS
     # =====================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:8px;
-    margin-bottom:10px;">
-    📊 Team Workload
-    </h2>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <style>
+
+    .st-key-team_overview_kpis
+    div[data-testid="stButton"] {
+        width:100%;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stButton"] button {
+
+        width:100% !important;
+        min-height:88px !important;
+
+        background:#FFFFFF !important;
+
+        border:1px solid #E5E7EB !important;
+        border-radius:14px !important;
+
+        padding:10px 6px !important;
+
+        box-shadow:
+            0 4px 12px rgba(0,0,0,.06) !important;
+
+        color:#111827 !important;
+
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
+
+        font-size:13px !important;
+        font-weight:700 !important;
+
+        line-height:1.3 !important;
+
+        white-space:pre-line !important;
+
+        text-align:center !important;
+
+        transition:all .2s ease !important;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stButton"] button:hover {
+
+        background:#F8FAFC !important;
+
+        transform:translateY(-2px);
+
+        box-shadow:
+            0 8px 18px rgba(0,0,0,.10) !important;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stButton"] button:focus {
+
+        outline:none !important;
+
+        background:#EAF5F0 !important;
+
+        border:2px solid #006747 !important;
+
+        box-shadow:
+            0 0 0 3px rgba(0,103,71,.12),
+            0 8px 18px rgba(0,103,71,.15) !important;
+
+        color:#006747 !important;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stButton"] button p {
+
+        font-size:13px !important;
+        font-weight:700 !important;
+        line-height:1.3 !important;
+        color:#111827 !important;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:8px !important;
+    }
+
+    .st-key-team_overview_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+    </style>
+    """)
 
 
-    team_df = (
-        df.groupby("Allocation")
-        .size()
-        .reset_index(name="Projects")
-        .sort_values("Projects", ascending=False)
+    # =====================================================
+    # DYNAMIC TEAM KPI CARDS
+    # =====================================================
+
+    with st.container(key="team_overview_kpis"):
+
+        cols = st.columns(4)
+
+        for i, row in allocation.iterrows():
+
+            member = str(
+                row["Allocation"]
+            ).strip()
+
+            project_count = int(
+                row["Projects"]
+            )
+
+            with cols[i % 4]:
+
+                if st.button(
+                    f"👤 {member}\n{project_count} Projects",
+                    key=f"team_member_{i}",
+                    use_container_width=True
+                ):
+
+                    st.session_state[
+                        "selected_team_project"
+                    ] = member
+
+                    st.session_state[
+                        "navigate_to"
+                    ] = "Projects"
+
+                    st.rerun()
+
+
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True
     )
-
-
-    fig = px.bar(
-        team_df,
-        x="Allocation",
-        y="Projects",
-        text="Projects",
-        color="Projects",
-        color_continuous_scale="Greens"
-    )
-
-
-    fig.update_traces(
-        textposition="outside",
-        marker_line_width=0,
-        textfont=dict(size=12)
-    )
-
-
-    fig.update_layout(
-        height=380,
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        margin=dict(
-            l=15,
-            r=15,
-            t=8,
-            b=15
-        ),
-        coloraxis_showscale=False,
-        xaxis_title="",
-        yaxis_title="Projects",
-        font=dict(size=12),
-        xaxis=dict(
-            showgrid=False,
-            tickfont=dict(size=12)
-        ),
-        yaxis=dict(
-            gridcolor="#ECECEC",
-            tickfont=dict(size=11)
-        )
-    )
-
-
-    st.plotly_chart(
-        fig,
-        width="stretch"
-    )
-
     # =====================================================
     # TEAM SUMMARY - VIP
     # =====================================================
@@ -1608,145 +2378,7 @@ if page == "Dashboard":
 
 
     st.markdown("<br>", unsafe_allow_html=True)
-    # =====================================================
-    # SMART SEARCH - VIP PROJECT TABLE
-    # =====================================================
-
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:34px;
-    font-weight:700;
-    margin-top:35px;
-    margin-bottom:20px;">
-    🔍 Smart Search
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-    project = st.text_input(
-        "Search Project",
-        placeholder="🔍 Search Project...",
-        label_visibility="collapsed",
-        key="project_search"
-    )
-
-
-    if project:
-
-        result = df[
-            df["Mandate"].astype(str).str.contains(
-                project,
-                case=False,
-                na=False
-            )
-        ]
-
-
-        if result.empty:
-
-            st.error("❌ Project not found.")
-
-
-        else:
-
-            st.markdown(
-                f"""
-                <div style="
-                background:#ECFDF5;
-                border:1px solid #A7F3D0;
-                border-left:6px solid #006747;
-                padding:14px 18px;
-                border-radius:12px;
-                margin-bottom:15px;
-                color:#006747;
-                font-weight:700;
-                font-size:15px;">
-                ✅ {len(result)} Project(s) Found
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-            # =================================================
-            # VIP SEARCH RESULT TABLE
-            # =================================================
-
-            st.markdown("""
-            <div style="
-            background:#FFFFFF;
-            border-radius:18px;
-            padding:6px;
-            border:1px solid #DDE5E1;
-            box-shadow:0 8px 25px rgba(0,103,71,0.08);
-            margin-bottom:20px;">
-            """, unsafe_allow_html=True)
-
-
-            st.dataframe(
-                result,
-                width="stretch",
-                hide_index=True,
-                height=400
-            )
-
-
-            st.markdown(
-                "</div>",
-                unsafe_allow_html=True
-            )
-
-
-            # =================================================
-            # SEARCH SUMMARY
-            # =================================================
-
-            total_found = len(result)
-
-            live_found = len(
-                result[
-                    result["Status"]
-                    .astype(str)
-                    .str.upper()
-                    == "LIVE"
-                ]
-            )
-
-            uat_found = len(
-                result[
-                    result["Status"]
-                    .astype(str)
-                    .str.upper()
-                    == "UAT"
-                ]
-            )
-
-            c1, c2, c3 = st.columns(3)
-
-
-            with c1:
-                st.metric(
-                    "📋 Projects Found",
-                    total_found
-                )
-
-
-            with c2:
-                st.metric(
-                    "🟢 Live",
-                    live_found
-                )
-
-
-            with c3:
-                st.metric(
-                    "🟡 UAT",
-                    uat_found
-                )
-
-
-    st.markdown("<br>", unsafe_allow_html=True)
+    
 # =====================================================
 # PROJECTS
 # =====================================================
@@ -1817,6 +2449,20 @@ elif page == "Projects":
     🎯 Filters
     </h2>
     """, unsafe_allow_html=True)
+    # =====================================================
+    # TEAM CARD → PROJECTS FILTER
+    # =====================================================
+
+    selected_team_project = st.session_state.get(
+        "selected_team_project",
+        ""
+    )
+
+    if selected_team_project:
+
+        st.session_state[
+            "project_filter_allocation"
+        ] = selected_team_project
 
 
     c1, c2, c3, c4 = st.columns(4)
