@@ -216,7 +216,13 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-
+/* Sidebar collapse icon hide karne ke liye */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="baseButton-headerNoPadding"] {
+    display: none !important;
+    visibility: hidden !important;
+}
 /* ===========================
    Main App
 =========================== */
@@ -426,52 +432,210 @@ df["Status"] = (
 st.markdown("""
 <style>
 
-/* =========================
-   Sidebar
-========================= */
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
-section[data-testid="stSidebar"]{
-    background:#006747;
+section[data-testid="stSidebar"] {
+    background: linear-gradient(
+        180deg,
+        #004B34,
+        #006747,
+        #008A5A
+    ) !important;
+
+    overflow: hidden !important;
 }
 
-/* Navigation title */
+
+/* =====================================================
+   SIDEBAR MAIN CONTENT
+   Keep everything inside screen
+===================================================== */
+
+section[data-testid="stSidebar"]
+> div:first-child {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+
+/* =====================================================
+   SIDEBAR HEADINGS
+===================================================== */
+
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] p{
-    color:white;
+section[data-testid="stSidebar"] p {
+    color: white !important;
 }
 
-/* Radio Labels */
-div[role="radiogroup"] label{
-    background:transparent !important;
-    border:none !important;
-    border-radius:10px;
-    padding:10px 12px;
-    margin-bottom:6px;
-    color:white !important;
-    font-weight:600;
-    transition:.2s;
+
+/* =====================================================
+   NAVIGATION RADIO GROUP
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] {
+    width: 100% !important;
+    margin-top: 2px !important;
 }
 
-/* Hover */
-div[role="radiogroup"] label:hover{
-    background:#0B8758 !important;
+
+/* =====================================================
+   NAVIGATION BUTTONS
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] label {
+
+    background: transparent !important;
+
+    border: none !important;
+    border-radius: 8px !important;
+
+    padding: 6px 10px !important;
+    margin-bottom: 3px !important;
+
+    min-height: 30px !important;
+
+    color: white !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.1 !important;
+
+    transition: 0.2s !important;
+
+    /* Never expand into multiple lines */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+
+    box-sizing: border-box !important;
 }
 
-/* Selected */
-div[role="radiogroup"] label:has(input:checked){
-    background:#0FA968 !important;
-    color:white !important;
+
+/* =====================================================
+   HOVER
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] label:hover {
+    background: #0B8758 !important;
 }
 
-/* Hide Radio Circle */
-div[role="radiogroup"] input{
-    display:none !important;
+
+/* =====================================================
+   SELECTED PAGE
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] label:has(input:checked) {
+    background: #0FA968 !important;
+    color: white !important;
+
+    border-left: 4px solid #FFD700 !important;
 }
 
-/* Hide Empty Header Space */
-section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]{
-    padding-top:.4rem;
+
+/* =====================================================
+   HIDE RADIO CIRCLE
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] input {
+    display: none !important;
+}
+
+
+/* =====================================================
+   SIDEBAR TOP SPACING
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[data-testid="stVerticalBlock"] {
+    padding-top: 0.15rem !important;
+}
+
+
+/* =====================================================
+   SIDEBAR DIVIDERS
+===================================================== */
+
+section[data-testid="stSidebar"] hr {
+    margin-top: 5px !important;
+    margin-bottom: 6px !important;
+}
+
+
+.sidebar-created-by {
+    text-align: center !important;
+    color: #D1FAE5 !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-top: 6px !important;
+    margin-bottom: 3px !important;
+    white-space: nowrap !important;
+}
+
+/* =====================================================
+   MOBILE SIDEBAR
+===================================================== */
+
+@media (max-width: 768px) {
+
+    section[data-testid="stSidebar"] {
+        width: 215px !important;
+        min-width: 215px !important;
+        max-width: 215px !important;
+
+        overflow: hidden !important;
+    }
+
+    section[data-testid="stSidebar"]
+    div[role="radiogroup"] label {
+        padding: 5px 8px !important;
+        margin-bottom: 2px !important;
+
+        min-height: 28px !important;
+
+        font-size: 12px !important;
+    }
+
+    .sidebar-created-by {
+        font-size: 10px !important;
+        margin-top: 6px !important;
+    }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+    section[data-testid="stSidebar"] {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+    }
+
+    section[data-testid="stSidebar"]
+    div[role="radiogroup"] label {
+        padding: 4px 7px !important;
+        margin-bottom: 2px !important;
+
+        min-height: 26px !important;
+
+        font-size: 11px !important;
+    }
+
+    .sidebar-created-by {
+        font-size: 9px !important;
+    }
 }
 
 </style>
@@ -539,6 +703,13 @@ page = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("""
+<div class="sidebar-created-by">
+    ✦ Created by Muhammad Saad Asif ✦
+</div>
+""", unsafe_allow_html=True)
+
+
 # ==========================================
 # PAGE CHANGE DETECTION
 # ==========================================
