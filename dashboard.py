@@ -405,7 +405,152 @@ div[data-baseweb="select"]>div{
 [data-testid="stAlert"] *{
     color:#222222 !important;
 }
+/* =====================================================
+   MOBILE RESPONSIVE DESIGN
+   Desktop remains unchanged
+===================================================== */
 
+@media (max-width: 768px) {
+
+    /* ==========================================
+       MAIN PAGE
+    ========================================== */
+
+    .block-container {
+        padding-top: 1rem !important;
+        padding-left: 0.7rem !important;
+        padding-right: 0.7rem !important;
+        max-width: 100% !important;
+    }
+
+    /* Main headings */
+    h1, h2, h3, h4, h5, h6 {
+        line-height: 1.15 !important;
+    }
+
+    /* ==========================================
+       NORMAL TEXT
+    ========================================== */
+
+    p {
+        line-height: 1.25 !important;
+    }
+
+    /* ==========================================
+       FIELD LABELS
+    ========================================== */
+
+    label,
+    label p,
+    [data-testid="stWidgetLabel"],
+    [data-testid="stWidgetLabel"] p {
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 2px !important;
+    }
+
+    /* ==========================================
+       INPUTS / SELECTBOX
+    ========================================== */
+
+    .stTextInput input {
+        height: 38px !important;
+        font-size: 13px !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        min-height: 38px !important;
+        font-size: 13px !important;
+    }
+
+    /* ==========================================
+       NORMAL METRIC CARDS
+    ========================================== */
+
+    div[data-testid="metric-container"] {
+        padding: 10px !important;
+        border-left-width: 4px !important;
+        border-radius: 9px !important;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 11px !important;
+        line-height: 1.1 !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        font-size: 24px !important;
+        line-height: 1.1 !important;
+    }
+
+    [data-testid="stMetricDelta"] {
+        font-size: 10px !important;
+    }
+
+    /* ==========================================
+       BUTTONS
+    ========================================== */
+
+    .stButton > button {
+        min-height: 36px !important;
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+        line-height: 1.15 !important;
+    }
+
+    /* ==========================================
+       DATAFRAME
+    ========================================== */
+
+    [data-testid="stDataFrame"] {
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+
+    /* ==========================================
+       ALERTS
+    ========================================== */
+
+    [data-testid="stAlert"] {
+        padding: 8px !important;
+        font-size: 12px !important;
+    }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+    .block-container {
+        padding-top: 0.7rem !important;
+        padding-left: 0.45rem !important;
+        padding-right: 0.45rem !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        font-size: 21px !important;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 10px !important;
+    }
+
+    .stButton > button {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+    }
+
+    .stTextInput input {
+        font-size: 12px !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        font-size: 12px !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 # =====================================================
@@ -458,7 +603,80 @@ section[data-testid="stSidebar"]
     height: 100vh !important;
     overflow: hidden !important;
 }
+@media (max-width: 768px) {
 
+    section[data-testid="stSidebar"]
+    > div:first-child {
+        height: 100vh !important;
+        overflow-y: hidden !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Logo compact */
+    section[data-testid="stSidebar"] img {
+        max-height: 90px !important;
+        object-fit: contain !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* SmartPay title */
+    section[data-testid="stSidebar"] h2 {
+        font-size: 20px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    section[data-testid="stSidebar"] p {
+        font-size: 11px !important;
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Menu */
+    section[data-testid="stSidebar"]
+    div[role="radiogroup"] label {
+        padding: 4px 7px !important;
+        margin-bottom: 1px !important;
+        min-height: 27px !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+    }
+
+    /* Footer */
+    .sidebar-created-by {
+        font-size: 9px !important;
+        margin-top: 3px !important;
+        margin-bottom: 1px !important;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    section[data-testid="stSidebar"] img {
+        max-height: 75px !important;
+    }
+
+    section[data-testid="stSidebar"] h2 {
+        font-size: 18px !important;
+    }
+
+    section[data-testid="stSidebar"] p {
+        font-size: 10px !important;
+    }
+
+    section[data-testid="stSidebar"]
+    div[role="radiogroup"] label {
+        padding: 3px 6px !important;
+        min-height: 25px !important;
+        font-size: 11px !important;
+    }
+
+    .sidebar-created-by {
+        font-size: 8px !important;
+    }
+}
 
 /* =====================================================
    SIDEBAR HEADINGS
