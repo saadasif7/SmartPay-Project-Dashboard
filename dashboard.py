@@ -2639,16 +2639,13 @@ elif page == "Projects":
     # TEAM CARD → PROJECTS FILTER
     # =====================================================
 
-    selected_team_project = st.session_state.get(
+    selected_team_project = st.session_state.pop(
         "selected_team_project",
         ""
     )
 
     if selected_team_project:
-
-        st.session_state[
-            "project_filter_allocation"
-        ] = selected_team_project
+        st.session_state["project_filter_allocation"] = selected_team_project
 
 
     c1, c2, c3, c4 = st.columns(4)
