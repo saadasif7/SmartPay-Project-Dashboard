@@ -571,113 +571,71 @@ df["Status"] = (
 )
 
 # =====================================================
-# SIDEBAR
+# SIDEBAR - SMARTPAY PREMIUM GREEN THEME
 # =====================================================
 
 st.markdown("""
 <style>
 
 /* =====================================================
-   SIDEBAR
+   SIDEBAR BACKGROUND
 ===================================================== */
 
 section[data-testid="stSidebar"] {
-    background: linear-gradient(
-        180deg,
-        #013D2B,
-        #006747,
-        #008A5A
-    ) !important;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(32,164,100,.20),
+            transparent 34%
+        ),
+        linear-gradient(
+            180deg,
+            #012E21 0%,
+            #004B34 42%,
+            #006747 72%,
+            #008A5A 100%
+        ) !important;
 
     overflow: hidden !important;
+    border-right: 1px solid rgba(255,255,255,.08) !important;
 }
 
 
 /* =====================================================
    SIDEBAR MAIN CONTENT
-   Keep everything inside screen
+   REMOVE TOP SPACE
 ===================================================== */
 
-section[data-testid="stSidebar"]
-> div:first-child {
+section[data-testid="stSidebar"] > div:first-child {
     height: 100vh !important;
     overflow: hidden !important;
+    padding-top: 0 !important;
+}
+
+section[data-testid="stSidebar"]
+[data-testid="stVerticalBlock"] {
+    padding-top: 0 !important;
 }
 
 
-@media (max-width: 768px) {
+/* =====================================================
+   LOGO - TOP POSITION
+===================================================== */
 
-    section[data-testid="stSidebar"]
-    > div:first-child {
-        height: 100vh !important;
-        overflow-y: hidden !important;
-        overflow-x: hidden !important;
-    }
+section[data-testid="stSidebar"] img {
+    max-height: 92px !important;
+    width: auto !important;
+    object-fit: contain !important;
+    display: block !important;
 
-    /* Logo compact */
-    section[data-testid="stSidebar"] img {
-        max-height: 90px !important;
-        object-fit: contain !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
+    margin-top: -18px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: -5px !important;
 
-    /* SmartPay title */
-    section[data-testid="stSidebar"] h2 {
-        font-size: 20px !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-
-    section[data-testid="stSidebar"] p {
-        font-size: 11px !important;
-        margin-top: 0 !important;
-        margin-bottom: 4px !important;
-    }
-
-    /* Menu */
-    section[data-testid="stSidebar"]
-    div[role="radiogroup"] label {
-        padding: 4px 7px !important;
-        margin-bottom: 1px !important;
-        min-height: 27px !important;
-        font-size: 12px !important;
-        line-height: 1 !important;
-    }
-
-    /* Footer */
-    .sidebar-created-by {
-        font-size: 9px !important;
-        margin-top: 3px !important;
-        margin-bottom: 1px !important;
-    }
-}
-
-
-@media (max-width: 480px) {
-
-    section[data-testid="stSidebar"] img {
-        max-height: 75px !important;
-    }
-
-    section[data-testid="stSidebar"] h2 {
-        font-size: 18px !important;
-    }
-
-    section[data-testid="stSidebar"] p {
-        font-size: 10px !important;
-    }
-
-    section[data-testid="stSidebar"]
-    div[role="radiogroup"] label {
-        padding: 3px 6px !important;
-        min-height: 25px !important;
-        font-size: 11px !important;
-    }
-
-    .sidebar-created-by {
-        font-size: 8px !important;
-    }
+    filter: drop-shadow(
+        0 5px 10px rgba(0,0,0,.20)
+    );
 }
 
 
@@ -693,13 +651,62 @@ section[data-testid="stSidebar"] p {
 
 
 /* =====================================================
-   NAVIGATION RADIO GROUP
+   SMARTPAY BRAND TITLE
+===================================================== */
+
+.sidebar-brand {
+    text-align: center !important;
+    margin-top: -2px !important;
+    margin-bottom: 6px !important;
+}
+
+.sidebar-title {
+    color: white !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: .4px !important;
+    line-height: 1.1 !important;
+}
+
+.sidebar-subtitle {
+    color: #D1FAE5 !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: .8px !important;
+    margin-top: 3px !important;
+}
+
+.sidebar-brand-line {
+    width: 48px !important;
+    height: 3px !important;
+    background: #FFD700 !important;
+    border-radius: 10px !important;
+    margin: 6px auto 2px auto !important;
+}
+
+
+/* =====================================================
+   NAVIGATION GROUP
 ===================================================== */
 
 section[data-testid="stSidebar"]
 div[role="radiogroup"] {
     width: 100% !important;
-    margin-top: 2px !important;
+
+    margin-top: 3px !important;
+    margin-bottom: 0 !important;
+
+    padding: 4px !important;
+
+    background: rgba(0,0,0,.10) !important;
+
+    border: 1px solid rgba(255,255,255,.08) !important;
+
+    border-radius: 13px !important;
+
+    box-sizing: border-box !important;
 }
 
 
@@ -712,28 +719,48 @@ div[role="radiogroup"] label {
 
     background: transparent !important;
 
-    border: none !important;
-    border-radius: 8px !important;
+    border: 1px solid transparent !important;
+
+    border-radius: 9px !important;
 
     padding: 6px 10px !important;
+
     margin-bottom: 3px !important;
 
     min-height: 30px !important;
 
-    color: white !important;
+    color: #F4FFFA !important;
+
+    font-family: "Segoe UI", Arial, sans-serif !important;
+
     font-size: 13px !important;
+
     font-weight: 600 !important;
 
     line-height: 1.1 !important;
 
-    transition: 0.2s !important;
+    transition:
+        background .2s ease,
+        transform .2s ease,
+        border .2s ease !important;
 
-    /* Never expand into multiple lines */
     white-space: nowrap !important;
+
     overflow: hidden !important;
+
     text-overflow: ellipsis !important;
 
     box-sizing: border-box !important;
+}
+
+
+/* =====================================================
+   LAST BUTTON
+===================================================== */
+
+section[data-testid="stSidebar"]
+div[role="radiogroup"] label:last-child {
+    margin-bottom: 0 !important;
 }
 
 
@@ -743,7 +770,17 @@ div[role="radiogroup"] label {
 
 section[data-testid="stSidebar"]
 div[role="radiogroup"] label:hover {
-    background: #0B8758 !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(32,164,100,.30),
+            rgba(32,164,100,.12)
+        ) !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+
+    transform: translateX(2px) !important;
 }
 
 
@@ -753,10 +790,24 @@ div[role="radiogroup"] label:hover {
 
 section[data-testid="stSidebar"]
 div[role="radiogroup"] label:has(input:checked) {
-    background: #0FA968 !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            #0FA968,
+            #008A5A
+        ) !important;
+
     color: white !important;
 
+    border: 1px solid rgba(255,255,255,.16) !important;
+
     border-left: 4px solid #FFD700 !important;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.14) !important;
+
+    font-weight: 700 !important;
 }
 
 
@@ -771,54 +822,92 @@ div[role="radiogroup"] input {
 
 
 /* =====================================================
-   SIDEBAR TOP SPACING
-===================================================== */
-
-section[data-testid="stSidebar"]
-div[data-testid="stVerticalBlock"] {
-    padding-top: 0.15rem !important;
-}
-
-
-/* =====================================================
    SIDEBAR DIVIDERS
 ===================================================== */
 
 section[data-testid="stSidebar"] hr {
-    margin-top: 5px !important;
-    margin-bottom: 6px !important;
+
+    border: none !important;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.12) !important;
+
+    margin-top: 7px !important;
+
+    margin-bottom: 7px !important;
 }
 
 
+/* =====================================================
+   CREATED BY
+===================================================== */
+
 .sidebar-created-by {
+
     text-align: center !important;
+
     color: #D1FAE5 !important;
+
     font-family: "Segoe UI", Arial, sans-serif !important;
+
     font-size: 11px !important;
+
     font-weight: 600 !important;
+
+    letter-spacing: .2px !important;
+
     margin-top: 6px !important;
+
     margin-bottom: 3px !important;
+
     white-space: nowrap !important;
 }
 
 
 /* =====================================================
-   MOBILE SIDEBAR
+   MOBILE
 ===================================================== */
 
 @media (max-width: 768px) {
 
     section[data-testid="stSidebar"] {
+
         width: 215px !important;
+
         min-width: 215px !important;
+
         max-width: 215px !important;
 
         overflow: hidden !important;
     }
 
     section[data-testid="stSidebar"]
+    > div:first-child {
+
+        height: 100vh !important;
+
+        overflow-y: hidden !important;
+
+        overflow-x: hidden !important;
+
+        padding-top: 0 !important;
+    }
+
+    section[data-testid="stSidebar"] img {
+
+        max-height: 90px !important;
+
+        margin-top: -15px !important;
+
+        margin-bottom: -5px !important;
+    }
+
+    section[data-testid="stSidebar"]
     div[role="radiogroup"] label {
+
         padding: 5px 8px !important;
+
         margin-bottom: 2px !important;
 
         min-height: 28px !important;
@@ -826,8 +915,20 @@ section[data-testid="stSidebar"] hr {
         font-size: 12px !important;
     }
 
+    .sidebar-title {
+
+        font-size: 20px !important;
+    }
+
+    .sidebar-subtitle {
+
+        font-size: 11px !important;
+    }
+
     .sidebar-created-by {
+
         font-size: 10px !important;
+
         margin-top: 6px !important;
     }
 }
@@ -840,14 +941,28 @@ section[data-testid="stSidebar"] hr {
 @media (max-width: 480px) {
 
     section[data-testid="stSidebar"] {
+
         width: 200px !important;
+
         min-width: 200px !important;
+
         max-width: 200px !important;
+    }
+
+    section[data-testid="stSidebar"] img {
+
+        max-height: 75px !important;
+
+        margin-top: -12px !important;
+
+        margin-bottom: -4px !important;
     }
 
     section[data-testid="stSidebar"]
     div[role="radiogroup"] label {
+
         padding: 4px 7px !important;
+
         margin-bottom: 2px !important;
 
         min-height: 26px !important;
@@ -855,13 +970,25 @@ section[data-testid="stSidebar"] hr {
         font-size: 11px !important;
     }
 
+    .sidebar-title {
+
+        font-size: 18px !important;
+    }
+
+    .sidebar-subtitle {
+
+        font-size: 10px !important;
+    }
+
     .sidebar-created-by {
+
         font-size: 9px !important;
     }
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # =====================================================
 # LOGO
@@ -872,38 +999,32 @@ st.sidebar.image(
     use_container_width=True
 )
 
+
 # =====================================================
-# TITLE
+# SMARTPAY TITLE
 # =====================================================
 
-st.sidebar.markdown("""
-<h2 style="
-text-align:center;
-color:white;
-margin-bottom:0;">
-🏦 SmartPay
-</h2>
-
-<p style="
-text-align:center;
-color:#D1FAE5;
-margin-top:2px;
-margin-bottom:8px;">
-Project Dashboard
-</p>
-""", unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
+st.sidebar.markdown(
+"""
+<div class="sidebar-brand">
+<div class="sidebar-title">🏦 SmartPay</div>
+<div class="sidebar-subtitle">PROJECT DASHBOARD</div>
+<div class="sidebar-brand-line"></div>
+</div>
+""",
+unsafe_allow_html=True
+)
 
 
 # =====================================================
 # NAVIGATION
 # =====================================================
 
-# Dashboard card se navigation request aaye to
 if "navigate_to" in st.session_state:
 
-    st.session_state["page_navigation"] = st.session_state["navigate_to"]
+    st.session_state["page_navigation"] = (
+        st.session_state["navigate_to"]
+    )
 
     del st.session_state["navigate_to"]
 
@@ -924,13 +1045,21 @@ page = st.sidebar.radio(
     key="page_navigation"
 )
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("""
-<div class="sidebar-created-by">
-    ✦ Created by Muhammad Saad Asif ✦
-</div>
-""", unsafe_allow_html=True)
 
+# =====================================================
+# SIDEBAR FOOTER
+# =====================================================
+
+st.sidebar.markdown("---")
+
+st.sidebar.markdown(
+"""
+<div class="sidebar-created-by">
+✦ Created by Muhammad Saad Asif ✦
+</div>
+""",
+unsafe_allow_html=True
+)
 
 # ==========================================
 # PAGE CHANGE DETECTION
@@ -1070,6 +1199,31 @@ if page == "Dashboard":
 
 
     # =====================================================
+    # KPI NAVIGATION FUNCTION
+    # =====================================================
+
+    def navigate_to_projects(status_filter):
+
+        # Clear any previous team navigation
+        st.session_state.pop(
+            "selected_team_project",
+            None
+        )
+
+        # Set fresh project filter
+        st.session_state["project_status_filter"] = status_filter
+
+        # Set destination
+        st.session_state["navigate_to"] = "Projects"
+
+        # Tell scroll system that page changed
+        st.session_state["page_changed"] = True
+
+        # Navigate
+        st.rerun()
+
+
+    # =====================================================
     # VIP CARD CSS
     # =====================================================
 
@@ -1077,7 +1231,7 @@ if page == "Dashboard":
     <style>
 
     /* =========================================
-       KPI CARD CONTAINER
+    KPI CARD CONTAINER
     ========================================= */
 
     .st-key-dashboard_kpis div[data-testid="stButton"] {
@@ -1086,7 +1240,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       BASE KPI CARD
+    BASE KPI CARD
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1137,7 +1291,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       BUTTON TEXT
+    BUTTON TEXT
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1171,7 +1325,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       HOVER
+    HOVER
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1187,7 +1341,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       FOCUS / SELECTED
+    FOCUS / CLICKED STATE
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1223,7 +1377,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 1 - TOTAL
+    CARD 1 - TOTAL
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1236,7 +1390,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 2 - SCOPING
+    CARD 2 - SCOPING
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1249,7 +1403,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 3 - UAT
+    CARD 3 - UAT
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1262,7 +1416,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 4 - IS REVIEW
+    CARD 4 - IS REVIEW
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1275,7 +1429,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 5 - CMC
+    CARD 5 - CMC
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1288,7 +1442,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 6 - LIVE
+    CARD 6 - LIVE
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1301,7 +1455,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       CARD 7 - BAU
+    CARD 7 - BAU
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1314,7 +1468,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       REMOVE EXTRA GAP
+    REMOVE EXTRA GAP
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1325,7 +1479,7 @@ if page == "Dashboard":
 
 
     /* =========================================
-       COLUMN SPACING
+    COLUMN SPACING
     ========================================= */
 
     .st-key-dashboard_kpis
@@ -1363,11 +1517,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "All"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("All")
 
 
         # -----------------------------------------
@@ -1382,11 +1532,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "SCOPING"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("SCOPING")
 
 
         # -----------------------------------------
@@ -1401,11 +1547,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "UAT"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("UAT")
 
 
         # -----------------------------------------
@@ -1420,11 +1562,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "IS REVIEW"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("IS REVIEW")
 
 
         # -----------------------------------------
@@ -1439,11 +1577,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "CMC"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("CMC")
 
 
         # -----------------------------------------
@@ -1458,11 +1592,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "LIVE"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("LIVE")
 
 
         # -----------------------------------------
@@ -1477,11 +1607,7 @@ if page == "Dashboard":
                 use_container_width=True
             ):
 
-                st.session_state["project_status_filter"] = "BAU"
-
-                st.session_state["navigate_to"] = "Projects"
-
-                st.rerun()
+                navigate_to_projects("BAU")
     
 
     # =====================================================
@@ -2277,7 +2403,7 @@ if page == "Dashboard":
 
 
     # =====================================================
-    # TEAM CARD CSS
+    # TEAM CARD CSS - COMPACT SINGLE LINE
     # =====================================================
 
     st.html("""
@@ -2292,29 +2418,32 @@ if page == "Dashboard":
     div[data-testid="stButton"] button {
 
         width:100% !important;
-        min-height:88px !important;
+        min-height:58px !important;
+        height:58px !important;
 
-        background:#FFFFFF !important;
+        background:linear-gradient(
+            135deg,
+            #013D2B,
+            #006747,
+            #008A5A
+        ) !important;
 
-        border:1px solid #E5E7EB !important;
-        border-radius:14px !important;
+        border:1px solid rgba(255,255,255,.15) !important;
+        border-radius:10px !important;
 
-        padding:10px 6px !important;
+        padding:5px 4px !important;
 
         box-shadow:
-            0 4px 12px rgba(0,0,0,.06) !important;
+            0 3px 8px rgba(0,103,71,.15) !important;
 
-        color:#111827 !important;
+        color:white !important;
 
-        font-family:
-            "Segoe UI",
-            Arial,
-            sans-serif !important;
+        font-family:"Segoe UI",Arial,sans-serif !important;
 
-        font-size:13px !important;
+        font-size:11px !important;
         font-weight:700 !important;
 
-        line-height:1.3 !important;
+        line-height:1.15 !important;
 
         white-space:pre-line !important;
 
@@ -2326,12 +2455,16 @@ if page == "Dashboard":
     .st-key-team_overview_kpis
     div[data-testid="stButton"] button:hover {
 
-        background:#F8FAFC !important;
+        background:linear-gradient(
+            135deg,
+            #006747,
+            #008A5A
+        ) !important;
 
-        transform:translateY(-2px);
+        transform:translateY(-1px);
 
         box-shadow:
-            0 8px 18px rgba(0,0,0,.10) !important;
+            0 5px 12px rgba(0,103,71,.22) !important;
     }
 
     .st-key-team_overview_kpis
@@ -2339,24 +2472,24 @@ if page == "Dashboard":
 
         outline:none !important;
 
-        background:#EAF5F0 !important;
+        background:#006747 !important;
 
-        border:2px solid #006747 !important;
+        border:2px solid #FFD700 !important;
 
         box-shadow:
-            0 0 0 3px rgba(0,103,71,.12),
-            0 8px 18px rgba(0,103,71,.15) !important;
+            0 0 0 2px rgba(255,215,0,.12) !important;
 
-        color:#006747 !important;
+        color:white !important;
     }
 
-    .st-key-team_overview_kpis 
+    .st-key-team_overview_kpis
     div[data-testid="stButton"] button p {
 
-        font-size:13px !important;
+        font-size:11px !important;
         font-weight:700 !important;
-        line-height:1.5 !important;
-        color:#111827 !important;
+        line-height:1.2 !important;
+
+        color:white !important;
 
         white-space:pre-line !important;
         text-align:center !important;
@@ -2365,7 +2498,7 @@ if page == "Dashboard":
     .st-key-team_overview_kpis
     div[data-testid="stHorizontalBlock"] {
 
-        gap:8px !important;
+        gap:4px !important;
     }
 
     .st-key-team_overview_kpis
@@ -2384,7 +2517,10 @@ if page == "Dashboard":
 
     with st.container(key="team_overview_kpis"):
 
-        cols = st.columns(4)
+        cols = st.columns(
+            len(allocation),
+            gap="small"
+        )
 
         for i, row in allocation.iterrows():
 
@@ -2396,7 +2532,7 @@ if page == "Dashboard":
                 row["Projects"]
             )
 
-            with cols[i % 4]:
+            with cols[i]:
 
                 if st.button(
                     f"👤 {member}\n{project_count} Projects",
@@ -2404,135 +2540,69 @@ if page == "Dashboard":
                     use_container_width=True
                 ):
 
+                    # -----------------------------------------
+                    # CLEAR OLD NAVIGATION STATES
+                    # -----------------------------------------
+
+                    st.session_state.pop(
+                        "navigate_to",
+                        None
+                    )
+
+                    st.session_state.pop(
+                        "project_status_filter",
+                        None
+                    )
+
+                    st.session_state.pop(
+                        "selected_team_project",
+                        None
+                    )
+
+
+                    # -----------------------------------------
+                    # SET FRESH TEAM FILTER
+                    # -----------------------------------------
+
                     st.session_state[
                         "selected_team_project"
                     ] = member
+
+
+                    # -----------------------------------------
+                    # SET DESTINATION
+                    # -----------------------------------------
 
                     st.session_state[
                         "navigate_to"
                     ] = "Projects"
 
+
+                    # -----------------------------------------
+                    # MARK PAGE CHANGE
+                    # -----------------------------------------
+
+                    st.session_state[
+                        "page_changed"
+                    ] = True
+
+
+                    # -----------------------------------------
+                    # NAVIGATE
+                    # -----------------------------------------
+
                     st.rerun()
 
 
-    st.markdown(
-        "<div style='height:8px;'></div>",
-        unsafe_allow_html=True
-    )
     # =====================================================
     # TEAM SUMMARY - VIP
     # =====================================================
 
     st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:34px;
-    font-weight:700;
-    margin-top:30px;
-    margin-bottom:20px;">
+    <h2 style="color:#006747;font-size:26px;font-weight:700;margin-top:20px;margin-bottom:10px;">
     📋 Team Summary
     </h2>
     """, unsafe_allow_html=True)
-
-
-    summary = (
-        df.groupby("Allocation")
-        .agg(
-            Total=("Mandate", "count"),
-            Live=("Status", lambda x: (x.str.upper() == "LIVE").sum()),
-            UAT=("Status", lambda x: (x.str.upper() == "UAT").sum())
-        )
-        .reset_index()
-    )
-
-
-    # -----------------------------
-    # TEAM SUMMARY TABLE CSS
-    # -----------------------------
-
-    st.markdown("""
-    <style>
-
-    .vip-summary-wrapper {
-        background: #FFFFFF;
-        border: 1px solid #DDE5E1;
-        border-radius: 18px;
-        padding: 6px;
-        box-shadow: 0 8px 25px rgba(0,103,71,0.08);
-        overflow: hidden;
-    }
-
-    .vip-summary-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 14px;
-    }
-
-    .vip-summary-table thead th {
-        background: #006747;
-        color: #FFFFFF;
-        padding: 15px 16px;
-        font-weight: 700;
-        text-align: left;
-    }
-
-    .vip-summary-table thead th:first-child {
-        border-top-left-radius: 12px;
-    }
-
-    .vip-summary-table thead th:last-child {
-        border-top-right-radius: 12px;
-    }
-
-    .vip-summary-table tbody td {
-        padding: 15px 16px;
-        color: #1F2937;
-        border-bottom: 1px solid #E5E7EB;
-        background: #FFFFFF;
-    }
-
-    .vip-summary-table tbody tr:nth-child(even) td {
-        background: #F8FAFC;
-    }
-
-    .vip-summary-table tbody tr:hover td {
-        background: #ECFDF5;
-    }
-
-    .team-name {
-        color: #006747 !important;
-        font-weight: 800;
-    }
-
-    .total-count {
-        background: #F0FDF4;
-        color: #006747 !important;
-        font-weight: 800;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-
-    .live-count {
-        background: #DCFCE7;
-        color: #166534 !important;
-        font-weight: 800;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-
-    .uat-count {
-        background: #FEF3C7;
-        color: #92400E !important;
-        font-weight: 800;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-  
-
 
     # =====================================================
     # CREATE SUMMARY
@@ -2541,11 +2611,8 @@ if page == "Dashboard":
     summary = (
         df.groupby("Allocation")
         .agg(
-
-            # Total Projects
             Total=("Mandate", "count"),
 
-            # SCOPING
             Scoping=("Status", lambda x:
                 x.astype(str)
                 .str.strip()
@@ -2557,7 +2624,6 @@ if page == "Dashboard":
                 .sum()
             ),
 
-            # DEVELOPMENT
             Development=("Status", lambda x:
                 x.astype(str)
                 .str.strip()
@@ -2570,7 +2636,6 @@ if page == "Dashboard":
                 .sum()
             ),
 
-            # UAT
             UAT=("Status", lambda x:
                 (
                     x.astype(str)
@@ -2580,7 +2645,6 @@ if page == "Dashboard":
                 ).sum()
             ),
 
-            # IS REVIEW
             IS_Review=("Status", lambda x:
                 (
                     x.astype(str)
@@ -2590,7 +2654,6 @@ if page == "Dashboard":
                 ).sum()
             ),
 
-            # CMC
             CMC=("Status", lambda x:
                 (
                     x.astype(str)
@@ -2600,7 +2663,6 @@ if page == "Dashboard":
                 ).sum()
             ),
 
-            # LIVE
             Live=("Status", lambda x:
                 (
                     x.astype(str)
@@ -2644,13 +2706,124 @@ if page == "Dashboard":
 
 
     # =====================================================
+    # COMPACT VIP TABLE CSS
+    # =====================================================
+
+    st.markdown("""
+    <style>
+
+    .vip-summary-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:12px;
+        padding:3px;
+        box-shadow:0 5px 15px rgba(0,103,71,0.07);
+        overflow:hidden;
+    }
+
+    .vip-summary-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:12px;
+    }
+
+    .vip-summary-table thead th {
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:#FFFFFF;
+        padding:9px 10px;
+        font-weight:700;
+        text-align:left;
+        white-space:nowrap;
+    }
+
+    .vip-summary-table thead th:first-child {
+        border-top-left-radius:9px;
+    }
+
+    .vip-summary-table thead th:last-child {
+        border-top-right-radius:9px;
+    }
+
+    .vip-summary-table tbody td {
+        padding:8px 10px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
+        white-space:nowrap;
+    }
+
+    .vip-summary-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+    .vip-summary-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+    .team-name {
+        color:#006747 !important;
+        font-weight:800;
+    }
+
+    .total-count {
+        background:#F0FDF4;
+        color:#006747 !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    .scoping-count {
+        background:#FFF7ED;
+        color:#C2410C !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    .uat-count {
+        background:#FEF3C7;
+        color:#92400E !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    .review-count {
+        background:#E0F2FE;
+        color:#0369A1 !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    .cmc-count {
+        background:#F3E8FF;
+        color:#7E22CE !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    .live-count {
+        background:#DCFCE7;
+        color:#166534 !important;
+        font-weight:800;
+        padding:3px 7px;
+        border-radius:15px;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
     # FORMAT SUMMARY
     # =====================================================
 
     summary_display = summary.copy()
 
-
-    # Allocation
     summary_display["Allocation"] = summary_display[
         "Allocation"
     ].apply(
@@ -2658,8 +2831,6 @@ if page == "Dashboard":
         f'<span class="team-name">👤 {x}</span>'
     )
 
-
-    # Total
     summary_display["Total"] = summary_display[
         "Total"
     ].apply(
@@ -2667,8 +2838,6 @@ if page == "Dashboard":
         f'<span class="total-count">{x}</span>'
     )
 
-
-    # Scoping
     summary_display["Scoping"] = summary_display[
         "Scoping"
     ].apply(
@@ -2676,11 +2845,6 @@ if page == "Dashboard":
         f'<span class="scoping-count">🟠 {x}</span>'
     )
 
-
-
-
-
-    # UAT
     summary_display["UAT"] = summary_display[
         "UAT"
     ].apply(
@@ -2688,8 +2852,6 @@ if page == "Dashboard":
         f'<span class="uat-count">🟡 {x}</span>'
     )
 
-
-    # IS Review
     summary_display["IS Review"] = summary_display[
         "IS Review"
     ].apply(
@@ -2697,8 +2859,6 @@ if page == "Dashboard":
         f'<span class="review-count">🔷 {x}</span>'
     )
 
-
-    # CMC
     summary_display["CMC"] = summary_display[
         "CMC"
     ].apply(
@@ -2706,8 +2866,6 @@ if page == "Dashboard":
         f'<span class="cmc-count">🟣 {x}</span>'
     )
 
-
-    # Live
     summary_display["Live"] = summary_display[
         "Live"
     ].apply(
@@ -2733,13 +2891,12 @@ if page == "Dashboard":
 
     st.markdown(
         f"""
-        <div class="vip-summary-wrapper">
-            {summary_html}
-        </div>
-        """,
+    <div class="vip-summary-wrapper">
+    {summary_html}
+    </div>
+    """,
         unsafe_allow_html=True
     )
-
 
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -2774,16 +2931,12 @@ elif page == "Projects":
     # =====================================================
 
     st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:2px;
-    margin-bottom:6px;
-    padding-top:0;">
+    <h2 style="color:#006747;font-size:22px;font-weight:700;margin-top:2px;margin-bottom:5px;padding-top:0;">
     🎯 Filters
     </h2>
     """, unsafe_allow_html=True)
+
+
     # =====================================================
     # TEAM CARD → PROJECTS FILTER
     # =====================================================
@@ -2796,6 +2949,10 @@ elif page == "Projects":
     if selected_team_project:
         st.session_state["project_filter_allocation"] = selected_team_project
 
+
+    # =====================================================
+    # FILTER COLUMNS
+    # =====================================================
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -2893,23 +3050,19 @@ elif page == "Projects":
     # COMPACT SUMMARY
     # =====================================================
 
-    left, right = st.columns([3, 1])
+    left, right = st.columns([5, 1])
 
 
     with left:
 
-        st.markdown(f"""
-        <div style="
-        background:#E8F5E9;
-        padding:9px 14px;
-        border-radius:11px;
-        color:#006747;
-        font-size:15px;
-        font-weight:700;
-        margin-top:6px;">
-        📌 Showing <b>{len(filtered_df)}</b> Project(s)
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+    <div style="background:#E8F5E9;padding:7px 12px;border-radius:9px;color:#006747;font-size:13px;font-weight:700;margin-top:3px;">
+    📌 Showing <b>{len(filtered_df)}</b> Project(s)
+    </div>
+    """,
+            unsafe_allow_html=True
+        )
 
 
     with right:
@@ -3363,138 +3516,135 @@ elif page == "Projects":
             status_upper == "BAU"
         ].copy()
     # =====================================================
+    # =====================================================
     # PROJECT TABLE - VIP STYLE
     # =====================================================
 
     st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:30px;
-    font-weight:700;
-    margin-bottom:18px;">
+    <h2 style="color:#006747;font-size:26px;font-weight:700;margin-top:18px;margin-bottom:9px;">
     📋 Project Details
     </h2>
     """, unsafe_allow_html=True)
 
 
-    # -----------------------------
+    # =====================================================
     # VIP TABLE CSS
-    # -----------------------------
+    # =====================================================
 
     st.markdown("""
     <style>
 
     .project-table-wrapper {
-        background: #FFFFFF;
-        border: 1px solid #DDE5E1;
-        border-radius: 16px;
-        padding: 6px;
-        box-shadow: 0 6px 20px rgba(0,103,71,0.08);
-        overflow: hidden;
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:16px;
+        padding:6px;
+        box-shadow:0 6px 20px rgba(0,103,71,0.08);
+        overflow:hidden;
     }
 
     .project-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 14px;
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:14px;
     }
 
     .project-table thead th {
-        background: #006747;
-        color: white;
-        font-weight: 700;
-        padding: 14px 12px;
-        text-align: left;
-        border: none;
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:#FFFFFF;
+        font-weight:700;
+        padding:14px 12px;
+        text-align:left;
+        border:none;
     }
 
     .project-table thead th:first-child {
-        border-top-left-radius: 11px;
+        border-top-left-radius:11px;
     }
 
     .project-table thead th:last-child {
-        border-top-right-radius: 11px;
+        border-top-right-radius:11px;
     }
 
     .project-table tbody td {
-        padding: 13px 12px;
-        color: #1F2937;
-        border-bottom: 1px solid #E5E7EB;
-        background: #FFFFFF;
+        padding:13px 12px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        background:#FFFFFF;
     }
 
     .project-table tbody tr:nth-child(even) td {
-        background: #F8FAFC;
+        background:#F8FAFC;
     }
 
     .project-table tbody tr:hover td {
-        background: #ECFDF5;
+        background:#ECFDF5;
     }
 
     .project-name {
-        font-weight: 700;
-        color: #006747 !important;
+        font-weight:700;
+        color:#006747 !important;
     }
 
     .status-badge {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 800;
-        white-space: nowrap;
+        display:inline-block;
+        padding:5px 11px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:800;
+        white-space:nowrap;
     }
 
     .status-live {
-        background: #DCFCE7;
-        color: #166534;
+        background:#DCFCE7;
+        color:#166534;
     }
 
     .status-uat {
-        background: #FEF3C7;
-        color: #92400E;
+        background:#FEF3C7;
+        color:#92400E;
     }
 
     .status-development {
-        background: #DBEAFE;
-        color: #1E40AF;
+        background:#DBEAFE;
+        color:#1E40AF;
     }
 
     .status-review {
-        background: #CCFBF1;
-        color: #115E59;
+        background:#CCFBF1;
+        color:#115E59;
     }
 
     .status-cmc {
-        background: #EDE9FE;
-        color: #5B21B6;
+        background:#EDE9FE;
+        color:#5B21B6;
     }
 
     .status-scoping {
-        background: #F3E8FF;
-        color: #7E22CE;
+        background:#F3E8FF;
+        color:#7E22CE;
     }
 
     .status-default {
-        background: #F3F4F6;
-        color: #374151;
+        background:#F3F4F6;
+        color:#374151;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
 
-    # -----------------------------
+    # =====================================================
     # CREATE VIP TABLE
-    # -----------------------------
+    # =====================================================
 
     display_df = filtered_df.copy()
 
 
-    # ==========================================
+    # =====================================================
     # DATE FORMAT
-    # ==========================================
+    # =====================================================
 
     if "Date" in display_df.columns:
 
@@ -3504,9 +3654,9 @@ elif page == "Projects":
         ).dt.strftime("%Y-%m-%d")
 
 
-    # ==========================================
+    # =====================================================
     # LIVE DATE FORMAT
-    # ==========================================
+    # =====================================================
 
     if "Live Date" in display_df.columns:
 
@@ -3535,6 +3685,11 @@ elif page == "Projects":
             display_df["Live Date"]
             .apply(format_live_date)
         )
+
+
+    # =====================================================
+    # STATUS BADGE
+    # =====================================================
 
     def status_badge(status):
 
@@ -3572,21 +3727,30 @@ elif page == "Projects":
         return f'<span class="status-badge {css}">{status}</span>'
 
 
-    # Status ko badge mein convert karo
     if "Status" in display_df.columns:
-        display_df["Status"] = display_df["Status"].apply(status_badge)
+
+        display_df["Status"] = display_df[
+            "Status"
+        ].apply(status_badge)
 
 
-    # Project/Mandate name ko highlight karo
+    # =====================================================
+    # PROJECT / MANDATE HIGHLIGHT
+    # =====================================================
+
     if "Mandate" in display_df.columns:
-        display_df["Mandate"] = display_df["Mandate"].apply(
-            lambda x: f'<span class="project-name">📁 {x}</span>'
+
+        display_df["Mandate"] = display_df[
+            "Mandate"
+        ].apply(
+            lambda x:
+            f'<span class="project-name">📁 {x}</span>'
         )
 
 
-    # -----------------------------
+    # =====================================================
     # HTML TABLE
-    # -----------------------------
+    # =====================================================
 
     table_html = display_df.to_html(
         index=False,
@@ -3597,17 +3761,23 @@ elif page == "Projects":
 
     st.markdown(
         f"""
-        <div class="project-table-wrapper">
-            {table_html}
-        </div>
-        """,
+    <div class="project-table-wrapper">
+    {table_html}
+    </div>
+    """,
         unsafe_allow_html=True
     )
+
+
     # =====================================================
     # EDIT PROJECTS
     # =====================================================
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:6px;'></div>",
+        unsafe_allow_html=True
+    )
+
 
     if "project_edit_mode" not in st.session_state:
         st.session_state["project_edit_mode"] = False
@@ -3636,15 +3806,10 @@ elif page == "Projects":
     if st.session_state["project_edit_mode"]:
 
         st.markdown("""
-        <h2 style="
-        color:#006747;
-        font-size:28px;
-        font-weight:700;
-        margin-top:20px;
-        margin-bottom:15px;">
-        ✏️ Edit Projects
-        </h2>
-        """, unsafe_allow_html=True)
+    <h2 style="color:#006747;font-size:24px;font-weight:700;margin-top:14px;margin-bottom:8px;">
+    ✏️ Edit Projects
+    </h2>
+    """, unsafe_allow_html=True)
 
         st.info(
             "✏️ Edit project data or add new projects."
@@ -3774,7 +3939,7 @@ elif page == "Analytics":
     </div>
     """, unsafe_allow_html=True)
 
-    # ==========================================
+   # ==========================================
     # KPI CARDS
     # ==========================================
 
@@ -3826,38 +3991,38 @@ elif page == "Analytics":
     def analytics_card(title, value, color):
 
         st.markdown(f"""
-        <div style="
-        background:#FFFFFF;
-        border-radius:14px;
-        padding:10px 8px;
-        text-align:center;
-        border-top:5px solid {color};
-        border-left:1px solid #E5E7EB;
-        border-right:1px solid #E5E7EB;
-        border-bottom:1px solid #E5E7EB;
-        box-shadow:0 5px 14px rgba(0,0,0,.06);
-        min-height:90px;
-        box-sizing:border-box;">
+    <div style="
+    background:#FFFFFF;
+    border-radius:14px;
+    padding:10px 8px;
+    text-align:center;
+    border-top:5px solid {color};
+    border-left:1px solid #E5E7EB;
+    border-right:1px solid #E5E7EB;
+    border-bottom:1px solid #E5E7EB;
+    box-shadow:0 5px 14px rgba(0,0,0,.06);
+    min-height:90px;
+    box-sizing:border-box;">
 
-        <div style="
-        color:#6B7280;
-        font-size:12px;
-        font-weight:600;
-        line-height:1.2;">
-        {title}
-        </div>
+    <div style="
+    color:#6B7280;
+    font-size:12px;
+    font-weight:600;
+    line-height:1.2;">
+    {title}
+    </div>
 
-        <div style="
-        color:{color};
-        font-size:30px;
-        font-weight:800;
-        line-height:1;
-        margin-top:7px;">
-        {value}
-        </div>
+    <div style="
+    color:{color};
+    font-size:30px;
+    font-weight:800;
+    line-height:1;
+    margin-top:7px;">
+    {value}
+    </div>
 
-        </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
     k1, k2, k3, k4 = st.columns(4)
@@ -3877,7 +4042,7 @@ elif page == "Analytics":
         analytics_card(
             "Live %",
             f"{live_percent}%",
-            "#00C853"
+            "#008A5A"
         )
 
 
@@ -3886,7 +4051,7 @@ elif page == "Analytics":
         analytics_card(
             "UAT %",
             f"{uat_percent}%",
-            "#F9A825"
+            "#20A464"
         )
 
 
@@ -3895,7 +4060,7 @@ elif page == "Analytics":
         analytics_card(
             "Team Members",
             team_members,
-            "#3949AB"
+            "#4CAF7A"
         )
 
 
@@ -4000,14 +4165,17 @@ elif page == "Analytics":
     ]
 
 
-    color_map = {
-        "LIVE": "#00C853",
-        "UAT": "#F9A825",
-        "IS REVIEW": "#00ACC1",
-        "CMC": "#3949AB",
-        "UNDER SCOPING": "#8E24AA"
-    }
+    # ==========================================
+    # SMARTPAY GREEN THEME
+    # ==========================================
 
+    color_map = {
+        "LIVE": "#006747",
+        "UAT": "#008A5A",
+        "IS REVIEW": "#20A464",
+        "CMC": "#4CAF7A",
+        "UNDER SCOPING": "#8BC9A8"
+    }
     # ==========================================
     # STATUS CHART - COMPACT
     # ==========================================
@@ -4023,6 +4191,7 @@ elif page == "Analytics":
     </h2>
     """, unsafe_allow_html=True)
 
+
     status_count = (
         analytics_df["Status"]
         .value_counts()
@@ -4035,6 +4204,11 @@ elif page == "Analytics":
         "Projects"
     ]
 
+
+    # ==========================================
+    # STATUS BAR CHART
+    # ==========================================
+
     fig1 = px.bar(
         status_count,
         x="Status",
@@ -4043,6 +4217,7 @@ elif page == "Analytics":
         color="Status",
         color_discrete_map=color_map
     )
+
 
     fig1.update_layout(
         height=380,
@@ -4060,7 +4235,7 @@ elif page == "Analytics":
         xaxis=dict(
             title="Status",
             title_font=dict(
-                color="#374151",
+                color="#006747",
                 size=12
             ),
             tickfont=dict(
@@ -4074,14 +4249,14 @@ elif page == "Analytics":
         yaxis=dict(
             title="Projects",
             title_font=dict(
-                color="#374151",
+                color="#006747",
                 size=12
             ),
             tickfont=dict(
                 color="#374151",
                 size=11
             ),
-            gridcolor="#E5E7EB",
+            gridcolor="#DDE5E1",
             zeroline=False
         ),
 
@@ -4100,11 +4275,16 @@ elif page == "Analytics":
         )
     )
 
+
     fig1.update_traces(
         textposition="inside",
-        textfont=dict(size=11),
+        textfont=dict(
+            color="white",
+            size=11
+        ),
         marker_line_width=0
     )
+
 
     st.plotly_chart(
         fig1,
@@ -4127,6 +4307,7 @@ elif page == "Analytics":
     </h2>
     """, unsafe_allow_html=True)
 
+
     allocation_count = (
         analytics_df["Allocation"]
         .value_counts()
@@ -4138,14 +4319,27 @@ elif page == "Analytics":
         "Projects"
     ]
 
+
+    # ==========================================
+    # TEAM PERFORMANCE BAR CHART
+    # ==========================================
+
     fig2 = px.bar(
         allocation_count,
         x="Allocation",
         y="Projects",
         text="Projects",
         color="Projects",
-        color_continuous_scale="Greens"
+        color_continuous_scale=[
+            "#D1FAE5",
+            "#8BC9A8",
+            "#4CAF7A",
+            "#20A464",
+            "#008A5A",
+            "#006747"
+        ]
     )
+
 
     fig2.update_layout(
         height=380,
@@ -4172,14 +4366,14 @@ elif page == "Analytics":
         yaxis=dict(
             title="Projects",
             title_font=dict(
-                color="#374151",
+                color="#006747",
                 size=12
             ),
             tickfont=dict(
                 color="#374151",
                 size=11
             ),
-            gridcolor="#E5E7EB",
+            gridcolor="#DDE5E1",
             zeroline=False
         ),
 
@@ -4191,13 +4385,16 @@ elif page == "Analytics":
         )
     )
 
+
     fig2.update_traces(
         textposition="outside",
         textfont=dict(
-            color="#111827",
+            color="#006747",
             size=11
-        )
+        ),
+        marker_line_width=0
     )
+
 
     st.plotly_chart(
         fig2,
@@ -4226,17 +4423,18 @@ elif page == "Analytics":
 
         st.markdown(
             f"""
-            <h2 style="
-            color:#006747;
-            font-size:24px;
-            font-weight:700;
-            margin-top:6px;
-            margin-bottom:5px;">
-            🥧 {selected_allocation}
-            </h2>
-            """,
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:6px;
+    margin-bottom:5px;">
+    🥧 {selected_allocation}
+    </h2>
+    """,
             unsafe_allow_html=True
         )
+
 
         person_status = (
             person_df["Status"]
@@ -4250,6 +4448,11 @@ elif page == "Analytics":
             "Projects"
         ]
 
+
+        # ==========================================
+        # PERSON STATUS PIE
+        # ==========================================
+
         fig3 = px.pie(
             person_status,
             names="Status",
@@ -4258,6 +4461,7 @@ elif page == "Analytics":
             color="Status",
             color_discrete_map=color_map
         )
+
 
         fig3.update_layout(
             height=360,
@@ -4285,12 +4489,18 @@ elif page == "Analytics":
             )
         )
 
+
         fig3.update_traces(
             textfont=dict(
                 color="white",
                 size=11
+            ),
+            marker_line=dict(
+                color="white",
+                width=2
             )
         )
+
 
         st.plotly_chart(
             fig3,
@@ -4303,15 +4513,15 @@ elif page == "Analytics":
 
         st.markdown(
             """
-            <h2 style="
-            color:#006747;
-            font-size:24px;
-            font-weight:700;
-            margin-top:8px;
-            margin-bottom:12px;">
-            📊 Project Status Progress
-            </h2>
-            """,
+        <h2 style="
+        color:#006747;
+        font-size:24px;
+        font-weight:700;
+        margin-top:8px;
+        margin-bottom:12px;">
+        📊 Project Status Progress
+        </h2>
+        """,
             unsafe_allow_html=True
         )
 
@@ -4373,7 +4583,7 @@ elif page == "Analytics":
 
 
             # ======================================
-            # STATUS COLORS
+            # SMARTPAY GREEN STATUS COLORS
             # ======================================
 
             if current_status == "LIVE":
@@ -4383,26 +4593,26 @@ elif page == "Analytics":
 
             elif current_status == "UAT":
 
-                status_bg = "#FEF3C7"
-                status_color = "#92400E"
+                status_bg = "#D1FAE5"
+                status_color = "#006747"
 
             elif current_status == "CMC":
 
-                status_bg = "#EDE9FE"
-                status_color = "#5B21B6"
+                status_bg = "#B7E4C7"
+                status_color = "#087443"
 
             elif current_status == "IS REVIEW":
 
-                status_bg = "#CCFBF1"
-                status_color = "#115E59"
+                status_bg = "#C6F6D5"
+                status_color = "#15803D"
 
             elif current_status in [
                 "SCOPING",
                 "UNDER SCOPING"
             ]:
 
-                status_bg = "#F3E8FF"
-                status_color = "#7E22CE"
+                status_bg = "#E8F5E9"
+                status_color = "#2E7D5B"
 
             else:
 
@@ -4415,82 +4625,37 @@ elif page == "Analytics":
             # ======================================
 
             card_html = f"""
-            <div style="
-                background:#FFFFFF;
-                border:1px solid #DDE5E1;
-                border-radius:14px;
-                padding:12px 14px;
-                margin-bottom:10px;
-                box-shadow:0 4px 12px rgba(0,103,71,.06);
-                box-sizing:border-box;
-            ">
+        <div style="background:#FFFFFF;border:1px solid #DDE5E1;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,103,71,.06);box-sizing:border-box;">
 
-                <!-- PROJECT HEADER -->
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                    gap:12px;
-                    margin-bottom:9px;
-                ">
+        <!-- PROJECT HEADER -->
 
-                    <div style="
-                        color:#006747;
-                        font-size:14px;
-                        font-weight:750;
-                        line-height:1.3;
-                        flex:1;
-                        word-break:break-word;
-                    ">
-                        📁 {project_name}
-                    </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px;">
 
-                    <div style="
-                        background:{status_bg};
-                        color:{status_color};
-                        padding:4px 9px;
-                        border-radius:14px;
-                        font-size:9px;
-                        font-weight:800;
-                        white-space:nowrap;
-                        flex-shrink:0;
-                    ">
-                        {current_status}
-                    </div>
+        <div style="color:#006747;font-size:14px;font-weight:750;line-height:1.3;flex:1;word-break:break-word;">
+        📁 {project_name}
+        </div>
 
-                </div>
+        <div style="background:{status_bg};color:{status_color};padding:4px 9px;border-radius:14px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;">
+        {current_status}
+        </div>
+
+        </div>
 
 
-                <!-- PROGRESS LINE -->
+        <!-- PROGRESS LINE -->
 
-                <div style="
-                    width:100%;
-                    height:6px;
-                    background:#E5E7EB;
-                    border-radius:10px;
-                    overflow:hidden;
-                ">
+        <div style="width:100%;height:6px;background:#E5E7EB;border-radius:10px;overflow:hidden;">
 
-                    <div style="
-                        width:{progress_percent}%;
-                        height:100%;
-                        background:#006747;
-                        border-radius:10px;
-                    ">
-                    </div>
+        <div style="width:{progress_percent}%;height:100%;background:linear-gradient(90deg,#013D2B,#006747,#008A5A);border-radius:10px;">
+        </div>
 
-                </div>
+        </div>
 
 
-                <!-- STATUS STEPS -->
+        <!-- STATUS STEPS -->
 
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:flex-start;
-                    margin-top:9px;
-                ">
-            """
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:9px;">
+        """
 
 
             for i, stage in enumerate(
@@ -4510,39 +4675,24 @@ elif page == "Analytics":
 
 
                 card_html += f"""
-                    <div style="
-                        flex:1;
-                        text-align:center;
-                    ">
+        <div style="flex:1;text-align:center;">
 
-                        <div style="
-                            width:8px;
-                            height:8px;
-                            background:{dot_color};
-                            border-radius:50%;
-                            margin:auto;
-                        ">
-                        </div>
+        <div style="width:8px;height:8px;background:{dot_color};border-radius:50%;margin:auto;">
+        </div>
 
-                        <div style="
-                            margin-top:4px;
-                            color:{text_color};
-                            font-size:8px;
-                            font-weight:700;
-                            white-space:nowrap;
-                        ">
-                            {stage}
-                        </div>
+        <div style="margin-top:4px;color:{text_color};font-size:8px;font-weight:700;white-space:nowrap;">
+        {stage}
+        </div>
 
-                    </div>
-                """
+        </div>
+        """
 
 
             card_html += """
-                </div>
+        </div>
 
-            </div>
-            """
+        </div>
+        """
 
 
             st.html(card_html)
@@ -4590,200 +4740,223 @@ elif page == "Analytics":
                 )
 
 
+        # ==========================================
+        # PROJECT DETAILS TABLE
+        # ==========================================
+
         st.dataframe(
             display_person_df,
             width="stretch",
             hide_index=True
         )
 
-
 # =====================================================
         # =====================================================
-        # BAU MONITORING ANALYTICS - COMPACT
-        # =====================================================
+    # BAU MONITORING ANALYTICS - COMPACT
+    # =====================================================
 
-        st.markdown(
-            "<div style='height:6px;'></div>",
-            unsafe_allow_html=True
+    st.markdown(
+        "<div style='height:6px;'></div>",
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown("""
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:8px;
+    margin-bottom:5px;">
+    🏦 BAU Monitoring
+    </h2>
+
+    <p style="
+    color:#6B7280;
+    font-size:13px;
+    margin-top:0;
+    margin-bottom:12px;">
+    Business as Usual projects are monitored separately from delivery projects.
+    </p>
+    """, unsafe_allow_html=True)
+
+
+    # =====================================================
+    # BAU DATA
+    # =====================================================
+
+    bau_df = df[
+        df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        == "BAU"
+    ].copy()
+
+
+    # =====================================================
+    # BAU KPI
+    # =====================================================
+
+    bau_total = len(bau_df)
+
+    bau_owners = (
+        bau_df["Allocation"]
+        .dropna()
+        .astype(str)
+        .nunique()
+    )
+
+    bau_updates = (
+        bau_df["Update"]
+        .notna()
+        .sum()
+        if "Update" in bau_df.columns
+        else 0
+    )
+
+
+    b1, b2, b3 = st.columns(3)
+
+
+    with b1:
+
+        analytics_card(
+            "BAU Projects",
+            bau_total,
+            "#006747"
         )
 
+
+    with b2:
+
+        analytics_card(
+            "BAU Owners",
+            bau_owners,
+            "#008A5A"
+        )
+
+
+    with b3:
+
+        analytics_card(
+            "BAU Updates",
+            bau_updates,
+            "#20A464"
+        )
+
+
+    # =====================================================
+    # BAU PROJECTS BY OWNER
+    # =====================================================
+
+    if not bau_df.empty:
 
         st.markdown("""
-        <h2 style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:8px;
-        margin-bottom:5px;">
-        🏦 BAU Monitoring
-        </h2>
-
-        <p style="
-        color:#6B7280;
-        font-size:13px;
-        margin-top:0;
-        margin-bottom:12px;">
-        Business as Usual projects are monitored separately from delivery projects.
-        </p>
-        """, unsafe_allow_html=True)
+    <h2 style="
+    color:#006747;
+    font-size:22px;
+    font-weight:700;
+    margin-top:8px;
+    margin-bottom:8px;">
+    👥 BAU Projects by Owner
+    </h2>
+    """, unsafe_allow_html=True)
 
 
-        # =====================================================
-        # BAU DATA
-        # =====================================================
-
-        bau_df = df[
-            df["Status"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            == "BAU"
-        ].copy()
-
-
-        # =====================================================
-        # BAU KPI
-        # =====================================================
-
-        bau_total = len(bau_df)
-
-        bau_owners = (
+        bau_owner_count = (
             bau_df["Allocation"]
-            .dropna()
             .astype(str)
-            .nunique()
+            .value_counts()
+            .reset_index()
         )
 
-        bau_updates = (
-            bau_df["Update"]
-            .notna()
-            .sum()
-            if "Update" in bau_df.columns
-            else 0
-        )
+        bau_owner_count.columns = [
+            "Allocation",
+            "Projects"
+        ]
 
 
-        b1, b2, b3 = st.columns(3)
+        # =================================================
+        # BAU OWNER BAR CHART
+        # =================================================
 
-
-        with b1:
-
-            analytics_card(
-                "BAU Projects",
-                bau_total,
-                "#607D8B"
-            )
-
-
-        with b2:
-
-            analytics_card(
-                "BAU Owners",
-                bau_owners,
-                "#3949AB"
-            )
-
-
-        with b3:
-
-            analytics_card(
-                "BAU Updates",
-                bau_updates,
-                "#00897B"
-            )
-
-
-        # =====================================================
-        # BAU PROJECTS BY OWNER
-        # =====================================================
-
-        if not bau_df.empty:
-
-            st.markdown("""
-            <h2 style="
-            color:#006747;
-            font-size:22px;
-            font-weight:700;
-            margin-top:8px;
-            margin-bottom:8px;">
-            👥 BAU Projects by Owner
-            </h2>
-            """, unsafe_allow_html=True)
-
-
-            bau_owner_count = (
-                bau_df["Allocation"]
-                .astype(str)
-                .value_counts()
-                .reset_index()
-            )
-
-            bau_owner_count.columns = [
-                "Allocation",
-                "Projects"
+        fig_bau = px.bar(
+            bau_owner_count,
+            x="Allocation",
+            y="Projects",
+            text="Projects",
+            color="Projects",
+            color_continuous_scale=[
+                "#D1FAE5",
+                "#8BC9A8",
+                "#4CAF7A",
+                "#20A464",
+                "#008A5A",
+                "#006747"
             ]
+        )
 
 
-            fig_bau = px.bar(
-                bau_owner_count,
-                x="Allocation",
-                y="Projects",
-                text="Projects",
-                color="Projects",
-                color_continuous_scale="Greens"
+        fig_bau.update_traces(
+            textposition="outside",
+            marker_line_width=0,
+            textfont=dict(
+                color="#006747",
+                size=11
             )
+        )
 
 
-            fig_bau.update_traces(
-                textposition="outside",
-                marker_line_width=0,
-                textfont=dict(size=11)
-            )
+        fig_bau.update_layout(
+            height=370,
+            template="plotly_white",
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            coloraxis_showscale=False,
 
+            font=dict(
+                color="#111827",
+                size=11
+            ),
 
-            fig_bau.update_layout(
-                height=370,
-                template="plotly_white",
-                plot_bgcolor="white",
-                paper_bgcolor="white",
-                coloraxis_showscale=False,
+            xaxis=dict(
+                title="",
+                showgrid=False,
+                zeroline=False,
+                tickfont=dict(
+                    color="#374151",
+                    size=11
+                )
+            ),
 
-                font=dict(
-                    color="#111827",
+            yaxis=dict(
+                title="BAU Projects",
+                title_font=dict(
+                    color="#006747",
                     size=11
                 ),
-
-                xaxis=dict(
-                    title="",
-                    showgrid=False,
-                    tickfont=dict(
-                        color="#374151",
-                        size=11
-                    )
-                ),
-
-                yaxis=dict(
-                    title="BAU Projects",
-                    gridcolor="#E5E7EB",
-                    tickfont=dict(
-                        color="#374151",
-                        size=10
-                    )
-                ),
-
-                margin=dict(
-                    l=35,
-                    r=20,
-                    t=8,
-                    b=45
+                gridcolor="#DDE5E1",
+                zeroline=False,
+                tickfont=dict(
+                    color="#374151",
+                    size=10
                 )
+            ),
+
+            margin=dict(
+                l=35,
+                r=20,
+                t=8,
+                b=45
             )
+        )
 
 
-            st.plotly_chart(
-                fig_bau,
-                width="stretch"
-            )
+        st.plotly_chart(
+            fig_bau,
+            width="stretch"
+        )
 ## =====================================================
 # PROJECT TIMELINE
 # =====================================================
@@ -4819,86 +4992,27 @@ elif page == "Project Timeline":
     # ==========================================
 
     st.html("""
-    <div style="
-        background:#FFFFFF;
-        border-radius:14px;
-        padding:9px 14px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 4px 12px rgba(0,0,0,.05);
-        margin-bottom:10px;
-        font-family:Segoe UI,Arial,sans-serif;
-    ">
-        <div style="
-            color:#006747;
-            font-size:13px;
-            font-weight:700;
-            margin-bottom:7px;
-        ">
-            Timeline Status
-        </div>
-
-        <div style="
-            display:flex;
-            align-items:center;
-            gap:22px;
-            flex-wrap:wrap;
-            font-size:11px;
-            font-weight:600;
-        ">
-            <div>
-                <span style="
-                    display:inline-block;
-                    width:9px;
-                    height:9px;
-                    background:#16A34A;
-                    border-radius:50%;
-                    margin-right:5px;
-                "></span>
-                <span style="color:#374151;">Completed</span>
-            </div>
-
-            <div>
-                <span style="
-                    display:inline-block;
-                    width:9px;
-                    height:9px;
-                    background:#F59E0B;
-                    border-radius:50%;
-                    margin-right:5px;
-                "></span>
-                <span style="color:#374151;">Current Stage</span>
-            </div>
-
-            <div>
-                <span style="
-                    display:inline-block;
-                    width:9px;
-                    height:9px;
-                    background:#D1D5DB;
-                    border-radius:50%;
-                    margin-right:5px;
-                "></span>
-                <span style="color:#374151;">Pending</span>
-            </div>
-        </div>
+    <div style="background:#FFFFFF;border-radius:12px;padding:8px 12px;border:1px solid #DDE5E1;box-shadow:0 4px 12px rgba(0,103,71,.06);margin-bottom:7px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#006747;font-size:13px;font-weight:700;margin-bottom:5px;">Timeline Status</div>
+    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:11px;font-weight:600;">
+    <div><span style="display:inline-block;width:9px;height:9px;background:#16A34A;border-radius:50%;margin-right:5px;"></span><span style="color:#374151;">Completed</span></div>
+    <div><span style="display:inline-block;width:9px;height:9px;background:#F59E0B;border-radius:50%;margin-right:5px;"></span><span style="color:#374151;">Current Stage</span></div>
+    <div><span style="display:inline-block;width:9px;height:9px;background:#D1D5DB;border-radius:50%;margin-right:5px;"></span><span style="color:#374151;">Pending</span></div>
+    </div>
     </div>
     """)
+
 
     # ==========================================
     # SEARCH
     # ==========================================
 
     st.html("""
-    <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:4px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        🔎 Find Project Timeline
+    <div style="color:#006747;font-size:22px;font-weight:700;margin-top:2px;margin-bottom:3px;font-family:Segoe UI,Arial,sans-serif;">
+    🔎 Find Project Timeline
     </div>
     """)
+
 
     search_type = st.radio(
         "Search By",
@@ -4907,10 +5021,12 @@ elif page == "Project Timeline":
         label_visibility="visible"
     )
 
+
     st.markdown(
-        "<div style='height:2px;'></div>",
+        "<div style='height:1px;'></div>",
         unsafe_allow_html=True
     )
+
 
     if search_type == "Project":
 
@@ -4937,6 +5053,8 @@ elif page == "Project Timeline":
             ),
             key="timeline_member_select"
         )
+
+
     # ==========================================
     # STAGES
     # ==========================================
@@ -4949,7 +5067,6 @@ elif page == "Project Timeline":
         "CMC",
         "LIVE"
     ]
-    # ==========================================
     # ==========================================
     # TIMELINE FUNCTION - ONE BOX PER PROJECT
     # ==========================================
@@ -4970,18 +5087,15 @@ elif page == "Project Timeline":
             "UNDER DEVELOPMENT",
             "DEVELOPMENT"
         ]:
-
             current = "DEVELOPMENT"
 
         elif current in [
             "UNDER SCOPING",
             "SCOPING"
         ]:
-
             current = "SCOPING"
 
         elif current not in stages:
-
             current = "SCOPING"
 
 
@@ -4989,61 +5103,27 @@ elif page == "Project Timeline":
 
 
         # ==========================================
-        # COMPLETE PROJECT BOX
+        # PROJECT BOX
         # ==========================================
 
         project_html = f"""
-        <div style="
-            background:#FFFFFF;
-            border:1px solid #D5E3DD;
-            border-radius:16px;
-            padding:12px;
-            margin-bottom:10px;
-            box-shadow:0 4px 14px rgba(0,103,71,.07);
-            font-family:Segoe UI,Arial,sans-serif;
-        ">
+    <div style="background:#FFFFFF;border:1px solid #D5E3DD;border-radius:14px;padding:10px;margin-bottom:8px;box-shadow:0 4px 12px rgba(0,103,71,.07);font-family:Segoe UI,Arial,sans-serif;">
 
-            <!-- PROJECT NAME -->
+    <div style="color:#6B7280;font-size:9px;font-weight:600;letter-spacing:1px;margin-bottom:2px;">
+    PROJECT TIMELINE
+    </div>
 
-            <div style="
-                color:#6B7280;
-                font-size:9px;
-                font-weight:600;
-                letter-spacing:1px;
-                margin-bottom:2px;
-            ">
-                PROJECT TIMELINE
-            </div>
-
-            <div style="
-                color:#006747;
-                font-size:17px;
-                font-weight:750;
-                line-height:1.3;
-                word-break:break-word;
-                margin-bottom:8px;
-            ">
-                📌 {project["Mandate"]}
-            </div>
+    <div style="color:#006747;font-size:16px;font-weight:750;line-height:1.25;word-break:break-word;margin-bottom:7px;">
+    📌 {project["Mandate"]}
+    </div>
 
 
-            <!-- TIMELINE -->
+    <!-- TIMELINE -->
 
-            <div style="
-                background:#F9FBFD;
-                border:1px solid #E5E7EB;
-                border-radius:12px;
-                padding:12px 10px;
-                overflow-x:auto;
-                margin-bottom:8px;
-            ">
+    <div style="background:#F9FBFD;border:1px solid #E5E7EB;border-radius:11px;padding:10px 8px;overflow-x:auto;margin-bottom:7px;">
 
-                <div style="
-                    display:flex;
-                    align-items:flex-start;
-                    min-width:620px;
-                ">
-        """
+    <div style="display:flex;align-items:flex-start;min-width:580px;">
+    """
 
 
         # ==========================================
@@ -5053,17 +5133,14 @@ elif page == "Project Timeline":
         for i, stage in enumerate(stages):
 
             if i < current_index:
-
                 color = "#16A34A"
                 symbol = "✓"
 
             elif i == current_index:
-
                 color = "#F59E0B"
                 symbol = "●"
 
             else:
-
                 color = "#D1D5DB"
                 symbol = "○"
 
@@ -5073,173 +5150,91 @@ elif page == "Project Timeline":
             if i < len(stages) - 1:
 
                 if i < current_index:
-
                     line_color = "#16A34A"
-
                 else:
-
                     line_color = "#D1D5DB"
 
 
                 connector = f"""
-                <div style="
-                    flex:1;
-                    height:3px;
-                    background:{line_color};
-                    margin-top:13px;
-                "></div>
-                """
+    <div style="flex:1;height:3px;background:{line_color};margin-top:13px;"></div>
+    """
 
 
             project_html += f"""
-            <div style="
-                width:78px;
-                text-align:center;
-                flex-shrink:0;
-            ">
+    <div style="width:74px;text-align:center;flex-shrink:0;">
 
-                <div style="
-                    width:28px;
-                    height:28px;
-                    border-radius:50%;
-                    background:{color};
-                    color:white;
-                    margin:auto;
-                    line-height:28px;
-                    font-size:13px;
-                    font-weight:700;
-                    box-shadow:0 3px 8px rgba(0,0,0,.12);
-                ">
-                    {symbol}
-                </div>
+    <div style="width:26px;height:26px;border-radius:50%;background:{color};color:white;margin:auto;line-height:26px;font-size:12px;font-weight:700;box-shadow:0 3px 7px rgba(0,0,0,.10);">
+    {symbol}
+    </div>
 
-                <div style="
-                    margin-top:5px;
-                    color:#374151;
-                    font-size:9px;
-                    font-weight:700;
-                    white-space:nowrap;
-                ">
-                    {stage}
-                </div>
+    <div style="margin-top:4px;color:#374151;font-size:9px;font-weight:700;white-space:nowrap;">
+    {stage}
+    </div>
 
-            </div>
+    </div>
 
-            {connector}
-            """
+    {connector}
+    """
 
 
         # ==========================================
-        # PROJECT INFO + CLOSE BOX
+        # PROJECT INFORMATION
         # ==========================================
 
         project_html += f"""
-                </div>
-            </div>
+    </div>
+    </div>
 
 
-            <!-- PROJECT INFORMATION -->
+    <div style="display:flex;gap:7px;width:100%;">
 
-            <div style="
-                display:flex;
-                gap:8px;
-                width:100%;
-            ">
+    <div style="flex:1;background:#F9FBFD;border:1px solid #E5E7EB;border-radius:9px;padding:7px 9px;min-height:50px;">
 
-                <div style="
-                    flex:1;
-                    background:#F9FBFD;
-                    border:1px solid #E5E7EB;
-                    border-radius:10px;
-                    padding:8px 10px;
-                    min-height:56px;
-                ">
+    <div style="color:#6B7280;font-size:8px;font-weight:600;">
+    PROJECT
+    </div>
 
-                    <div style="
-                        color:#6B7280;
-                        font-size:9px;
-                        font-weight:600;
-                    ">
-                        PROJECT
-                    </div>
+    <div style="color:#111827;font-size:11px;font-weight:700;line-height:1.2;margin-top:3px;">
+    {project["Mandate"]}
+    </div>
 
-                    <div style="
-                        color:#111827;
-                        font-size:12px;
-                        font-weight:700;
-                        line-height:1.25;
-                        margin-top:3px;
-                    ">
-                        {project["Mandate"]}
-                    </div>
-
-                </div>
+    </div>
 
 
-                <div style="
-                    flex:1;
-                    background:#F9FBFD;
-                    border:1px solid #E5E7EB;
-                    border-radius:10px;
-                    padding:8px 10px;
-                    min-height:56px;
-                ">
+    <div style="flex:1;background:#F9FBFD;border:1px solid #E5E7EB;border-radius:9px;padding:7px 9px;min-height:50px;">
 
-                    <div style="
-                        color:#6B7280;
-                        font-size:9px;
-                        font-weight:600;
-                    ">
-                        OWNER
-                    </div>
+    <div style="color:#6B7280;font-size:8px;font-weight:600;">
+    OWNER
+    </div>
 
-                    <div style="
-                        color:#006747;
-                        font-size:12px;
-                        font-weight:700;
-                        margin-top:3px;
-                    ">
-                        {project["Allocation"]}
-                    </div>
+    <div style="color:#006747;font-size:11px;font-weight:700;margin-top:3px;">
+    {project["Allocation"]}
+    </div>
 
-                </div>
+    </div>
 
 
-                <div style="
-                    flex:1;
-                    background:#F9FBFD;
-                    border:1px solid #E5E7EB;
-                    border-radius:10px;
-                    padding:8px 10px;
-                    min-height:56px;
-                ">
+    <div style="flex:1;background:#F9FBFD;border:1px solid #E5E7EB;border-radius:9px;padding:7px 9px;min-height:50px;">
 
-                    <div style="
-                        color:#92400E;
-                        font-size:9px;
-                        font-weight:600;
-                    ">
-                        CURRENT STAGE
-                    </div>
+    <div style="color:#92400E;font-size:8px;font-weight:600;">
+    CURRENT STAGE
+    </div>
 
-                    <div style="
-                        color:#F59E0B;
-                        font-size:12px;
-                        font-weight:700;
-                        margin-top:3px;
-                    ">
-                        {current}
-                    </div>
+    <div style="color:#F59E0B;font-size:11px;font-weight:700;margin-top:3px;">
+    {current}
+    </div>
 
-                </div>
+    </div>
 
-            </div>
+    </div>
 
-        </div>
-        """
+    </div>
+    """
 
 
         st.html(project_html)
+
+
     # ==========================================
     # DISPLAY PROJECTS
     # ==========================================
@@ -5249,7 +5244,6 @@ elif page == "Project Timeline":
         if selected == "All Projects":
 
             for _, project in timeline_df.iterrows():
-
                 show_timeline(project)
 
         else:
@@ -5260,7 +5254,6 @@ elif page == "Project Timeline":
             ]
 
             if not selected_project.empty:
-
                 show_timeline(
                     selected_project.iloc[0]
                 )
@@ -5271,7 +5264,6 @@ elif page == "Project Timeline":
         if selected == "All Members":
 
             for _, project in timeline_df.iterrows():
-
                 show_timeline(project)
 
         else:
@@ -5287,7 +5279,6 @@ elif page == "Project Timeline":
             )
 
             for _, project in member_df.iterrows():
-
                 show_timeline(project)
 # # =====================================================
 # # TEAM PERFORMANCE
@@ -6494,69 +6485,55 @@ elif page == "BAU Monitoring":
     def bau_card(title, value, color):
 
         st.html(
-            f"""
-            <div style="
-                background:#FFFFFF;
-                border-radius:14px;
-                padding:10px 8px;
-                height:88px;
-                border-top:5px solid {color};
-                box-shadow:0 4px 12px rgba(0,0,0,.06);
-                display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
-                text-align:center;
-                font-family:Segoe UI,Arial,sans-serif;
-            ">
+    f"""
+    <div style="background:#FFFFFF;border-radius:14px;padding:10px 8px;height:88px;border-top:5px solid {color};border-left:1px solid #DDE5E1;border-right:1px solid #DDE5E1;border-bottom:1px solid #DDE5E1;box-shadow:0 4px 12px rgba(0,103,71,.06);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-family:Segoe UI,Arial,sans-serif;">
 
-                <div style="
-                    color:#6B7280;
-                    font-size:11px;
-                    font-weight:700;
-                    margin-bottom:5px;">
-                    {title}
-                </div>
+    <div style="color:#6B7280;font-size:11px;font-weight:700;margin-bottom:5px;">
+    {title}
+    </div>
 
-                <div style="
-                    color:{color};
-                    font-size:28px;
-                    font-weight:800;
-                    line-height:1;">
-                    {value}
-                </div>
+    <div style="color:{color};font-size:28px;font-weight:800;line-height:1;">
+    {value}
+    </div>
 
-            </div>
-            """
+    </div>
+    """
         )
 
 
     with k1:
+
         bau_card(
             "Total BAU Projects",
             total_bau,
             "#006747"
         )
 
+
     with k2:
+
         bau_card(
             "Team Members",
             bau_members,
-            "#3949AB"
+            "#008A5A"
         )
 
+
     with k3:
+
         bau_card(
             "Updated Projects",
             bau_updates,
-            "#F9A825"
+            "#20A464"
         )
 
+
     with k4:
+
         bau_card(
             "Categories",
             bau_categories,
-            "#00ACC1"
+            "#4CAF7A"
         )
 
 
@@ -6571,14 +6548,8 @@ elif page == "BAU Monitoring":
     # =================================================
 
     st.html("""
-    <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:5px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        🎯 BAU Filters
+    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    🎯 BAU Filters
     </div>
     """)
 
@@ -6687,14 +6658,8 @@ elif page == "BAU Monitoring":
     # =================================================
 
     st.html("""
-    <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:7px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        👥 BAU Owner Summary
+    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:7px;font-family:Segoe UI,Arial,sans-serif;">
+    👥 BAU Owner Summary
     </div>
     """)
 
@@ -6731,54 +6696,27 @@ elif page == "BAU Monitoring":
             ]:
 
                 st.html(
-                    f"""
-                    <div style="
-                        background:linear-gradient(
-                            180deg,
-                            #ffffff,
-                            #f7fbf9
-                        );
-                        border:1px solid #E5E7EB;
-                        border-radius:14px;
-                        padding:10px 8px;
-                        text-align:center;
-                        box-shadow:0 4px 12px rgba(0,0,0,.05);
-                        margin-bottom:8px;
-                        font-family:Segoe UI,Arial,sans-serif;
-                    ">
+    f"""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px 8px;text-align:center;box-shadow:0 4px 12px rgba(0,103,71,.12);margin-bottom:8px;font-family:Segoe UI,Arial,sans-serif;">
 
-                        <div style="
-                            font-size:22px;
-                            line-height:1;">
-                            👤
-                        </div>
+    <div style="font-size:20px;line-height:1;color:white;">
+    👤
+    </div>
 
-                        <div style="
-                            color:#006747;
-                            font-size:14px;
-                            font-weight:700;
-                            margin-top:5px;">
-                            {owner["Allocation"]}
-                        </div>
+    <div style="color:#D1FAE5;font-size:13px;font-weight:700;margin-top:5px;">
+    {owner["Allocation"]}
+    </div>
 
-                        <div style="
-                            color:#111827;
-                            font-size:26px;
-                            font-weight:800;
-                            margin-top:4px;
-                            line-height:1;">
-                            {owner["Projects"]}
-                        </div>
+    <div style="color:white;font-size:25px;font-weight:800;margin-top:4px;line-height:1;">
+    {owner["Projects"]}
+    </div>
 
-                        <div style="
-                            color:#6B7280;
-                            font-size:10px;
-                            margin-top:3px;">
-                            BAU Projects
-                        </div>
+    <div style="color:#D1FAE5;font-size:10px;margin-top:3px;">
+    BAU Projects
+    </div>
 
-                    </div>
-                    """
+    </div>
+    """
                 )
 
     # =================================================
@@ -6787,20 +6725,18 @@ elif page == "BAU Monitoring":
 
     st.markdown("""
     <h2 style="
-        color:#006747;
-        font-size:30px;
-        font-weight:700;
-        margin-top:20px;
-        margin-bottom:18px;">
-        📋 BAU Project Portfolio
+    color:#006747;
+    font-size:26px;
+    font-weight:700;
+    margin-top:18px;
+    margin-bottom:10px;">
+    📋 BAU Project Portfolio
     </h2>
     """, unsafe_allow_html=True)
 
 
     display_bau = filtered_bau_df.copy()
 
-
-    
 
     # =================================================
     # VIP TABLE CSS
@@ -6812,9 +6748,9 @@ elif page == "BAU Monitoring":
     .bau-table-wrapper {
         background:#FFFFFF;
         border:1px solid #DDE5E1;
-        border-radius:18px;
+        border-radius:16px;
         padding:6px;
-        box-shadow:0 8px 25px rgba(0,103,71,.08);
+        box-shadow:0 6px 20px rgba(0,103,71,.08);
         overflow-x:auto;
     }
 
@@ -6826,11 +6762,20 @@ elif page == "BAU Monitoring":
     }
 
     .bau-table thead th {
-        background:#006747;
-        color:white;
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:#FFFFFF;
         padding:14px 12px;
         font-weight:700;
         text-align:left;
+        border:none;
+    }
+
+    .bau-table thead th:first-child {
+        border-top-left-radius:11px;
+    }
+
+    .bau-table thead th:last-child {
+        border-top-right-radius:11px;
     }
 
     .bau-table tbody td {
@@ -6857,7 +6802,7 @@ elif page == "BAU Monitoring":
         display:inline-block;
         padding:5px 12px;
         border-radius:20px;
-        background:#E8F5E9;
+        background:#DCFCE7;
         color:#166534;
         font-size:11px;
         font-weight:800;
@@ -6933,15 +6878,18 @@ elif page == "BAU Monitoring":
 
     st.markdown(
         f"""
-        <div class="bau-table-wrapper">
-            {bau_table_html}
-        </div>
-        """,
+    <div class="bau-table-wrapper">
+    {bau_table_html}
+    </div>
+    """,
         unsafe_allow_html=True
     )
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
 
 
     # =================================================
@@ -6951,15 +6899,15 @@ elif page == "BAU Monitoring":
     if "Update" in filtered_bau_df.columns:
 
         st.markdown("""
-        <h2 style="
-            color:#006747;
-            font-size:28px;
-            font-weight:700;
-            margin-top:20px;
-            margin-bottom:18px;">
-            🔄 BAU Monitoring Updates
-        </h2>
-        """, unsafe_allow_html=True)
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:14px;
+    margin-bottom:9px;">
+    🔄 BAU Monitoring Updates
+    </h2>
+    """, unsafe_allow_html=True)
 
 
         updates_df = filtered_bau_df[
@@ -6996,50 +6944,27 @@ elif page == "BAU Monitoring":
 
 
                 st.html(
-                    f"""
-                    <div style="
-                        background:white;
-                        border:1px solid #E5E7EB;
-                        border-left:5px solid #006747;
-                        border-radius:14px;
-                        padding:15px 18px;
-                        margin-bottom:10px;
-                        box-shadow:0 4px 12px rgba(0,0,0,.05);
-                    ">
+    f"""
+    <div style="background:#FFFFFF;border:1px solid #DDE5E1;border-left:5px solid #006747;border-radius:12px;padding:12px 15px;margin-bottom:8px;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-                        <div style="
-                            display:flex;
-                            justify-content:space-between;
-                            align-items:center;
-                            gap:15px;
-                        ">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;">
 
-                            <div style="
-                                color:#006747;
-                                font-size:16px;
-                                font-weight:700;">
-                                📁 {project_name}
-                            </div>
+    <div style="color:#006747;font-size:14px;font-weight:700;">
+    📁 {project_name}
+    </div>
 
-                            <div style="
-                                color:#6B7280;
-                                font-size:12px;
-                                font-weight:600;">
-                                👤 {owner_name}
-                            </div>
+    <div style="color:#008A5A;font-size:11px;font-weight:700;">
+    👤 {owner_name}
+    </div>
 
-                        </div>
+    </div>
 
-                        <div style="
-                            color:#374151;
-                            font-size:14px;
-                            margin-top:9px;
-                            line-height:1.5;">
-                            {update_text}
-                        </div>
+    <div style="color:#374151;font-size:13px;margin-top:7px;line-height:1.45;">
+    {update_text}
+    </div>
 
-                    </div>
-                    """
+    </div>
+    """
                 )
 
     else:
@@ -7153,24 +7078,28 @@ elif page == "CRPL":
 
     st.html("""
     <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:0;
-        margin-bottom:3px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        🎯 Filters
+    color:#006747;
+    font-size:22px;
+    font-weight:700;
+    margin-top:0;
+    margin-bottom:5px;
+    font-family:Segoe UI,Arial,sans-serif;">
+    🎯 Filters
     </div>
     """)
 
+
     c1, c2 = st.columns(2)
+
 
     with c1:
 
         search = st.text_input(
             "Search CRF",
-            placeholder="🔍 Search CRF No or CRF Name..."
+            placeholder="🔍 Search CRF No or CRF Name...",
+            key="crpl_search"
         )
+
 
     with c2:
 
@@ -7182,14 +7111,17 @@ elif page == "CRPL":
                 "WIP",
                 "LIVE",
                 "UAT"
-            ]
+            ],
+            key="crpl_stage_filter"
         )
+
 
     # =====================================================
     # FILTER DATA
     # =====================================================
 
     filtered_df = df.copy()
+
 
     if search:
 
@@ -7210,6 +7142,7 @@ elif page == "CRPL":
                 na=False
             )
         ]
+
 
     if stage_filter != "All":
 
@@ -7235,7 +7168,6 @@ elif page == "CRPL":
                 .str.upper()
                 == stage_filter
             ]
-
     # =====================================================
     # KPI COUNTS
     # =====================================================
@@ -7599,13 +7531,13 @@ elif page == "CRPL":
 
     st.html("""
     <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:3px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        📋 CRPL Details
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:2px;
+    margin-bottom:5px;
+    font-family:Segoe UI,Arial,sans-serif;">
+    📋 CRPL Details
     </div>
     """)
 
@@ -7622,8 +7554,8 @@ elif page == "CRPL":
         border:1px solid #DDE5E1;
         border-radius:16px;
         padding:6px;
-        box-shadow:0 6px 20px rgba(0,103,71,0.08);
-        overflow:hidden;
+        box-shadow:0 6px 20px rgba(0,103,71,.08);
+        overflow-x:auto;
     }
 
     .crpl-table {
@@ -7635,11 +7567,12 @@ elif page == "CRPL":
     }
 
     .crpl-table thead th {
-        background:#006747;
-        color:white;
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:#FFFFFF;
         font-weight:700;
         padding:14px 12px;
         text-align:left;
+        border:none;
     }
 
     .crpl-table thead th:first-child {
@@ -7655,7 +7588,6 @@ elif page == "CRPL":
         color:#1F2937;
         border-bottom:1px solid #E5E7EB;
         background:#FFFFFF;
-
         white-space:normal !important;
         word-wrap:break-word !important;
         overflow-wrap:anywhere !important;
@@ -7686,18 +7618,18 @@ elif page == "CRPL":
     }
 
     .stage-hold {
-        background:#FEE2E2;
-        color:#991B1B;
+        background:#E8F5E9;
+        color:#006747;
     }
 
     .stage-wip {
-        background:#DBEAFE;
-        color:#1E40AF;
+        background:#D1FAE5;
+        color:#087443;
     }
 
     .stage-uat {
-        background:#FEF3C7;
-        color:#92400E;
+        background:#B7E4C7;
+        color:#087443;
     }
 
     .stage-live {
@@ -7706,8 +7638,39 @@ elif page == "CRPL":
     }
 
     .stage-default {
-        background:#F3F4F6;
-        color:#374151;
+        background:#F0FDF4;
+        color:#2E7D5B;
+    }
+
+
+    /* =====================================================
+    EDITOR
+    ===================================================== */
+
+    .crpl-edit-info {
+        background:#ECFDF5;
+        border:1px solid #B7E4C7;
+        border-left:5px solid #006747;
+        border-radius:10px;
+        padding:9px 12px;
+        color:#006747;
+        font-size:13px;
+        font-weight:600;
+        margin-bottom:8px;
+    }
+
+
+    /* =====================================================
+    ADD FIELD BOX
+    ===================================================== */
+
+    .crpl-field-box {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:12px;
+        padding:10px 12px;
+        box-shadow:0 4px 12px rgba(0,103,71,.06);
+        margin-bottom:8px;
     }
 
     </style>
@@ -7792,19 +7755,20 @@ elif page == "CRPL":
 
     st.markdown(
         f"""
-        <div class="crpl-table-wrapper">
-            {table_html}
-        </div>
-        """,
+    <div class="crpl-table-wrapper">
+    {table_html}
+    </div>
+    """,
         unsafe_allow_html=True
     )
+
 
     # =====================================================
     # EDIT CRPL BUTTON
     # =====================================================
 
     st.markdown(
-        "<br>",
+        "<div style='height:4px;'></div>",
         unsafe_allow_html=True
     )
 
@@ -7844,21 +7808,22 @@ elif page == "CRPL":
     if st.session_state["crpl_edit_mode"]:
 
         st.markdown("""
-        <h2 style="
-        color:#006747;
-        font-size:28px;
-        font-weight:700;
-        margin-top:20px;
-        margin-bottom:15px;">
-        ✏️ Edit CRPL
-        </h2>
-        """, unsafe_allow_html=True)
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:14px;
+    margin-bottom:8px;">
+    ✏️ Edit CRPL
+    </h2>
+    """, unsafe_allow_html=True)
 
 
-        st.info(
-            "✏️ Edit existing records, add new records, "
-            "or create a new field/column."
-        )
+        st.markdown("""
+    <div class="crpl-edit-info">
+    ✏️ Edit existing records, add new records, or create a new field/column.
+    </div>
+    """, unsafe_allow_html=True)
 
 
         # =================================================
@@ -7866,14 +7831,15 @@ elif page == "CRPL":
         # =================================================
 
         st.markdown("""
-        <h3 style="
-        color:#006747;
-        font-size:20px;
-        font-weight:700;
-        margin-top:10px;">
-        ➕ Add New Field
-        </h3>
-        """, unsafe_allow_html=True)
+    <h3 style="
+    color:#006747;
+    font-size:19px;
+    font-weight:700;
+    margin-top:10px;
+    margin-bottom:6px;">
+    ➕ Add New Field
+    </h3>
+    """, unsafe_allow_html=True)
 
 
         field_col1, field_col2 = st.columns([3, 1])
@@ -7890,7 +7856,10 @@ elif page == "CRPL":
 
         with field_col2:
 
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='height:26px;'></div>",
+                unsafe_allow_html=True
+            )
 
             if st.button(
                 "➕ Add Field",
@@ -8179,8 +8148,7 @@ elif page == "CRPL":
                     # -----------------------------------------
 
                     st.success(
-                        "✅ CRPL changes, new rows and new fields "
-                        "saved successfully!"
+                        "✅ CRPL changes, new rows and new fields saved successfully!"
                     )
 
 
@@ -8354,15 +8322,16 @@ elif page == "PAYSYS":
 
     st.html("""
     <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:0;
-        margin-bottom:3px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        🎯 Filters
+    color:#006747;
+    font-size:22px;
+    font-weight:700;
+    margin-top:0;
+    margin-bottom:5px;
+    font-family:Segoe UI,Arial,sans-serif;">
+    🎯 Filters
     </div>
     """)
+
 
     c1, c2 = st.columns(2)
 
@@ -8371,7 +8340,8 @@ elif page == "PAYSYS":
 
         search = st.text_input(
             "Search PAYSYS",
-            placeholder="🔍 Search PAYSYS remarks, response or status..."
+            placeholder="🔍 Search PAYSYS remarks, response or status...",
+            key="paysys_search"
         )
 
 
@@ -8383,7 +8353,8 @@ elif page == "PAYSYS":
                 "All",
                 "UAT",
                 "LIVE"
-            ]
+            ],
+            key="paysys_stage_filter"
         )
 
 
@@ -8437,7 +8408,6 @@ elif page == "PAYSYS":
             .str.upper()
             == stage_filter
         ]
-
 
    # =====================================================
     # =====================================================
@@ -8766,13 +8736,13 @@ elif page == "PAYSYS":
 
     st.html("""
     <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:3px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        📋 PAYSYS Details
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:2px;
+    margin-bottom:3px;
+    font-family:Segoe UI,Arial,sans-serif;">
+    📋 PAYSYS Details
     </div>
     """)
 
@@ -8789,7 +8759,7 @@ elif page == "PAYSYS":
         border:1px solid #DDE5E1;
         border-radius:16px;
         padding:6px;
-        box-shadow:0 6px 20px rgba(0,103,71,0.08);
+        box-shadow:0 6px 20px rgba(0,103,71,.08);
         overflow:hidden;
     }
 
@@ -8802,8 +8772,8 @@ elif page == "PAYSYS":
     }
 
     .paysys-table thead th {
-        background:#006747;
-        color:white;
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:#FFFFFF;
         font-weight:700;
         padding:14px 12px;
         text-align:left;
@@ -8822,7 +8792,6 @@ elif page == "PAYSYS":
         color:#1F2937;
         border-bottom:1px solid #E5E7EB;
         background:#FFFFFF;
-
         white-space:normal !important;
         word-wrap:break-word !important;
         overflow-wrap:anywhere !important;
@@ -8853,8 +8822,8 @@ elif page == "PAYSYS":
     }
 
     .stage-uat {
-        background:#FEF3C7;
-        color:#92400E;
+        background:#D1FAE5;
+        color:#087443;
     }
 
     .stage-live {
@@ -8863,17 +8832,17 @@ elif page == "PAYSYS":
     }
 
     .stage-default {
-        background:#F3F4F6;
-        color:#374151;
+        background:#F0FDF4;
+        color:#2E7D5B;
     }
 
 
     /* =====================================================
-    PAYSYS KPI BUTTONS
+    PAYSYS KPI / ACTION BUTTONS
     ===================================================== */
 
     div.stButton > button {
-        background-color:#006747 !important;
+        background:#006747 !important;
         color:white !important;
         border:1px solid #006747 !important;
         border-radius:10px !important;
@@ -8881,9 +8850,9 @@ elif page == "PAYSYS":
     }
 
     div.stButton > button:hover {
-        background-color:#00553A !important;
+        background:#008A5A !important;
         color:white !important;
-        border-color:#00553A !important;
+        border-color:#008A5A !important;
     }
 
     </style>
@@ -8907,11 +8876,9 @@ elif page == "PAYSYS":
 
         upper = value.upper()
 
-
         if upper == "UAT":
 
             css = "stage-uat"
-
 
         elif upper in [
             "LIVE",
@@ -8920,11 +8887,9 @@ elif page == "PAYSYS":
 
             css = "stage-live"
 
-
         else:
 
             css = "stage-default"
-
 
         return (
             f'<span class="stage-badge {css}">'
@@ -8952,19 +8917,20 @@ elif page == "PAYSYS":
 
     st.markdown(
         f"""
-        <div class="paysys-table-wrapper">
-            {table_html}
-        </div>
-        """,
+    <div class="paysys-table-wrapper">
+    {table_html}
+    </div>
+    """,
         unsafe_allow_html=True
     )
+
 
     # =====================================================
     # EDIT PAYSYS BUTTON
     # =====================================================
 
     st.markdown(
-        "<br>",
+        "<div style='height:4px;'></div>",
         unsafe_allow_html=True
     )
 
@@ -9003,21 +8969,22 @@ elif page == "PAYSYS":
     if st.session_state["paysys_edit_mode"]:
 
         st.markdown("""
-        <h2 style="
-        color:#006747;
-        font-size:28px;
-        font-weight:700;
-        margin-top:20px;
-        margin-bottom:15px;">
-        ✏️ Edit PAYSYS
-        </h2>
-        """, unsafe_allow_html=True)
+    <h2 style="
+    color:#006747;
+    font-size:24px;
+    font-weight:700;
+    margin-top:14px;
+    margin-bottom:8px;">
+    ✏️ Edit PAYSYS
+    </h2>
+    """, unsafe_allow_html=True)
 
 
-        st.info(
-            "✏️ Edit existing records, add new records, "
-            "or create a new field/column."
-        )
+        st.markdown("""
+    <div style="background:#ECFDF5;border:1px solid #B7E4C7;border-left:5px solid #006747;border-radius:10px;padding:9px 12px;color:#006747;font-size:13px;font-weight:600;margin-bottom:8px;">
+    ✏️ Edit existing records, add new records, or create a new field/column.
+    </div>
+    """, unsafe_allow_html=True)
 
 
         # =================================================
@@ -9025,14 +8992,15 @@ elif page == "PAYSYS":
         # =================================================
 
         st.markdown("""
-        <h3 style="
-        color:#006747;
-        font-size:20px;
-        font-weight:700;
-        margin-top:10px;">
-        ➕ Add New Field
-        </h3>
-        """, unsafe_allow_html=True)
+    <h3 style="
+    color:#006747;
+    font-size:19px;
+    font-weight:700;
+    margin-top:10px;
+    margin-bottom:6px;">
+    ➕ Add New Field
+    </h3>
+    """, unsafe_allow_html=True)
 
 
         field_col1, field_col2 = st.columns([3, 1])
@@ -9050,7 +9018,7 @@ elif page == "PAYSYS":
         with field_col2:
 
             st.markdown(
-                "<br>",
+                "<div style='height:26px;'></div>",
                 unsafe_allow_html=True
             )
 
@@ -9376,41 +9344,27 @@ elif page == "Export":
     </div>
     """, unsafe_allow_html=True)
 
-    # ==========================================
+   # ==========================================
     # REPORT INFORMATION
     # ==========================================
 
     st.html("""
-    <div style="
-        background:#FFFFFF;
-        border-radius:14px;
-        padding:12px 16px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 4px 12px rgba(0,0,0,.06);
-        margin-bottom:8px;
-        font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:#FFFFFF;border-radius:14px;padding:12px 16px;border:1px solid #DDE5E1;box-shadow:0 4px 12px rgba(0,103,71,.06);margin-bottom:8px;font-family:Segoe UI,Arial,sans-serif;">
 
-        <div style="
-            color:#006747;
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:8px;">
-            📋 Report Includes
-        </div>
+    <div style="color:#006747;font-size:18px;font-weight:700;margin-bottom:8px;">
+    📋 Report Includes
+    </div>
 
-        <div style="
-            color:#374151;
-            font-size:13px;
-            line-height:1.7;">
+    <div style="color:#374151;font-size:13px;line-height:1.7;">
 
-            ✅ Dashboard Summary<br>
-            ✅ KPI Overview<br>
-            ✅ Project Details<br>
-            ✅ Team Performance<br>
-            ✅ Analytics Summary<br>
-            ✅ Project Timeline
+    <span style="color:#006747;font-weight:700;">✅</span> Dashboard Summary<br>
+    <span style="color:#006747;font-weight:700;">✅</span> KPI Overview<br>
+    <span style="color:#006747;font-weight:700;">✅</span> Project Details<br>
+    <span style="color:#006747;font-weight:700;">✅</span> Team Performance<br>
+    <span style="color:#006747;font-weight:700;">✅</span> Analytics Summary<br>
+    <span style="color:#006747;font-weight:700;">✅</span> Project Timeline
 
-        </div>
+    </div>
 
     </div>
     """)
@@ -9425,30 +9379,15 @@ elif page == "Export":
     )
 
     st.html(f"""
-    <div style="
-        background:#F0FDF4;
-        border:1px solid #BBF7D0;
-        border-radius:12px;
-        padding:9px 14px;
-        margin-bottom:8px;
-        font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:#ECFDF5;border:1px solid #B7E4C7;border-radius:12px;padding:9px 14px;margin-bottom:8px;font-family:Segoe UI,Arial,sans-serif;">
 
-        <div style="
-            color:#166534;
-            font-size:10px;
-            font-weight:700;
-            text-transform:uppercase;
-            letter-spacing:1px;">
-            Generated On
-        </div>
+    <div style="color:#006747;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">
+    Generated On
+    </div>
 
-        <div style="
-            color:#166534;
-            font-size:15px;
-            font-weight:700;
-            margin-top:3px;">
-            {generated_time}
-        </div>
+    <div style="color:#006747;font-size:15px;font-weight:700;margin-top:3px;">
+    {generated_time}
+    </div>
 
     </div>
     """)
@@ -9459,14 +9398,8 @@ elif page == "Export":
     # ==========================================
 
     st.html("""
-    <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:5px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        📤 Export Reports
+    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    📤 Export Reports
     </div>
     """)
 
@@ -9503,7 +9436,8 @@ elif page == "Export":
 
         crpl_export_df = pd.DataFrame()
 
-        # ------------------------------------------
+
+    # ------------------------------------------
     # PAYSYS DATA
     # ------------------------------------------
 
@@ -9592,7 +9526,6 @@ elif page == "Export":
         engine="openpyxl"
     ) as writer:
 
-
         # --------------------------------------
         # SMARTPAY SHEET
         # --------------------------------------
@@ -9636,7 +9569,6 @@ elif page == "Export":
 
         for sheet_name, worksheet in writer.sheets.items():
 
-
             # ----------------------------------
             # FREEZE HEADER
             # ----------------------------------
@@ -9678,8 +9610,7 @@ elif page == "Export":
                     max_length + 3,
                     45
                 )
-
-            # ----------------------------------
+    # ----------------------------------
     # EXCEL TABLE
     # ----------------------------------
 
@@ -9735,6 +9666,7 @@ elif page == "Export":
     # ==========================================
 
     pdf_buffer = BytesIO()
+
 
     pdf_doc = SimpleDocTemplate(
         pdf_buffer,
@@ -9834,7 +9766,7 @@ elif page == "Export":
                 alignment=TA_CENTER,
                 fontSize=15,
                 leading=18,
-                textColor=colors.HexColor("#6B7280"),
+                textColor=colors.HexColor("#006747"),
                 spaceAfter=5
             )
         )
@@ -9855,7 +9787,7 @@ elif page == "Export":
                 parent=pdf_styles["Normal"],
                 alignment=TA_CENTER,
                 fontSize=9,
-                textColor=colors.HexColor("#555555")
+                textColor=colors.HexColor("#006747")
             )
         )
     )
@@ -9933,13 +9865,13 @@ elif page == "Export":
                 (0, 0),
                 (-1, -1),
                 0.5,
-                colors.HexColor("#DDEBE5")
+                colors.HexColor("#B7E4C7")
             ),
             (
                 "BACKGROUND",
                 (0, 1),
                 (-1, -1),
-                colors.HexColor("#F4FBF8")
+                colors.HexColor("#ECFDF5")
             ),
             (
                 "TOPPADDING",
@@ -9966,6 +9898,7 @@ elif page == "Export":
         PageBreak()
     )
 
+
     # ==========================================
     # DATAFRAME → PDF FUNCTION
     # ==========================================
@@ -9975,6 +9908,7 @@ elif page == "Export":
         if dataframe.empty:
             return
 
+
         pdf_story.append(
             Paragraph(
                 title,
@@ -9982,15 +9916,22 @@ elif page == "Export":
             )
         )
 
+
         # Keep PDF readable
         export_pdf_df = dataframe.copy()
+
 
         # Maximum 100 records per section
         export_pdf_df = export_pdf_df.head(100)
 
-        columns = list(export_pdf_df.columns)
+
+        columns = list(
+            export_pdf_df.columns
+        )
+
 
         table_data = []
+
 
         # Header
         table_data.append([
@@ -10001,21 +9942,26 @@ elif page == "Export":
             for column in columns
         ])
 
+
         # Rows
         for _, row in export_pdf_df.iterrows():
 
             row_data = []
+
 
             for value in row:
 
                 if pd.isna(value):
                     value = ""
 
+
                 value = str(value)
+
 
                 # Avoid huge cells
                 if len(value) > 180:
                     value = value[:180] + "..."
+
 
                 row_data.append(
                     Paragraph(
@@ -10024,20 +9970,27 @@ elif page == "Export":
                     )
                 )
 
-            table_data.append(row_data)
+
+            table_data.append(
+                row_data
+            )
+
 
         # Dynamic column width
         available_width = 10.5 * inch
+
 
         column_count = max(
             len(columns),
             1
         )
 
+
         column_width = (
             available_width /
             column_count
         )
+
 
         pdf_table = PDFTable(
             table_data,
@@ -10046,6 +9999,7 @@ elif page == "Export":
                 column_width
             ] * column_count
         )
+
 
         pdf_table.setStyle(
             TableStyle([
@@ -10066,7 +10020,7 @@ elif page == "Export":
                     (0, 0),
                     (-1, -1),
                     0.3,
-                    colors.HexColor("#D1D5DB")
+                    colors.HexColor("#B7E4C7")
                 ),
                 (
                     "VALIGN",
@@ -10110,13 +10064,20 @@ elif page == "Export":
             ])
         )
 
-        pdf_story.append(pdf_table)
+
+        pdf_story.append(
+            pdf_table
+        )
+
 
         pdf_story.append(
             Spacer(1, 0.15 * inch)
         )
 
-        pdf_story.append(PageBreak())
+
+        pdf_story.append(
+            PageBreak()
+        )
 
 
     # ==========================================
@@ -10128,10 +10089,12 @@ elif page == "Export":
         "SmartPay Projects"
     )
 
+
     dataframe_to_pdf(
         crpl_export_df,
         "CRPL"
     )
+
 
     dataframe_to_pdf(
         paysys_export_df,
@@ -10143,14 +10106,17 @@ elif page == "Export":
     # BUILD PDF
     # ==========================================
 
-    pdf_doc.build(pdf_story)
+    pdf_doc.build(
+        pdf_story
+    )
+
 
     pdf_buffer.seek(0)
 
+
     executive_pdf = pdf_buffer.getvalue()
 
-
-    # ==========================================
+   # ==========================================
     # EXPORT CARDS
     # ==========================================
 
@@ -10164,32 +10130,18 @@ elif page == "Export":
     with e1:
 
         st.html("""
-        <div style="
-            background:#FFFFFF;
-            border-radius:14px;
-            padding:12px 14px;
-            border:1px solid #DDEBE5;
-            border-top:4px solid #006747;
-            box-shadow:0 4px 12px rgba(0,0,0,.06);
-            font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:#FFFFFF;border-radius:14px;padding:12px 14px;border:1px solid #DDE5E1;border-top:4px solid #006747;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-            <div style="
-                color:#006747;
-                font-size:16px;
-                font-weight:700;">
-                SmartPay Projects
-            </div>
+    <div style="color:#006747;font-size:16px;font-weight:700;">
+    SmartPay Projects
+    </div>
 
-            <div style="
-                color:#6B7280;
-                font-size:12px;
-                margin-top:4px;">
-                Download SmartPay project data
-            </div>
+    <div style="color:#6B7280;font-size:12px;margin-top:4px;">
+    Download SmartPay project data
+    </div>
 
-        </div>
-        """)
-
+    </div>
+    """)
 
         st.download_button(
             "⬇ Download SmartPay CSV",
@@ -10198,7 +10150,9 @@ elif page == "Export":
             "text/csv",
             use_container_width=True
         )
-        # ==========================================
+
+
+    # ==========================================
     # EXECUTIVE PDF EXPORT
     # ==========================================
 
@@ -10208,29 +10162,16 @@ elif page == "Export":
     )
 
     st.html("""
-    <div style="
-        background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
-        border-radius:14px;
-        padding:12px 16px;
-        border:1px solid #BBF7D0;
-        border-left:4px solid #006747;
-        box-shadow:0 4px 12px rgba(0,0,0,.06);
-        font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border-radius:14px;padding:12px 16px;border:1px solid #B7E4C7;border-left:4px solid #006747;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-        <div style="
-            color:#006747;
-            font-size:18px;
-            font-weight:700;">
-            📕 Exclusive Executive PDF Report
-        </div>
+    <div style="color:#006747;font-size:18px;font-weight:700;">
+    📕 Exclusive Executive PDF Report
+    </div>
 
-        <div style="
-            color:#6B7280;
-            font-size:12px;
-            margin-top:4px;">
-            Complete executive PDF containing SmartPay,
-            CRPL and PAYSYS project information.
-        </div>
+    <div style="color:#6B7280;font-size:12px;margin-top:4px;">
+    Complete executive PDF containing SmartPay,
+    CRPL and PAYSYS project information.
+    </div>
 
     </div>
     """)
@@ -10251,31 +10192,18 @@ elif page == "Export":
     with e2:
 
         st.html("""
-        <div style="
-            background:#FFFFFF;
-            border-radius:14px;
-            padding:12px 14px;
-            border:1px solid #DDEBE5;
-            border-top:4px solid #FF9800;
-            box-shadow:0 4px 12px rgba(0,0,0,.06);
-            font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:#FFFFFF;border-radius:14px;padding:12px 14px;border:1px solid #DDE5E1;border-top:4px solid #008A5A;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-            <div style="
-                color:#E65100;
-                font-size:16px;
-                font-weight:700;">
-                CRPL
-            </div>
+    <div style="color:#008A5A;font-size:16px;font-weight:700;">
+    CRPL
+    </div>
 
-            <div style="
-                color:#6B7280;
-                font-size:12px;
-                margin-top:4px;">
-                Download CRPL vendor data
-            </div>
+    <div style="color:#6B7280;font-size:12px;margin-top:4px;">
+    Download CRPL vendor data
+    </div>
 
-        </div>
-        """)
+    </div>
+    """)
 
         st.download_button(
             "⬇ Download CRPL CSV",
@@ -10293,31 +10221,18 @@ elif page == "Export":
     with e3:
 
         st.html("""
-        <div style="
-            background:#FFFFFF;
-            border-radius:14px;
-            padding:12px 14px;
-            border:1px solid #DDEBE5;
-            border-top:4px solid #3949AB;
-            box-shadow:0 4px 12px rgba(0,0,0,.06);
-            font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:#FFFFFF;border-radius:14px;padding:12px 14px;border:1px solid #DDE5E1;border-top:4px solid #20A464;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-            <div style="
-                color:#3949AB;
-                font-size:16px;
-                font-weight:700;">
-                PAYSYS
-            </div>
+    <div style="color:#20A464;font-size:16px;font-weight:700;">
+    PAYSYS
+    </div>
 
-            <div style="
-                color:#6B7280;
-                font-size:12px;
-                margin-top:4px;">
-                Download PAYSYS vendor data
-            </div>
+    <div style="color:#6B7280;font-size:12px;margin-top:4px;">
+    Download PAYSYS vendor data
+    </div>
 
-        </div>
-        """)
+    </div>
+    """)
 
         st.download_button(
             "⬇ Download PAYSYS CSV",
@@ -10338,29 +10253,16 @@ elif page == "Export":
     )
 
     st.html("""
-    <div style="
-        background:linear-gradient(135deg,#F0FDF4,#FFFFFF);
-        border-radius:14px;
-        padding:12px 16px;
-        border:1px solid #BBF7D0;
-        border-left:4px solid #006747;
-        box-shadow:0 4px 12px rgba(0,0,0,.06);
-        font-family:Segoe UI,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border-radius:14px;padding:12px 16px;border:1px solid #B7E4C7;border-left:4px solid #006747;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
 
-        <div style="
-            color:#006747;
-            font-size:18px;
-            font-weight:700;">
-            📊 Complete Executive Excel Report
-        </div>
+    <div style="color:#006747;font-size:18px;font-weight:700;">
+    📊 Complete Executive Excel Report
+    </div>
 
-        <div style="
-            color:#6B7280;
-            font-size:12px;
-            margin-top:4px;">
-            One Excel file containing SmartPay Projects, CRPL and PAYSYS
-            in separate worksheets.
-        </div>
+    <div style="color:#6B7280;font-size:12px;margin-top:4px;">
+    One Excel file containing SmartPay Projects, CRPL and PAYSYS
+    in separate worksheets.
+    </div>
 
     </div>
     """)
@@ -10387,14 +10289,8 @@ elif page == "Export":
     # ==========================================
 
     st.html("""
-    <div style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:2px;
-        margin-bottom:5px;
-        font-family:Segoe UI,Arial,sans-serif;">
-        👁️ Report Preview
+    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    👁️ Report Preview
     </div>
     """)
 
@@ -10419,15 +10315,10 @@ elif page == "Export":
     with preview_projects:
 
         st.html("""
-        <div style="
-            color:#006747;
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:5px;
-            font-family:Segoe UI,Arial,sans-serif;">
-            SmartPay Project Data
-        </div>
-        """)
+    <div style="color:#006747;font-size:18px;font-weight:700;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    SmartPay Project Data
+    </div>
+    """)
 
         st.dataframe(
             projects_export_df,
@@ -10444,15 +10335,10 @@ elif page == "Export":
     with preview_crpl:
 
         st.html("""
-        <div style="
-            color:#E65100;
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:5px;
-            font-family:Segoe UI,Arial,sans-serif;">
-            CRPL Data
-        </div>
-        """)
+    <div style="color:#008A5A;font-size:18px;font-weight:700;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    CRPL Data
+    </div>
+    """)
 
         if not crpl_export_df.empty:
 
@@ -10477,15 +10363,10 @@ elif page == "Export":
     with preview_paysys:
 
         st.html("""
-        <div style="
-            color:#3949AB;
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:5px;
-            font-family:Segoe UI,Arial,sans-serif;">
-            PAYSYS Data
-        </div>
-        """)
+    <div style="color:#20A464;font-size:18px;font-weight:700;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
+    PAYSYS Data
+    </div>
+    """)
 
         if not paysys_export_df.empty:
 
