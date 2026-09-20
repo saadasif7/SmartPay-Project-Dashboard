@@ -1522,7 +1522,7 @@ if page == "Dashboard":
                 st.session_state["navigate_to"] = "Projects"
 
                 st.rerun()
-
+    
 
     # =====================================================
 
@@ -10762,3 +10762,13 @@ elif page == "Export":
         f"{len(paysys_export_df)} PAYSYS Records"
     )
 
+# =====================================================
+# GLOBAL FOOTER (all pages)
+# =====================================================
+
+st.markdown("""
+<div style="margin-top:26px;padding:12px 20px;border-radius:14px;background:linear-gradient(135deg,#013D2B,#006747);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+<div style="color:white;font-size:12px;font-weight:600;">NBP &nbsp;|&nbsp; SmartPay Project Dashboard &nbsp;|&nbsp; Digital Banking Group</div>
+<div style="color:#D1FAE5;font-size:12px;font-style:italic;">Innovation &nbsp;•&nbsp; Efficiency &nbsp;•&nbsp; Product Management</div>
+</div>
+""", unsafe_allow_html=True)
