@@ -1021,61 +1021,17 @@ if st.session_state.get("page_changed", False):
 if page == "Dashboard":
 
     # ==========================================
-    # TITLE - COMPACT HEADER
+    # TITLE - PREMIUM HEADER
     # ==========================================
 
     st.markdown("""
-    <div style="
-    background:linear-gradient(135deg,#ffffff,#f8fbff);
-    border-radius:18px;
-    padding:14px 22px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 8px 22px rgba(0,0,0,.08);
-    box-sizing:border-box;
-    margin-bottom:10px;
-    ">
-
-    <div style="
-    color:#006747;
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:1.8px;
-    margin-bottom:5px;">
-    NATIONAL BANK OF PAKISTAN
-    </div>
-
-    <div style="
-    font-size:28px;
-    color:#006747;
-    font-weight:800;
-    line-height:1.15;
-    margin:0;">
-    SmartPay Project Dashboard
-    </div>
-
-    <div style="
-    margin-top:5px;
-    font-size:14px;
-    color:#374151;">
-    Digital Banking Group
-    </div>
-
-    <div style="
-    margin-top:8px;
-    display:inline-block;
-    background:#ECFDF5;
-    color:#006747;
-    padding:4px 11px;
-    border-radius:20px;
-    font-size:11px;
-    font-weight:700;">
-    ● LIVE Dashboard
-    </div>
-
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">NATIONAL BANK OF PAKISTAN</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">💳 SmartPay Project Dashboard</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">Digital Banking Group</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● LIVE DASHBOARD</div>
     </div>
     """, unsafe_allow_html=True)
-
-
     # =====================================================
     # KPI - VIP ENTERPRISE CLICKABLE CARDS
     # =====================================================
@@ -2795,45 +2751,16 @@ elif page == "Projects":
         "projects.xlsx"
     )
 
-    # =====================================================
+   # =====================================================
     # COMPACT HEADER
     # =====================================================
 
     st.markdown("""
-    <div style="
-    background:linear-gradient(135deg,#ffffff,#f8fbff);
-    border-radius:18px;
-    padding:14px 22px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 8px 22px rgba(0,0,0,.08);
-    box-sizing:border-box;
-    margin-bottom:4px;">
-
-    <div style="
-    color:#006747;
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:1.8px;
-    margin-bottom:4px;">
-    SMARTPAY PROJECT MANAGEMENT
-    </div>
-
-    <div style="
-    color:#006747;
-    font-size:28px;
-    font-weight:800;
-    line-height:1.15;
-    margin:0;">
-    📁 Project Portfolio
-    </div>
-
-    <div style="
-    margin-top:4px;
-    color:#6B7280;
-    font-size:14px;">
-    SmartPay Project Management System
-    </div>
-
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">SMARTPAY PROJECT MANAGEMENT</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">📁 Project Portfolio</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">SmartPay Project Management System</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● PROJECT MANAGEMENT</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -3835,43 +3762,13 @@ elif page == "Analytics":
     # ==========================================
 
     st.markdown("""
-    <div style="
-    background:linear-gradient(135deg,#ffffff,#f8fbff);
-    border-radius:18px;
-    padding:14px 22px;
-    border:1px solid #E5E7EB;
-    box-shadow:0 8px 22px rgba(0,0,0,.08);
-    box-sizing:border-box;
-    margin-bottom:6px;">
-
-    <div style="
-    color:#006747;
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:1.8px;
-    margin-bottom:4px;">
-    SMARTPAY ANALYTICS
-    </div>
-
-    <div style="
-    color:#006747;
-    font-size:28px;
-    font-weight:800;
-    line-height:1.15;
-    margin:0;">
-    📊 Analytics Dashboard
-    </div>
-
-    <div style="
-    margin-top:4px;
-    color:#6B7280;
-    font-size:14px;">
-    SmartPay Project Insights & Team Performance
-    </div>
-
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">SMARTPAY ANALYTICS</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">📊 Analytics Dashboard</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">SmartPay Project Insights & Team Performance</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● ANALYTICS & INSIGHTS</div>
     </div>
     """, unsafe_allow_html=True)
-
 
     # ==========================================
     # KPI CARDS
@@ -4905,45 +4802,14 @@ elif page == "Project Timeline":
     # HEADER
     # ==========================================
 
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f8fbff);
-        border-radius:18px;
-        padding:14px 22px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.08);
-        margin-bottom:8px;
-        font-family:Segoe UI,Arial,sans-serif;
-    ">
-        <div style="
-            color:#006747;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:1.8px;
-            margin-bottom:4px;
-        ">
-            SMARTPAY PROJECT MANAGEMENT
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:28px;
-            font-weight:800;
-            line-height:1.15;
-        ">
-            📅 Project Timeline
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:4px;
-        ">
-            Track the current progress of SmartPay projects across every delivery stage.
-        </div>
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">SMARTPAY PROJECT MANAGEMENT</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">📅 Project Timeline</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">Track the current progress of SmartPay projects across every delivery stage.</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● PROJECT TIMELINE</div>
     </div>
-    """)
-
+    """, unsafe_allow_html=True)
     # ==========================================
     # LEGEND
     # ==========================================
@@ -6574,44 +6440,14 @@ elif page == "BAU Monitoring":
     # COMPACT HEADER
     # =================================================
 
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f7fbf9);
-        border-radius:18px;
-        padding:14px 22px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.08);
-        margin-bottom:8px;
-        font-family:Segoe UI,Arial,sans-serif;
-    ">
-
-        <div style="
-            color:#006747;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:1.8px;
-            margin-bottom:4px;">
-            SMARTPAY BUSINESS AS USUAL
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:28px;
-            font-weight:800;
-            line-height:1.15;">
-            🏦 BAU Monitoring
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:4px;">
-            Live Business Operations Monitoring, ownership and ongoing updates.
-        </div>
-
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">SMARTPAY BUSINESS AS USUAL</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">🏦 BAU Monitoring</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">Live Business Operations Monitoring, ownership and ongoing updates.</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● BUSINESS AS USUAL</div>
     </div>
-    """)
-
+    """, unsafe_allow_html=True)
 
     # =================================================
     # KPI VALUES
@@ -7298,44 +7134,14 @@ elif page == "CRPL":
     # HEADER
     # =====================================================
 
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f8fbff);
-        border-radius:18px;
-        padding:14px 22px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.08);
-        box-sizing:border-box;
-        margin-bottom:2px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
-        <div style="
-            color:#006747;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:1.8px;
-            margin-bottom:4px;">
-            CRPL MONITORING
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:28px;
-            font-weight:800;
-            line-height:1.15;">
-            🏦 CRPL
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:4px;">
-            CRPL Issues &amp; Progress Tracking
-        </div>
-
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">CRPL MONITORING</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">🏦 CRPL</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">CRPL Issues &amp; Progress Tracking</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● CRPL MONITORING</div>
     </div>
-    """)
-
+    """, unsafe_allow_html=True)
 
     # =====================================================
     # FILTERS
@@ -8528,43 +8334,14 @@ elif page == "PAYSYS":
     # HEADER
     # =====================================================
 
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f8fbff);
-        border-radius:18px;
-        padding:14px 22px;
-        border:1px solid #E5E7EB;
-        box-shadow:0 8px 22px rgba(0,0,0,.08);
-        box-sizing:border-box;
-        margin-bottom:2px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
-        <div style="
-            color:#006747;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:1.8px;
-            margin-bottom:4px;">
-            PAYSYS MONITORING
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:28px;
-            font-weight:800;
-            line-height:1.15;">
-            💳 PAYSYS
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:4px;">
-            PAYSYS Issues &amp; Progress Tracking
-        </div>
-
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">PAYSYS MONITORING</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">💳 PAYSYS</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">PAYSYS Issues &amp; Progress Tracking</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● PAYSYS MONITORING</div>
     </div>
-    """)
+    """, unsafe_allow_html=True)
 
 
     # =====================================================
@@ -9586,43 +9363,14 @@ elif page == "Export":
     # HEADER
     # ==========================================
 
-    st.html("""
-    <div style="
-        background:linear-gradient(135deg,#ffffff,#f4fbf8);
-        border-radius:18px;
-        padding:14px 22px;
-        border:1px solid #DDEBE5;
-        box-shadow:0 8px 22px rgba(0,0,0,.08);
-        margin-bottom:8px;
-        font-family:Segoe UI,Arial,sans-serif;">
-
-        <div style="
-            color:#006747;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:1.8px;
-            margin-bottom:4px;">
-            SMARTPAY PROJECT MANAGEMENT
-        </div>
-
-        <div style="
-            color:#006747;
-            font-size:28px;
-            font-weight:800;
-            line-height:1.15;">
-            Executive Report Center
-        </div>
-
-        <div style="
-            color:#6B7280;
-            font-size:14px;
-            margin-top:4px;">
-            Generate, preview and download SmartPay project reports.
-        </div>
-
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+    <div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">SMARTPAY PROJECT MANAGEMENT</div>
+    <div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">📑 Executive Report Center</div>
+    <div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">Generate, preview and download SmartPay project reports.</div>
+    <div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● REPORT CENTER</div>
     </div>
-    """)
-
+    """, unsafe_allow_html=True)
 
     # ==========================================
     # REPORT INFORMATION
@@ -10769,6 +10517,6 @@ elif page == "Export":
 st.markdown("""
 <div style="margin-top:26px;padding:12px 20px;border-radius:14px;background:linear-gradient(135deg,#013D2B,#006747);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
 <div style="color:white;font-size:12px;font-weight:600;">NBP &nbsp;|&nbsp; SmartPay Project Dashboard &nbsp;|&nbsp; Digital Banking Group</div>
-<div style="color:#D1FAE5;font-size:12px;font-style:italic;">Innovation &nbsp;•&nbsp; Efficiency &nbsp;•&nbsp; Product Management</div>
+<div style="color:#D1FAE5;font-size:12px;font-style:italic;">DBG Business Banking &nbsp;•&nbsp; Developed by: Muhammad Saad Asif</div>
 </div>
 """, unsafe_allow_html=True)
