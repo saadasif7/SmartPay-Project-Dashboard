@@ -584,7 +584,7 @@ st.markdown("""
 section[data-testid="stSidebar"] {
     background: linear-gradient(
         180deg,
-        #004B34,
+        #013D2B,
         #006747,
         #008A5A
     ) !important;
@@ -603,6 +603,8 @@ section[data-testid="stSidebar"]
     height: 100vh !important;
     overflow: hidden !important;
 }
+
+
 @media (max-width: 768px) {
 
     section[data-testid="stSidebar"]
@@ -677,6 +679,7 @@ section[data-testid="stSidebar"]
         font-size: 8px !important;
     }
 }
+
 
 /* =====================================================
    SIDEBAR HEADINGS
@@ -797,6 +800,7 @@ section[data-testid="stSidebar"] hr {
     margin-bottom: 3px !important;
     white-space: nowrap !important;
 }
+
 
 /* =====================================================
    MOBILE SIDEBAR
