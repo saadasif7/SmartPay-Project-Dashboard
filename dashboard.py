@@ -207,99 +207,131 @@ def normalize_voice(text):
 # =====================================================
 # Page Settings
 # =====================================================
+
 st.set_page_config(
     page_title="SmartPay Project Dashboard",
     page_icon="💳",
     layout="wide"
 )
 
-
 st.markdown("""
 <style>
-/* Sidebar collapse icon hide karne ke liye */
+
+/* =====================================================
+   HIDE SIDEBAR COLLAPSE ICON
+===================================================== */
+
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stSidebarCollapsedControl"],
 [data-testid="baseButton-headerNoPadding"] {
-    display: none !important;
-    visibility: hidden !important;
+    display:none !important;
+    visibility:hidden !important;
 }
-/* ===========================
-   Main App
-=========================== */
 
-.stApp{
-    background:#F8F9FA;
+
+/* =====================================================
+   MAIN APP - SOFT LIGHT GREEN
+===================================================== */
+
+.stApp {
+    background:
+        linear-gradient(
+            180deg,
+            #EDF7F2 0%,
+            #F1F9F5 45%,
+            #EAF5EF 100%
+        ) !important;
 }
-/* ==========================================
-   COMPACT TOP SPACE
-========================================== */
+
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
 
 .block-container {
-    padding-top: 2.5rem !important;
+    padding-top:2.5rem !important;
 }
 
-/* ===========================
-   Headings
-=========================== */
 
-h1,h2,h3,h4,h5,h6,
+/* =====================================================
+   HEADINGS
+===================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 [data-testid="stHeading"],
-[data-testid="stHeading"] *{
+[data-testid="stHeading"] * {
     color:#006747 !important;
     font-weight:700 !important;
 }
 
-/* ===========================
-   Normal Text
-=========================== */
+
+/* =====================================================
+   NORMAL TEXT
+===================================================== */
 
 p,
-span{
+span {
     color:inherit !important;
 }
 
-/* ===========================
-   Field Labels
-=========================== */
+
+/* =====================================================
+   FIELD LABELS
+===================================================== */
 
 label,
 label p,
 [data-testid="stWidgetLabel"],
-[data-testid="stWidgetLabel"] p{
+[data-testid="stWidgetLabel"] p {
     color:#006747 !important;
     font-weight:bold !important;
     font-size:16px !important;
 }
 
-/* ===========================
-   Sidebar
-=========================== */
 
-/* ==========================================
-   PREMIUM SIDEBAR
-========================================== */
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
-section[data-testid="stSidebar"]{
-    background:linear-gradient(180deg,#004B34,#006747,#008A5A) !important;
+section[data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            #004B34,
+            #006747,
+            #008A5A
+        ) !important;
+
     border-right:3px solid #D4AF37;
 }
 
-section[data-testid="stSidebar"] *{
+section[data-testid="stSidebar"] * {
     color:white !important;
     font-family:"Segoe UI",sans-serif !important;
 }
 
-/* Navigation Title */
 
-section[data-testid="stSidebar"] label{
+/* =====================================================
+   SIDEBAR NAVIGATION TITLE
+===================================================== */
+
+section[data-testid="stSidebar"] label {
     color:#FFD700 !important;
     font-size:18px !important;
     font-weight:700 !important;
 }
 
-/* Radio Buttons */
 
-div[role="radiogroup"] label{
+/* =====================================================
+   RADIO BUTTONS
+===================================================== */
+
+div[role="radiogroup"] label {
     background:rgba(255,255,255,.08);
     margin-bottom:8px;
     padding:10px;
@@ -307,213 +339,253 @@ div[role="radiogroup"] label{
     transition:.3s;
 }
 
-div[role="radiogroup"] label:hover{
+div[role="radiogroup"] label:hover {
     background:rgba(255,255,255,.20);
 }
 
-/* Selected Page */
 
-div[role="radiogroup"] label[data-selected="true"]{
+/* =====================================================
+   SELECTED PAGE
+===================================================== */
+
+div[role="radiogroup"] label[data-selected="true"] {
     background:white !important;
     color:#006747 !important;
     font-weight:bold !important;
     border-left:5px solid #FFD700;
 }
 
-/* ===========================
-   KPI Cards
-=========================== */
 
-div[data-testid="metric-container"]{
-    background:white !important;
+/* =====================================================
+   KPI CARDS
+===================================================== */
+
+div[data-testid="metric-container"] {
+    background:#FFFFFF !important;
+
     border-left:6px solid #006747 !important;
+
     border-radius:12px !important;
+
     padding:18px !important;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,103,71,.10);
+
+    border-top:1px solid #DDEBE4 !important;
+    border-right:1px solid #DDEBE4 !important;
+    border-bottom:1px solid #DDEBE4 !important;
 }
 
-[data-testid="stMetricLabel"]{
+
+/* =====================================================
+   KPI LABEL
+===================================================== */
+
+[data-testid="stMetricLabel"] {
     color:#006747 !important;
     font-weight:bold !important;
 }
 
-[data-testid="stMetricValue"]{
+
+/* =====================================================
+   KPI VALUE
+===================================================== */
+
+[data-testid="stMetricValue"] {
     color:#222222 !important;
     font-size:34px !important;
     font-weight:700 !important;
 }
 
-[data-testid="stMetricDelta"]{
+
+/* =====================================================
+   KPI DELTA
+===================================================== */
+
+[data-testid="stMetricDelta"] {
     color:#006747 !important;
 }
 
-/* ===========================
-   Buttons
-=========================== */
 
-.stButton>button{
-    background:#006747 !important;
-    color:white !important;
-    border:none !important;
-    border-radius:8px !important;
-    font-weight:bold !important;
-}
-
-.stButton>button:hover{
-    background:#008A5A !important;
-}
-
-/* ===========================
-   Text Input
-=========================== */
-
-.stTextInput input{
-    background:white !important;
-    color:black !important;
-    border:2px solid #006747 !important;
-    border-radius:8px !important;
-}
-
-/* ===========================
-   Select Box
-=========================== */
-
-div[data-baseweb="select"]>div{
-    background:white !important;
-    color:black !important;
-    border:2px solid #006747 !important;
-    border-radius:8px !important;
-}
-
-/* ===========================
-   DataFrame
-=========================== */
-
-[data-testid="stDataFrame"]{
-    border:2px solid #006747 !important;
-    border-radius:10px !important;
-}
-
-/* ===========================
-   Alert Boxes
-=========================== */
-
-[data-testid="stAlert"]{
-    border-radius:10px !important;
-}
-
-[data-testid="stAlert"] *{
-    color:#222222 !important;
-}
 /* =====================================================
-   MOBILE RESPONSIVE DESIGN
-   Desktop remains unchanged
+   BUTTONS
 ===================================================== */
 
-@media (max-width: 768px) {
+.stButton > button {
+    background:#006747 !important;
 
-    /* ==========================================
-       MAIN PAGE
-    ========================================== */
+    color:white !important;
+
+    border:none !important;
+
+    border-radius:8px !important;
+
+    font-weight:bold !important;
+
+    box-shadow:
+        0 2px 6px
+        rgba(0,103,71,.12);
+}
+
+.stButton > button:hover {
+    background:#008A5A !important;
+
+    box-shadow:
+        0 4px 10px
+        rgba(0,103,71,.18);
+}
+
+
+/* =====================================================
+   TEXT INPUT
+===================================================== */
+
+.stTextInput input {
+    background:#FFFFFF !important;
+
+    color:#222222 !important;
+
+    border:2px solid #006747 !important;
+
+    border-radius:8px !important;
+
+    box-shadow:
+        0 1px 5px
+        rgba(0,103,71,.05);
+}
+
+
+/* =====================================================
+   SELECT BOX
+===================================================== */
+
+div[data-baseweb="select"] > div {
+    background:#FFFFFF !important;
+
+    color:#222222 !important;
+
+    border:2px solid #006747 !important;
+
+    border-radius:8px !important;
+
+    box-shadow:
+        0 1px 5px
+        rgba(0,103,71,.05);
+}
+
+
+/* =====================================================
+   DATAFRAME
+===================================================== */
+
+[data-testid="stDataFrame"] {
+    background:#FFFFFF !important;
+
+    border:2px solid #006747 !important;
+
+    border-radius:10px !important;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,103,71,.08);
+}
+
+
+/* =====================================================
+   ALERT BOXES
+===================================================== */
+
+[data-testid="stAlert"] {
+    border-radius:10px !important;
+}
+
+[data-testid="stAlert"] * {
+    color:#222222 !important;
+}
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+@media (max-width:768px) {
 
     .block-container {
-        padding-top: 1rem !important;
-        padding-left: 0.7rem !important;
-        padding-right: 0.7rem !important;
-        max-width: 100% !important;
+        padding-top:1rem !important;
+        padding-left:.7rem !important;
+        padding-right:.7rem !important;
+        max-width:100% !important;
     }
 
-    /* Main headings */
-    h1, h2, h3, h4, h5, h6 {
-        line-height: 1.15 !important;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        line-height:1.15 !important;
     }
-
-    /* ==========================================
-       NORMAL TEXT
-    ========================================== */
 
     p {
-        line-height: 1.25 !important;
+        line-height:1.25 !important;
     }
-
-    /* ==========================================
-       FIELD LABELS
-    ========================================== */
 
     label,
     label p,
     [data-testid="stWidgetLabel"],
     [data-testid="stWidgetLabel"] p {
-        font-size: 13px !important;
-        line-height: 1.15 !important;
-        margin-bottom: 2px !important;
+        font-size:13px !important;
+        line-height:1.15 !important;
+        margin-bottom:2px !important;
     }
 
-    /* ==========================================
-       INPUTS / SELECTBOX
-    ========================================== */
-
     .stTextInput input {
-        height: 38px !important;
-        font-size: 13px !important;
+        height:38px !important;
+        font-size:13px !important;
     }
 
     div[data-baseweb="select"] > div {
-        min-height: 38px !important;
-        font-size: 13px !important;
+        min-height:38px !important;
+        font-size:13px !important;
     }
 
-    /* ==========================================
-       NORMAL METRIC CARDS
-    ========================================== */
-
     div[data-testid="metric-container"] {
-        padding: 10px !important;
-        border-left-width: 4px !important;
-        border-radius: 9px !important;
+        padding:10px !important;
+        border-left-width:4px !important;
+        border-radius:9px !important;
     }
 
     [data-testid="stMetricLabel"] {
-        font-size: 11px !important;
-        line-height: 1.1 !important;
+        font-size:11px !important;
+        line-height:1.1 !important;
     }
 
     [data-testid="stMetricValue"] {
-        font-size: 24px !important;
-        line-height: 1.1 !important;
+        font-size:24px !important;
+        line-height:1.1 !important;
     }
 
     [data-testid="stMetricDelta"] {
-        font-size: 10px !important;
+        font-size:10px !important;
     }
-
-    /* ==========================================
-       BUTTONS
-    ========================================== */
 
     .stButton > button {
-        min-height: 36px !important;
-        padding: 5px 8px !important;
-        font-size: 12px !important;
-        line-height: 1.15 !important;
+        min-height:36px !important;
+        padding:5px 8px !important;
+        font-size:12px !important;
+        line-height:1.15 !important;
     }
-
-    /* ==========================================
-       DATAFRAME
-    ========================================== */
 
     [data-testid="stDataFrame"] {
-        width: 100% !important;
-        overflow-x: auto !important;
+        width:100% !important;
+        overflow-x:auto !important;
     }
 
-    /* ==========================================
-       ALERTS
-    ========================================== */
-
     [data-testid="stAlert"] {
-        padding: 8px !important;
-        font-size: 12px !important;
+        padding:8px !important;
+        font-size:12px !important;
     }
 }
 
@@ -522,35 +594,36 @@ div[data-baseweb="select"]>div{
    VERY SMALL MOBILE
 ===================================================== */
 
-@media (max-width: 480px) {
+@media (max-width:480px) {
 
     .block-container {
-        padding-top: 0.7rem !important;
-        padding-left: 0.45rem !important;
-        padding-right: 0.45rem !important;
+        padding-top:.7rem !important;
+        padding-left:.45rem !important;
+        padding-right:.45rem !important;
     }
 
     [data-testid="stMetricValue"] {
-        font-size: 21px !important;
+        font-size:21px !important;
     }
 
     [data-testid="stMetricLabel"] {
-        font-size: 10px !important;
+        font-size:10px !important;
     }
 
     .stButton > button {
-        font-size: 11px !important;
-        padding: 4px 6px !important;
+        font-size:11px !important;
+        padding:4px 6px !important;
     }
 
     .stTextInput input {
-        font-size: 12px !important;
+        font-size:12px !important;
     }
 
     div[data-baseweb="select"] > div {
-        font-size: 12px !important;
+        font-size:12px !important;
     }
 }
+
 </style>
 """, unsafe_allow_html=True)
 # =====================================================
