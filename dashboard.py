@@ -651,10 +651,16 @@ st.markdown("""
 <style>
 
 /* =====================================================
-   SIDEBAR BACKGROUND
+   SIDEBAR BACKGROUND - FIXED WIDTH
 ===================================================== */
 
 section[data-testid="stSidebar"] {
+
+    width:250px !important;
+    min-width:250px !important;
+    max-width:250px !important;
+    flex:0 0 250px !important;
+
     background:
         radial-gradient(
             circle at top right,
@@ -669,25 +675,39 @@ section[data-testid="stSidebar"] {
             #008A5A 100%
         ) !important;
 
-    overflow: hidden !important;
-    border-right: 1px solid rgba(255,255,255,.08) !important;
+    overflow:hidden !important;
+
+    border-right:
+        1px solid
+        rgba(255,255,255,.08) !important;
 }
 
 
 /* =====================================================
-   SIDEBAR MAIN CONTENT
-   REMOVE TOP SPACE
+   SIDEBAR MAIN CONTENT - FIXED WIDTH
 ===================================================== */
 
-section[data-testid="stSidebar"] > div:first-child {
-    height: 100vh !important;
-    overflow: hidden !important;
-    padding-top: 0 !important;
+section[data-testid="stSidebar"]
+> div:first-child {
+
+    width:250px !important;
+    min-width:250px !important;
+    max-width:250px !important;
+
+    height:100vh !important;
+
+    overflow:hidden !important;
+
+    padding-top:0 !important;
 }
 
 section[data-testid="stSidebar"]
 [data-testid="stVerticalBlock"] {
-    padding-top: 0 !important;
+
+    width:100% !important;
+    max-width:100% !important;
+
+    padding-top:0 !important;
 }
 
 
@@ -696,19 +716,25 @@ section[data-testid="stSidebar"]
 ===================================================== */
 
 section[data-testid="stSidebar"] img {
-    max-height: 92px !important;
-    width: auto !important;
-    object-fit: contain !important;
-    display: block !important;
 
-    margin-top: -18px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    margin-bottom: -5px !important;
+    max-height:92px !important;
 
-    filter: drop-shadow(
-        0 5px 10px rgba(0,0,0,.20)
-    );
+    width:auto !important;
+
+    object-fit:contain !important;
+
+    display:block !important;
+
+    margin-top:-18px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    margin-bottom:-5px !important;
+
+    filter:
+        drop-shadow(
+            0 5px 10px
+            rgba(0,0,0,.20)
+        );
 }
 
 
@@ -719,7 +745,8 @@ section[data-testid="stSidebar"] img {
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p {
-    color: white !important;
+
+    color:white !important;
 }
 
 
@@ -728,35 +755,61 @@ section[data-testid="stSidebar"] p {
 ===================================================== */
 
 .sidebar-brand {
-    text-align: center !important;
-    margin-top: -2px !important;
-    margin-bottom: 6px !important;
+
+    text-align:center !important;
+
+    margin-top:-2px !important;
+
+    margin-bottom:6px !important;
 }
 
 .sidebar-title {
-    color: white !important;
-    font-family: "Segoe UI", Arial, sans-serif !important;
-    font-size: 22px !important;
-    font-weight: 800 !important;
-    letter-spacing: .4px !important;
-    line-height: 1.1 !important;
+
+    color:white !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size:22px !important;
+
+    font-weight:800 !important;
+
+    letter-spacing:.4px !important;
+
+    line-height:1.1 !important;
 }
 
 .sidebar-subtitle {
-    color: #D1FAE5 !important;
-    font-family: "Segoe UI", Arial, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    letter-spacing: .8px !important;
-    margin-top: 3px !important;
+
+    color:#D1FAE5 !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size:11px !important;
+
+    font-weight:500 !important;
+
+    letter-spacing:.8px !important;
+
+    margin-top:3px !important;
 }
 
 .sidebar-brand-line {
-    width: 48px !important;
-    height: 3px !important;
-    background: #FFD700 !important;
-    border-radius: 10px !important;
-    margin: 6px auto 2px auto !important;
+
+    width:48px !important;
+
+    height:3px !important;
+
+    background:#FFD700 !important;
+
+    border-radius:10px !important;
+
+    margin:6px auto 2px auto !important;
 }
 
 
@@ -766,20 +819,27 @@ section[data-testid="stSidebar"] p {
 
 section[data-testid="stSidebar"]
 div[role="radiogroup"] {
-    width: 100% !important;
 
-    margin-top: 3px !important;
-    margin-bottom: 0 !important;
+    width:100% !important;
 
-    padding: 4px !important;
+    max-width:100% !important;
 
-    background: rgba(0,0,0,.10) !important;
+    margin-top:3px !important;
 
-    border: 1px solid rgba(255,255,255,.08) !important;
+    margin-bottom:0 !important;
 
-    border-radius: 13px !important;
+    padding:4px !important;
 
-    box-sizing: border-box !important;
+    background:
+        rgba(0,0,0,.10) !important;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08) !important;
+
+    border-radius:13px !important;
+
+    box-sizing:border-box !important;
 }
 
 
@@ -790,40 +850,49 @@ div[role="radiogroup"] {
 section[data-testid="stSidebar"]
 div[role="radiogroup"] label {
 
-    background: transparent !important;
+    width:100% !important;
 
-    border: 1px solid transparent !important;
+    max-width:100% !important;
 
-    border-radius: 9px !important;
+    background:transparent !important;
 
-    padding: 6px 10px !important;
+    border:
+        1px solid
+        transparent !important;
 
-    margin-bottom: 3px !important;
+    border-radius:9px !important;
 
-    min-height: 30px !important;
+    padding:6px 10px !important;
 
-    color: #F4FFFA !important;
+    margin-bottom:3px !important;
 
-    font-family: "Segoe UI", Arial, sans-serif !important;
+    min-height:30px !important;
 
-    font-size: 13px !important;
+    color:#F4FFFA !important;
 
-    font-weight: 600 !important;
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
 
-    line-height: 1.1 !important;
+    font-size:13px !important;
+
+    font-weight:600 !important;
+
+    line-height:1.1 !important;
 
     transition:
         background .2s ease,
         transform .2s ease,
         border .2s ease !important;
 
-    white-space: nowrap !important;
+    white-space:nowrap !important;
 
-    overflow: hidden !important;
+    overflow:hidden !important;
 
-    text-overflow: ellipsis !important;
+    text-overflow:ellipsis !important;
 
-    box-sizing: border-box !important;
+    box-sizing:border-box !important;
 }
 
 
@@ -832,8 +901,10 @@ div[role="radiogroup"] label {
 ===================================================== */
 
 section[data-testid="stSidebar"]
-div[role="radiogroup"] label:last-child {
-    margin-bottom: 0 !important;
+div[role="radiogroup"]
+label:last-child {
+
+    margin-bottom:0 !important;
 }
 
 
@@ -842,7 +913,8 @@ div[role="radiogroup"] label:last-child {
 ===================================================== */
 
 section[data-testid="stSidebar"]
-div[role="radiogroup"] label:hover {
+div[role="radiogroup"]
+label:hover {
 
     background:
         linear-gradient(
@@ -851,9 +923,11 @@ div[role="radiogroup"] label:hover {
             rgba(32,164,100,.12)
         ) !important;
 
-    border: 1px solid rgba(255,255,255,.10) !important;
+    border:
+        1px solid
+        rgba(255,255,255,.10) !important;
 
-    transform: translateX(2px) !important;
+    transform:translateX(2px) !important;
 }
 
 
@@ -862,7 +936,8 @@ div[role="radiogroup"] label:hover {
 ===================================================== */
 
 section[data-testid="stSidebar"]
-div[role="radiogroup"] label:has(input:checked) {
+div[role="radiogroup"]
+label:has(input:checked) {
 
     background:
         linear-gradient(
@@ -871,16 +946,21 @@ div[role="radiogroup"] label:has(input:checked) {
             #008A5A
         ) !important;
 
-    color: white !important;
+    color:white !important;
 
-    border: 1px solid rgba(255,255,255,.16) !important;
+    border:
+        1px solid
+        rgba(255,255,255,.16) !important;
 
-    border-left: 4px solid #FFD700 !important;
+    border-left:
+        4px solid
+        #FFD700 !important;
 
     box-shadow:
-        0 4px 10px rgba(0,0,0,.14) !important;
+        0 4px 10px
+        rgba(0,0,0,.14) !important;
 
-    font-weight: 700 !important;
+    font-weight:700 !important;
 }
 
 
@@ -890,7 +970,8 @@ div[role="radiogroup"] label:has(input:checked) {
 
 section[data-testid="stSidebar"]
 div[role="radiogroup"] input {
-    display: none !important;
+
+    display:none !important;
 }
 
 
@@ -900,15 +981,15 @@ div[role="radiogroup"] input {
 
 section[data-testid="stSidebar"] hr {
 
-    border: none !important;
+    border:none !important;
 
     border-top:
         1px solid
         rgba(255,255,255,.12) !important;
 
-    margin-top: 7px !important;
+    margin-top:7px !important;
 
-    margin-bottom: 7px !important;
+    margin-bottom:7px !important;
 }
 
 
@@ -918,150 +999,156 @@ section[data-testid="stSidebar"] hr {
 
 .sidebar-created-by {
 
-    text-align: center !important;
+    text-align:center !important;
 
-    color: #D1FAE5 !important;
+    color:#D1FAE5 !important;
 
-    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
 
-    font-size: 11px !important;
+    font-size:11px !important;
 
-    font-weight: 600 !important;
+    font-weight:600 !important;
 
-    letter-spacing: .2px !important;
+    letter-spacing:.2px !important;
 
-    margin-top: 6px !important;
+    margin-top:6px !important;
 
-    margin-bottom: 3px !important;
+    margin-bottom:3px !important;
 
-    white-space: nowrap !important;
+    white-space:nowrap !important;
 }
 
 
 /* =====================================================
-   MOBILE
+   MOBILE - FIXED 215px
 ===================================================== */
 
-@media (max-width: 768px) {
+@media (max-width:768px) {
 
     section[data-testid="stSidebar"] {
 
-        width: 215px !important;
+        width:215px !important;
+        min-width:215px !important;
+        max-width:215px !important;
+        flex:0 0 215px !important;
 
-        min-width: 215px !important;
-
-        max-width: 215px !important;
-
-        overflow: hidden !important;
+        overflow:hidden !important;
     }
 
     section[data-testid="stSidebar"]
     > div:first-child {
 
-        height: 100vh !important;
+        width:215px !important;
+        min-width:215px !important;
+        max-width:215px !important;
 
-        overflow-y: hidden !important;
+        height:100vh !important;
 
-        overflow-x: hidden !important;
+        overflow-y:hidden !important;
+        overflow-x:hidden !important;
 
-        padding-top: 0 !important;
+        padding-top:0 !important;
     }
 
     section[data-testid="stSidebar"] img {
 
-        max-height: 90px !important;
+        max-height:90px !important;
 
-        margin-top: -15px !important;
+        margin-top:-15px !important;
 
-        margin-bottom: -5px !important;
+        margin-bottom:-5px !important;
     }
 
     section[data-testid="stSidebar"]
     div[role="radiogroup"] label {
 
-        padding: 5px 8px !important;
+        padding:5px 8px !important;
 
-        margin-bottom: 2px !important;
+        margin-bottom:2px !important;
 
-        min-height: 28px !important;
+        min-height:28px !important;
 
-        font-size: 12px !important;
+        font-size:12px !important;
     }
 
     .sidebar-title {
-
-        font-size: 20px !important;
+        font-size:20px !important;
     }
 
     .sidebar-subtitle {
-
-        font-size: 11px !important;
+        font-size:11px !important;
     }
 
     .sidebar-created-by {
 
-        font-size: 10px !important;
+        font-size:10px !important;
 
-        margin-top: 6px !important;
+        margin-top:6px !important;
     }
 }
 
 
 /* =====================================================
-   VERY SMALL MOBILE
+   VERY SMALL MOBILE - FIXED 200px
 ===================================================== */
 
-@media (max-width: 480px) {
+@media (max-width:480px) {
 
     section[data-testid="stSidebar"] {
 
-        width: 200px !important;
+        width:200px !important;
+        min-width:200px !important;
+        max-width:200px !important;
+        flex:0 0 200px !important;
+    }
 
-        min-width: 200px !important;
+    section[data-testid="stSidebar"]
+    > div:first-child {
 
-        max-width: 200px !important;
+        width:200px !important;
+        min-width:200px !important;
+        max-width:200px !important;
     }
 
     section[data-testid="stSidebar"] img {
 
-        max-height: 75px !important;
+        max-height:75px !important;
 
-        margin-top: -12px !important;
+        margin-top:-12px !important;
 
-        margin-bottom: -4px !important;
+        margin-bottom:-4px !important;
     }
 
     section[data-testid="stSidebar"]
     div[role="radiogroup"] label {
 
-        padding: 4px 7px !important;
+        padding:4px 7px !important;
 
-        margin-bottom: 2px !important;
+        margin-bottom:2px !important;
 
-        min-height: 26px !important;
+        min-height:26px !important;
 
-        font-size: 11px !important;
+        font-size:11px !important;
     }
 
     .sidebar-title {
-
-        font-size: 18px !important;
+        font-size:18px !important;
     }
 
     .sidebar-subtitle {
-
-        font-size: 10px !important;
+        font-size:10px !important;
     }
 
     .sidebar-created-by {
-
-        font-size: 9px !important;
+        font-size:9px !important;
     }
 }
 
 </style>
 """, unsafe_allow_html=True)
-
 
 # =====================================================
 # LOGO
@@ -1110,6 +1197,7 @@ page = st.sidebar.radio(
         "Analytics",
         "Project Timeline",
         "BAU Monitoring",
+        "IS Issues",
         "CRPL",
         "PAYSYS",
         "Export"
@@ -6485,6 +6573,9 @@ elif page == "Project Timeline":
 
 #             speak(response)
 
+
+
+
 # =====================================================
 # BAU MONITORING
 # =====================================================
@@ -7045,7 +7136,1721 @@ elif page == "BAU Monitoring":
         st.info(
             "No BAU update field is available in the Excel data."
         )
+# =====================================================
+# IS ISSUES
+# =====================================================
 
+elif page == "IS Issues":
+
+    import os
+    import pandas as pd
+
+    # =====================================================
+    # LOAD IS ISSUES FILE
+    # =====================================================
+
+    file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "IS Issues.xlsx"
+    )
+
+    try:
+
+        excel_file = pd.ExcelFile(file)
+
+        sheet_name = excel_file.sheet_names[0]
+
+        raw = pd.read_excel(
+            file,
+            sheet_name=sheet_name,
+            header=None
+        )
+
+        header_row = None
+
+        for i in range(min(20, len(raw))):
+
+            row = " ".join(
+                str(x).lower()
+                for x in raw.iloc[i]
+                if pd.notna(x)
+            )
+
+            if (
+                "application name" in row
+                and "severity" in row
+                and "issues description" in row
+            ):
+
+                header_row = i
+                break
+
+        if header_row is None:
+
+            st.error(
+                "IS Issues header row not found."
+            )
+
+            st.dataframe(
+                raw.head(20)
+            )
+
+            st.stop()
+
+
+        df = pd.read_excel(
+            file,
+            sheet_name=sheet_name,
+            header=header_row
+        )
+
+
+        df.columns = [
+            str(x).strip()
+            for x in df.columns
+        ]
+
+
+        df = (
+            df
+            .dropna(how="all")
+            .reset_index(drop=True)
+        )
+
+
+    except Exception as e:
+
+        st.error(
+            f"IS Issues file error: {e}"
+        )
+
+        st.stop()
+
+
+    # =====================================================
+    # REQUIRED COLUMNS
+    # =====================================================
+
+    columns = [
+        "Application Name",
+        "Severity",
+        "Issues Description",
+        "Status of Issue",
+        "DBG Remarks"
+    ]
+
+
+    for col in columns:
+
+        if col not in df.columns:
+
+            df[col] = ""
+
+
+    df = df[
+        columns
+    ].fillna("")
+
+
+    # =====================================================
+    # CLEAN DATA
+    # =====================================================
+
+    for col in columns:
+
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.replace(
+                r"\s+",
+                " ",
+                regex=True
+            )
+            .str.strip()
+        )
+
+
+    df["Severity"] = (
+        df["Severity"]
+        .str.upper()
+        .str.strip()
+    )
+
+
+    df["Status of Issue"] = (
+        df["Status of Issue"]
+        .str.replace(
+            r"\s+",
+            " ",
+            regex=True
+        )
+        .str.strip()
+    )
+
+
+    # =====================================================
+    # HEADER
+    # =====================================================
+
+    st.markdown("""
+<div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;font-family:Segoe UI,Arial,sans-serif;">
+<div style="color:#D1FAE5;font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:4px;">INFORMATION SECURITY MONITORING</div>
+<div style="color:white;font-size:28px;font-weight:800;line-height:1.15;margin:0;">🔐 IS Issues</div>
+<div style="margin-top:5px;color:#D1FAE5;font-size:14px;font-weight:500;">Information Security Issues &amp; Fixation Tracking</div>
+<div style="margin-top:9px;display:inline-block;background:rgba(255,255,255,.10);border:1px solid rgba(255,215,0,.45);color:#FFD700;padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;">● SECURITY ISSUE MONITORING</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+    # =====================================================
+    # KPI COUNTS
+    # =====================================================
+
+    severity = (
+        df["Severity"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+
+    issue_status = (
+        df["Status of Issue"]
+        .astype(str)
+        .str.replace(
+            r"\s+",
+            " ",
+            regex=True
+        )
+        .str.strip()
+        .str.upper()
+    )
+
+
+    total_count = len(df)
+
+    high_count = (
+        severity == "HIGH"
+    ).sum()
+
+    medium_count = (
+        severity == "MEDIUM"
+    ).sum()
+
+    low_count = (
+        severity == "LOW"
+    ).sum()
+
+    fixed_count = (
+        issue_status == "FIXED"
+    ).sum()
+
+    fixation_count = (
+        issue_status
+        == "FIXATION IN PROGRESS"
+    ).sum()
+
+
+    # =====================================================
+    # VIP CLICKABLE KPI CARDS CSS
+    # =====================================================
+
+    st.markdown("""
+<style>
+
+/* =====================================================
+KPI CARD CONTAINER
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"] {
+
+    width:100%;
+}
+
+
+/* =====================================================
+BASE CARD
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button {
+
+    width:100% !important;
+
+    min-height:88px !important;
+
+    background:#FFFFFF !important;
+
+    border:
+        1px solid
+        #E5E7EB !important;
+
+    border-radius:14px !important;
+
+    padding:10px 6px !important;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0,0,0,.06) !important;
+
+    color:#111827 !important;
+
+    font-size:13px !important;
+
+    font-weight:700 !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    line-height:1.25 !important;
+
+    white-space:pre-line !important;
+
+    text-align:center !important;
+
+    transition:
+        all .2s ease !important;
+}
+
+
+/* =====================================================
+HOVER
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button:hover {
+
+    background:#F8FAFC !important;
+
+    color:#111827 !important;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 18px
+        rgba(0,0,0,.10) !important;
+}
+
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button:hover p {
+
+    color:#111827 !important;
+}
+
+
+/* =====================================================
+FOCUS / SELECTED
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button:focus {
+
+    outline:none !important;
+
+    background:#EAF5F0 !important;
+
+    border:
+        2px solid
+        #006747 !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(0,103,71,.12),
+        0 8px 18px
+        rgba(0,103,71,.15) !important;
+
+    color:#006747 !important;
+}
+
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button:focus p {
+
+    color:#006747 !important;
+
+    font-weight:700 !important;
+}
+
+
+/* =====================================================
+ALL
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(1)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #006747 !important;
+}
+
+
+/* =====================================================
+HIGH
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(2)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #D32F2F !important;
+}
+
+
+/* =====================================================
+MEDIUM
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(3)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #F9A825 !important;
+}
+
+
+/* =====================================================
+LOW
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(4)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #008A5A !important;
+}
+
+
+/* =====================================================
+FIXED
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(5)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #00C853 !important;
+}
+
+
+/* =====================================================
+FIXATION IN PROGRESS
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"]:nth-child(1)
+div[data-testid="stColumn"]:nth-child(6)
+div[data-testid="stButton"]
+button {
+
+    border-top:
+        5px solid
+        #FF9800 !important;
+}
+
+
+/* =====================================================
+BUTTON TEXT
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stButton"]
+button p {
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size:13px !important;
+
+    font-weight:700 !important;
+
+    line-height:1.3 !important;
+
+    color:#111827 !important;
+}
+
+
+/* =====================================================
+COLUMN SPACING
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stHorizontalBlock"] {
+
+    gap:8px !important;
+}
+
+
+/* =====================================================
+REMOVE EXTRA GAPS
+===================================================== */
+
+.st-key-is_issues_kpis
+div[data-testid="stVerticalBlock"] {
+
+    gap:0 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+    # =====================================================
+    # KPI CARD CONTAINER
+    # =====================================================
+
+    with st.container(
+        key="is_issues_kpis"
+    ):
+
+        c1, c2, c3, c4, c5, c6 = st.columns(
+            6,
+            gap="small"
+        )
+
+
+        # =================================================
+        # ALL
+        # =================================================
+
+        with c1:
+
+            if st.button(
+                f"ALL\n{total_count}",
+                key="is_all",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "All"
+
+                st.rerun()
+
+
+        # =================================================
+        # HIGH
+        # =================================================
+
+        with c2:
+
+            if st.button(
+                f"HIGH\n{high_count}",
+                key="is_high",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "HIGH"
+
+                st.rerun()
+
+
+        # =================================================
+        # MEDIUM
+        # =================================================
+
+        with c3:
+
+            if st.button(
+                f"MEDIUM\n{medium_count}",
+                key="is_medium",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "MEDIUM"
+
+                st.rerun()
+
+
+        # =================================================
+        # LOW
+        # =================================================
+
+        with c4:
+
+            if st.button(
+                f"LOW\n{low_count}",
+                key="is_low",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "LOW"
+
+                st.rerun()
+
+
+        # =================================================
+        # FIXED
+        # =================================================
+
+        with c5:
+
+            if st.button(
+                f"FIXED\n{fixed_count}",
+                key="is_fixed",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "FIXED"
+
+                st.rerun()
+
+
+        # =================================================
+        # FIXATION IN PROGRESS
+        # =================================================
+
+        with c6:
+
+            if st.button(
+                f"FIXATION IN PROGRESS\n{fixation_count}",
+                key="is_fixation",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issue_stage"
+                ] = "FIXATION IN PROGRESS"
+
+                st.rerun()
+
+
+    # =====================================================
+    # ACTIVE KPI FILTER
+    # =====================================================
+
+    selected_card = st.session_state.get(
+        "is_issue_stage",
+        "All"
+    )
+
+
+    # =====================================================
+    # FILTERS
+    # =====================================================
+
+    st.html("""
+<div style="
+color:#006747;
+font-size:22px;
+font-weight:700;
+margin-top:0;
+margin-bottom:5px;
+font-family:Segoe UI,Arial,sans-serif;">
+🎯 Filters
+</div>
+""")
+
+
+    c1, c2, c3 = st.columns(3)
+
+
+    with c1:
+
+        search = st.text_input(
+            "Search IS Issues",
+            placeholder="🔍 Search application, issue or remarks...",
+            key="is_issue_search"
+        )
+
+
+    with c2:
+
+        severity_filter = st.selectbox(
+            "Severity",
+            [
+                "All",
+                "HIGH",
+                "MEDIUM",
+                "LOW"
+            ],
+            key="is_issue_severity_filter"
+        )
+
+
+    with c3:
+
+        status_filter = st.selectbox(
+            "Status",
+            [
+                "All",
+                "Fixed",
+                "Fixation in Progress"
+            ],
+            key="is_issue_status_filter"
+        )
+
+
+    # =====================================================
+    # FILTER DATA
+    # =====================================================
+
+    filtered_df = df.copy()
+
+
+    # =====================================================
+    # SEARCH
+    # =====================================================
+
+    if search:
+
+        search_columns = [
+            "Application Name",
+            "Severity",
+            "Issues Description",
+            "Status of Issue",
+            "DBG Remarks"
+        ]
+
+        search_mask = pd.Series(
+            False,
+            index=filtered_df.index
+        )
+
+
+        for col in search_columns:
+
+            search_mask = (
+                search_mask
+                |
+                filtered_df[col]
+                .astype(str)
+                .str.contains(
+                    search,
+                    case=False,
+                    na=False
+                )
+            )
+
+
+        filtered_df = filtered_df[
+            search_mask
+        ]
+
+
+    # =====================================================
+    # SEVERITY FILTER
+    # =====================================================
+
+    if severity_filter != "All":
+
+        filtered_df = filtered_df[
+            filtered_df["Severity"]
+            .astype(str)
+            .str.upper()
+            .str.strip()
+            == severity_filter
+        ]
+
+
+    # =====================================================
+    # STATUS FILTER
+    # =====================================================
+
+    if status_filter != "All":
+
+        filtered_df = filtered_df[
+            filtered_df["Status of Issue"]
+            .astype(str)
+            .str.replace(
+                r"\s+",
+                " ",
+                regex=True
+            )
+            .str.upper()
+            .str.strip()
+            ==
+            status_filter.upper()
+        ]
+
+
+    # =====================================================
+    # KPI CARD FILTER
+    # =====================================================
+
+    if selected_card != "All":
+
+        if selected_card in [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+        ]:
+
+            filtered_df = filtered_df[
+                filtered_df["Severity"]
+                .astype(str)
+                .str.upper()
+                .str.strip()
+                == selected_card
+            ]
+
+
+        elif selected_card == "FIXED":
+
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"]
+                .astype(str)
+                .str.replace(
+                    r"\s+",
+                    " ",
+                    regex=True
+                )
+                .str.upper()
+                .str.strip()
+                == "FIXED"
+            ]
+
+
+        elif selected_card == "FIXATION IN PROGRESS":
+
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"]
+                .astype(str)
+                .str.replace(
+                    r"\s+",
+                    " ",
+                    regex=True
+                )
+                .str.upper()
+                .str.strip()
+                == "FIXATION IN PROGRESS"
+            ]
+
+
+    # =====================================================
+    # SHOWING COUNT
+    # =====================================================
+
+    left, right = st.columns(
+        [5, 1]
+    )
+
+
+    with left:
+
+        filter_name = (
+            "All"
+            if selected_card == "All"
+            else selected_card
+        )
+
+        st.markdown(
+            f"""
+<div style="background:#E8F5E9;padding:7px 12px;border-radius:9px;color:#006747;font-size:13px;font-weight:700;margin-top:3px;">
+🔐 Showing <b>{len(filtered_df)}</b> Issue(s)
+&nbsp;•&nbsp;
+Filter: <b>{filter_name}</b>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    with right:
+
+        csv = (
+            filtered_df
+            .to_csv(index=False)
+            .encode("utf-8-sig")
+        )
+
+        st.download_button(
+            "⬇ Download CSV",
+            csv,
+            "IS_Issues.csv",
+            "text/csv",
+            width="stretch"
+        )
+
+
+    # =====================================================
+    # TABLE TITLE
+    # =====================================================
+
+    st.html("""
+<div style="
+color:#006747;
+font-size:24px;
+font-weight:700;
+margin-top:2px;
+margin-bottom:3px;
+font-family:Segoe UI,Arial,sans-serif;">
+📋 IS Issues Details
+</div>
+""")
+
+
+    # =====================================================
+    # VIP TABLE CSS
+    # =====================================================
+
+    st.markdown("""
+<style>
+
+.is-issues-table-wrapper {
+
+    background:#FFFFFF;
+
+    border:
+        1px solid
+        #DDE5E1;
+
+    border-radius:16px;
+
+    padding:6px;
+
+    box-shadow:
+        0 6px 20px
+        rgba(0,103,71,.08);
+
+    overflow:hidden;
+}
+
+
+.is-issues-table {
+
+    width:100%;
+
+    border-collapse:
+        separate;
+
+    border-spacing:0;
+
+    font-size:14px;
+
+    table-layout:fixed;
+}
+
+
+.is-issues-table thead th {
+
+    background:
+        linear-gradient(
+            135deg,
+            #013D2B,
+            #006747,
+            #008A5A
+        );
+
+    color:#FFFFFF;
+
+    font-weight:700;
+
+    padding:14px 12px;
+
+    text-align:left;
+}
+
+
+.is-issues-table thead th:first-child {
+
+    border-top-left-radius:11px;
+}
+
+
+.is-issues-table thead th:last-child {
+
+    border-top-right-radius:11px;
+}
+
+
+.is-issues-table tbody td {
+
+    padding:13px 12px;
+
+    color:#1F2937;
+
+    border-bottom:
+        1px solid
+        #E5E7EB;
+
+    background:#FFFFFF;
+
+    white-space:
+        normal !important;
+
+    word-wrap:
+        break-word !important;
+
+    overflow-wrap:
+        anywhere !important;
+
+    vertical-align:top;
+
+    line-height:1.6;
+}
+
+
+.is-issues-table tbody tr:nth-child(even) td {
+
+    background:#F8FAFC;
+}
+
+
+.is-issues-table tbody tr:hover td {
+
+    background:#ECFDF5;
+}
+
+
+/* =====================================================
+APPLICATION
+===================================================== */
+
+.is-application {
+
+    font-weight:700;
+
+    color:#006747 !important;
+}
+
+
+/* =====================================================
+SEVERITY BADGES
+===================================================== */
+
+.severity-badge {
+
+    display:inline-block;
+
+    padding:5px 11px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.severity-high {
+
+    background:#FEE2E2;
+
+    color:#B91C1C;
+}
+
+
+.severity-medium {
+
+    background:#FEF3C7;
+
+    color:#92400E;
+}
+
+
+.severity-low {
+
+    background:#D1FAE5;
+
+    color:#087443;
+}
+
+
+/* =====================================================
+STATUS BADGES
+===================================================== */
+
+.issue-status {
+
+    display:inline-block;
+
+    padding:5px 11px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.issue-fixed {
+
+    background:#DCFCE7;
+
+    color:#166534;
+}
+
+
+.issue-progress {
+
+    background:#FEF3C7;
+
+    color:#92400E;
+}
+
+
+/* =====================================================
+ACTION BUTTONS
+===================================================== */
+
+div.stButton > button {
+
+    background:#006747 !important;
+
+    color:white !important;
+
+    border:
+        1px solid
+        #006747 !important;
+
+    border-radius:10px !important;
+
+    font-weight:700 !important;
+}
+
+
+div.stButton > button:hover {
+
+    background:#008A5A !important;
+
+    color:white !important;
+
+    border-color:#008A5A !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+    # =====================================================
+    # TABLE DATA
+    # =====================================================
+
+    display_df = filtered_df.copy()
+
+
+    # =====================================================
+    # APPLICATION BADGE
+    # =====================================================
+
+    display_df["Application Name"] = (
+        display_df["Application Name"]
+        .apply(
+            lambda x:
+            f'<span class="is-application">{x}</span>'
+        )
+    )
+
+
+    # =====================================================
+    # SEVERITY BADGE
+    # =====================================================
+
+    def severity_badge(value):
+
+        value = str(value).strip()
+
+        upper = value.upper()
+
+
+        if upper == "HIGH":
+
+            css = "severity-high"
+
+
+        elif upper == "MEDIUM":
+
+            css = "severity-medium"
+
+
+        elif upper == "LOW":
+
+            css = "severity-low"
+
+
+        else:
+
+            css = ""
+
+
+        return (
+            f'<span class="severity-badge {css}">'
+            f'{value}'
+            f'</span>'
+        )
+
+
+    display_df["Severity"] = (
+        display_df["Severity"]
+        .apply(severity_badge)
+    )
+
+
+    # =====================================================
+    # STATUS BADGE
+    # =====================================================
+
+    def status_badge(value):
+
+        value = str(value).strip()
+
+        upper = (
+            value
+            .replace("  ", " ")
+            .upper()
+        )
+
+
+        if upper == "FIXED":
+
+            css = "issue-fixed"
+
+
+        else:
+
+            css = "issue-progress"
+
+
+        return (
+            f'<span class="issue-status {css}">'
+            f'{value}'
+            f'</span>'
+        )
+
+
+    display_df["Status of Issue"] = (
+        display_df["Status of Issue"]
+        .apply(status_badge)
+    )
+
+
+    # =====================================================
+    # HTML TABLE
+    # =====================================================
+
+    table_html = display_df.to_html(
+        index=False,
+        escape=False,
+        classes="is-issues-table"
+    )
+
+
+    st.markdown(
+        f"""
+<div class="is-issues-table-wrapper">
+{table_html}
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # EDIT IS ISSUES
+    # =====================================================
+
+    st.markdown(
+        "<div style='height:4px;'></div>",
+        unsafe_allow_html=True
+    )
+
+
+    if "is_issues_edit_mode" not in st.session_state:
+
+        st.session_state[
+            "is_issues_edit_mode"
+        ] = False
+
+
+    # =====================================================
+    # EDIT BUTTON
+    # =====================================================
+
+    if not st.session_state[
+        "is_issues_edit_mode"
+    ]:
+
+        if st.button(
+            "✏️ Edit IS Issues",
+            key="is_issues_edit_button",
+            type="secondary",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "is_issues_edit_mode"
+            ] = True
+
+            st.rerun()
+
+
+    # =====================================================
+    # EDITOR
+    # =====================================================
+
+    if st.session_state[
+        "is_issues_edit_mode"
+    ]:
+
+        st.markdown("""
+<h2 style="
+color:#006747;
+font-size:24px;
+font-weight:700;
+margin-top:14px;
+margin-bottom:8px;">
+✏️ Edit IS Issues
+</h2>
+""", unsafe_allow_html=True)
+
+
+        st.markdown("""
+<div style="background:#ECFDF5;border:1px solid #B7E4C7;border-left:5px solid #006747;border-radius:10px;padding:9px 12px;color:#006747;font-size:13px;font-weight:600;margin-bottom:8px;">
+✏️ Edit existing records, add new records, or create a new field/column.
+</div>
+""", unsafe_allow_html=True)
+
+
+        # =================================================
+        # ADD NEW FIELD
+        # =================================================
+
+        st.markdown("""
+<h3 style="
+color:#006747;
+font-size:19px;
+font-weight:700;
+margin-top:10px;
+margin-bottom:6px;">
+➕ Add New Field
+</h3>
+""", unsafe_allow_html=True)
+
+
+        field_col1, field_col2 = st.columns(
+            [3, 1]
+        )
+
+
+        with field_col1:
+
+            new_field = st.text_input(
+                "New Field Name",
+                placeholder="e.g. IS Remarks",
+                key="is_issues_new_field_input"
+            )
+
+
+        with field_col2:
+
+            st.markdown(
+                "<div style='height:26px;'></div>",
+                unsafe_allow_html=True
+            )
+
+
+            if st.button(
+                "➕ Add Field",
+                key="is_issues_add_field",
+                use_container_width=True
+            ):
+
+                if new_field.strip():
+
+                    new_field = (
+                        new_field
+                        .strip()
+                    )
+
+
+                    if new_field not in df.columns:
+
+                        df[new_field] = ""
+
+
+                        st.session_state[
+                            "is_issues_added_fields"
+                        ] = df.columns.tolist()
+
+
+                        st.success(
+                            f"✅ '{new_field}' field added!"
+                        )
+
+
+                        st.rerun()
+
+
+                    else:
+
+                        st.warning(
+                            "⚠️ This field already exists."
+                        )
+
+
+                else:
+
+                    st.warning(
+                        "⚠️ Please enter a field name."
+                    )
+
+
+        # =================================================
+        # GET CURRENT DATA
+        # =================================================
+
+        edit_df = df.copy()
+
+
+        # =================================================
+        # SEARCH FILTER
+        # =================================================
+
+        if search:
+
+            search_mask = pd.Series(
+                False,
+                index=edit_df.index
+            )
+
+
+            for col in edit_df.columns:
+
+                search_mask = (
+                    search_mask
+                    |
+                    edit_df[col]
+                    .astype(str)
+                    .str.contains(
+                        search,
+                        case=False,
+                        na=False
+                    )
+                )
+
+
+            edit_df = edit_df[
+                search_mask
+            ]
+
+
+        # =================================================
+        # SEVERITY FILTER
+        # =================================================
+
+        if severity_filter != "All":
+
+            edit_df = edit_df[
+                edit_df["Severity"]
+                .astype(str)
+                .str.upper()
+                .str.strip()
+                == severity_filter
+            ]
+
+
+        # =================================================
+        # STATUS FILTER
+        # =================================================
+
+        if status_filter != "All":
+
+            edit_df = edit_df[
+                edit_df["Status of Issue"]
+                .astype(str)
+                .str.replace(
+                    r"\s+",
+                    " ",
+                    regex=True
+                )
+                .str.upper()
+                .str.strip()
+                ==
+                status_filter.upper()
+            ]
+
+
+        # =================================================
+        # KPI FILTER
+        # =================================================
+
+        selected_card = st.session_state.get(
+            "is_issue_stage",
+            "All"
+        )
+
+
+        if selected_card != "All":
+
+            if selected_card in [
+                "HIGH",
+                "MEDIUM",
+                "LOW"
+            ]:
+
+                edit_df = edit_df[
+                    edit_df["Severity"]
+                    .astype(str)
+                    .str.upper()
+                    .str.strip()
+                    == selected_card
+                ]
+
+
+            elif selected_card == "FIXED":
+
+                edit_df = edit_df[
+                    edit_df["Status of Issue"]
+                    .astype(str)
+                    .str.replace(
+                        r"\s+",
+                        " ",
+                        regex=True
+                    )
+                    .str.upper()
+                    .str.strip()
+                    == "FIXED"
+                ]
+
+
+            elif selected_card == "FIXATION IN PROGRESS":
+
+                edit_df = edit_df[
+                    edit_df["Status of Issue"]
+                    .astype(str)
+                    .str.replace(
+                        r"\s+",
+                        " ",
+                        regex=True
+                    )
+                    .str.upper()
+                    .str.strip()
+                    == "FIXATION IN PROGRESS"
+                ]
+
+
+        # =================================================
+        # EDITABLE TABLE
+        # =================================================
+
+        edited_df = st.data_editor(
+
+            edit_df,
+
+            use_container_width=True,
+
+            hide_index=True,
+
+            num_rows="dynamic",
+
+            height=500,
+
+            disabled=[],
+
+            column_config={
+
+                "Severity":
+                    st.column_config.SelectboxColumn(
+                        "Severity",
+                        options=[
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    ),
+
+                "Status of Issue":
+                    st.column_config.SelectboxColumn(
+                        "Status of Issue",
+                        options=[
+                            "Fixed",
+                            "Fixation in Progress"
+                        ]
+                    )
+            },
+
+            key="is_issues_editor"
+        )
+
+
+        # =================================================
+        # SAVE / CLOSE
+        # =================================================
+
+        save_col, close_col = st.columns(2)
+
+
+        # =================================================
+        # SAVE
+        # =================================================
+
+        with save_col:
+
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="is_issues_save",
+                use_container_width=True
+            ):
+
+                try:
+
+                    # -------------------------------------
+                    # READ ORIGINAL EXCEL
+                    # -------------------------------------
+
+                    original = pd.read_excel(
+                        file,
+                        sheet_name=sheet_name,
+                        header=header_row
+                    )
+
+
+                    original.columns = [
+                        str(x).strip()
+                        for x in original.columns
+                    ]
+
+
+                    original = original.fillna("")
+
+
+                    # -------------------------------------
+                    # ADD NEW COLUMNS
+                    # -------------------------------------
+
+                    for col in edited_df.columns:
+
+                        if col not in original.columns:
+
+                            original[col] = ""
+
+
+                    # -------------------------------------
+                    # UPDATE EXISTING ROWS
+                    # -------------------------------------
+
+                    for idx in edited_df.index:
+
+                        if idx < len(original):
+
+                            for col in edited_df.columns:
+
+                                original.loc[
+                                    idx,
+                                    col
+                                ] = edited_df.loc[
+                                    idx,
+                                    col
+                                ]
+
+
+                    # -------------------------------------
+                    # SAVE EXCEL
+                    # -------------------------------------
+
+                    with pd.ExcelWriter(
+                        file,
+                        engine="openpyxl",
+                        mode="a",
+                        if_sheet_exists="replace"
+                    ) as writer:
+
+                        original.to_excel(
+                            writer,
+                            sheet_name=sheet_name,
+                            index=False
+                        )
+
+
+                    st.success(
+                        "✅ IS Issues changes, new rows and new fields saved successfully!"
+                    )
+
+
+                    st.session_state[
+                        "is_issues_edit_mode"
+                    ] = False
+
+
+                    if "is_issues_editor" in st.session_state:
+
+                        del st.session_state[
+                            "is_issues_editor"
+                        ]
+
+
+                    st.rerun()
+
+
+                except Exception as e:
+
+                    st.error(
+                        f"Save error: {e}"
+                    )
+
+
+        # =================================================
+        # CLOSE
+        # =================================================
+
+        with close_col:
+
+            if st.button(
+                "❌ Close Editor",
+                key="is_issues_close_editor",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "is_issues_edit_mode"
+                ] = False
+
+
+                if "is_issues_editor" in st.session_state:
+
+                    del st.session_state[
+                        "is_issues_editor"
+                    ]
+
+
+                st.rerun()
 # =====================================================
 # CRPL
 # =====================================================
