@@ -7357,276 +7357,324 @@ elif page == "IS Issues":
     # =====================================================
 
     st.markdown("""
-<style>
+    <style>
 
-/* =====================================================
-KPI CARD CONTAINER
-===================================================== */
+    /* =====================================================
+    KPI CARD CONTAINER
+    ===================================================== */
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"] {
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"] {
 
-    width:100%;
-}
+        width:100% !important;
+    }
 
 
-/* =====================================================
-BASE CARD
-===================================================== */
+    /* =====================================================
+    BASE CARD
+    ===================================================== */
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button {
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button {
 
-    width:100% !important;
+        width:100% !important;
 
-    min-height:88px !important;
+        min-height:88px !important;
 
-    background:#FFFFFF !important;
+        height:88px !important;
 
-    border:
-        1px solid
-        #E5E7EB !important;
+        background:#FFFFFF !important;
 
-    border-radius:14px !important;
+        border:
+            1px solid
+            #DDE5E1 !important;
 
-    padding:10px 6px !important;
+        border-radius:14px !important;
 
-    box-shadow:
-        0 4px 12px
-        rgba(0,0,0,.06) !important;
+        padding:10px 6px !important;
 
-    color:#111827 !important;
+        box-shadow:
+            0 5px 16px
+            rgba(0,103,71,.08) !important;
 
-    font-size:13px !important;
+        color:#111827 !important;
 
-    font-weight:700 !important;
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
 
-    font-family:
-        "Segoe UI",
-        Arial,
-        sans-serif !important;
+        font-size:13px !important;
 
-    line-height:1.25 !important;
+        font-weight:700 !important;
 
-    white-space:pre-line !important;
+        line-height:1.15 !important;
 
-    text-align:center !important;
+        white-space:pre-line !important;
 
-    transition:
-        all .2s ease !important;
-}
+        text-align:center !important;
 
+        display:flex !important;
 
-/* =====================================================
-HOVER
-===================================================== */
+        flex-direction:column !important;
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button:hover {
+        justify-content:center !important;
 
-    background:#F8FAFC !important;
+        align-items:center !important;
 
-    color:#111827 !important;
+        transition:
+            all .2s ease !important;
+    }
 
-    transform:
-        translateY(-2px);
 
-    box-shadow:
-        0 8px 18px
-        rgba(0,0,0,.10) !important;
-}
+    /* =====================================================
+    BUTTON TEXT
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button p {
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button:hover p {
+        width:100% !important;
 
-    color:#111827 !important;
-}
+        margin:0 !important;
 
+        padding:0 !important;
 
-/* =====================================================
-FOCUS / SELECTED
-===================================================== */
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif !important;
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button:focus {
+        font-size:13px !important;
 
-    outline:none !important;
+        font-weight:700 !important;
 
-    background:#EAF5F0 !important;
+        line-height:1.25 !important;
 
-    border:
-        2px solid
-        #006747 !important;
+        color:#111827 !important;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(0,103,71,.12),
-        0 8px 18px
-        rgba(0,103,71,.15) !important;
+        white-space:pre-line !important;
 
-    color:#006747 !important;
-}
+        text-align:center !important;
+    }
 
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button:focus p {
+    /* =====================================================
+    HOVER
+    ===================================================== */
 
-    color:#006747 !important;
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button:hover {
 
-    font-weight:700 !important;
-}
+        background:#F8FAFC !important;
 
+        color:#111827 !important;
 
-/* =====================================================
-ALL
-===================================================== */
+        transform:
+            translateY(-2px) !important;
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(1)
-div[data-testid="stButton"]
-button {
+        box-shadow:
+            0 8px 20px
+            rgba(0,103,71,.14) !important;
+    }
 
-    border-top:
-        5px solid
-        #006747 !important;
-}
 
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button:hover p {
 
-/* =====================================================
-HIGH
-===================================================== */
+        color:#111827 !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(2)
-div[data-testid="stButton"]
-button {
 
-    border-top:
-        5px solid
-        #D32F2F !important;
-}
+    /* =====================================================
+    SELECTED / FOCUS
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button:focus {
 
-/* =====================================================
-MEDIUM
-===================================================== */
+        outline:none !important;
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(3)
-div[data-testid="stButton"]
-button {
+        background:#EAF5F0 !important;
 
-    border-top:
-        5px solid
-        #F9A825 !important;
-}
+        border:
+            2px solid
+            #006747 !important;
 
+        box-shadow:
+            0 0 0 3px
+            rgba(0,103,71,.12),
+            0 8px 18px
+            rgba(0,103,71,.15) !important;
 
-/* =====================================================
-LOW
-===================================================== */
+        color:#006747 !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(4)
-div[data-testid="stButton"]
-button {
 
-    border-top:
-        5px solid
-        #008A5A !important;
-}
+    .st-key-is_issues_kpis
+    div[data-testid="stButton"]
+    button:focus p {
 
+        color:#006747 !important;
 
-/* =====================================================
-FIXED
-===================================================== */
+        font-weight:700 !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(5)
-div[data-testid="stButton"]
-button {
 
-    border-top:
-        5px solid
-        #00C853 !important;
-}
+    /* =====================================================
+    ALL
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1)
+    div[data-testid="stButton"]
+    button {
 
-/* =====================================================
-FIXATION IN PROGRESS
-===================================================== */
+        border-top:
+            4px solid
+            #006747 !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"]:nth-child(1)
-div[data-testid="stColumn"]:nth-child(6)
-div[data-testid="stButton"]
-button {
 
-    border-top:
-        5px solid
-        #FF9800 !important;
-}
+    /* =====================================================
+    HIGH
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2)
+    div[data-testid="stButton"]
+    button {
 
-/* =====================================================
-BUTTON TEXT
-===================================================== */
+        border-top:
+            4px solid
+            #D32F2F !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stButton"]
-button p {
 
-    font-family:
-        "Segoe UI",
-        Arial,
-        sans-serif !important;
+    /* =====================================================
+    MEDIUM
+    ===================================================== */
 
-    font-size:13px !important;
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3)
+    div[data-testid="stButton"]
+    button {
 
-    font-weight:700 !important;
+        border-top:
+            4px solid
+            #F9A825 !important;
+    }
 
-    line-height:1.3 !important;
 
-    color:#111827 !important;
-}
+    /* =====================================================
+    LOW
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4)
+    div[data-testid="stButton"]
+    button {
 
-/* =====================================================
-COLUMN SPACING
-===================================================== */
+        border-top:
+            4px solid
+            #008A5A !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stHorizontalBlock"] {
 
-    gap:8px !important;
-}
+    /* =====================================================
+    FIXED
+    ===================================================== */
 
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5)
+    div[data-testid="stButton"]
+    button {
 
-/* =====================================================
-REMOVE EXTRA GAPS
-===================================================== */
+        border-top:
+            4px solid
+            #00C853 !important;
+    }
 
-.st-key-is_issues_kpis
-div[data-testid="stVerticalBlock"] {
 
-    gap:0 !important;
-}
+    /* =====================================================
+    FIXATION IN PROGRESS
+    ===================================================== */
 
-</style>
-""", unsafe_allow_html=True)
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6)
+    div[data-testid="stButton"]
+    button {
 
+        border-top:
+            4px solid
+            #FF9800 !important;
+    }
 
+
+    /* =====================================================
+    COLUMN SPACING
+    ===================================================== */
+
+    .st-key-is_issues_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap:8px !important;
+    }
+
+
+    /* =====================================================
+    REMOVE EXTRA GAPS
+    ===================================================== */
+
+    .st-key-is_issues_kpis
+    div[data-testid="stVerticalBlock"] {
+
+        gap:0 !important;
+    }
+
+
+    /* =====================================================
+    MOBILE
+    ===================================================== */
+
+    @media (max-width:768px) {
+
+        .st-key-is_issues_kpis
+        div[data-testid="stButton"]
+        button {
+
+            min-height:82px !important;
+
+            height:82px !important;
+
+            padding:8px 4px !important;
+
+            font-size:12px !important;
+        }
+
+        .st-key-is_issues_kpis
+        div[data-testid="stButton"]
+        button p {
+
+            font-size:12px !important;
+
+            line-height:1.2 !important;
+        }
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
     # =====================================================
     # KPI CARD CONTAINER
     # =====================================================
