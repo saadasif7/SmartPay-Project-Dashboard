@@ -1324,10 +1324,10 @@ if st.session_state.get("page_changed", False):
     st.session_state["scroll_nonce"] = st.session_state.get("scroll_nonce", 0) + 1
     scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
-def render_header(eyebrow, title, subtitle, badge):
+def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
     _now = datetime.now().strftime("%b %d, %Y  •  %I:%M %p")
     st.markdown(f"""
-<style>.block-container [data-testid="stVerticalBlock"]{{gap:0.55rem !important;}}.block-container [data-testid="stMarkdownContainer"] h2{{padding-top:0 !important;padding-bottom:0 !important;margin-top:4px !important;margin-bottom:4px !important;}}.block-container [data-testid="stMarkdownContainer"] h3{{padding-top:0 !important;padding-bottom:0 !important;}}</style>
+<style>.block-container [data-testid="stVerticalBlock"]{{gap:{gap} !important;}}.block-container [data-testid="stMarkdownContainer"] h2{{padding-top:0 !important;padding-bottom:0 !important;margin-top:12px !important;margin-bottom:8px !important;}}.block-container [data-testid="stMarkdownContainer"] h3{{padding-top:0 !important;padding-bottom:0 !important;}}</style>
 <div style="position:relative;overflow:hidden;display:flex;align-items:center;background:linear-gradient(90deg, rgba(1,30,22,.72) 0%, rgba(1,30,22,.55) 35%, rgba(1,30,22,.12) 65%, rgba(1,30,22,0) 100%), url('data:image/jpeg;base64,{HEADER_BG_B64}');background-size:cover;background-position:center 55%;background-repeat:no-repeat;border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
 <div style="position:relative;width:100%;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
 <div>
@@ -1366,7 +1366,8 @@ if page == "Dashboard":
         "NATIONAL BANK OF PAKISTAN",
         "💳 SmartPay Project Dashboard",
         "Digital Banking Group &nbsp;|&nbsp; Powering Digital Payments",
-        "LIVE DASHBOARD"
+        "LIVE DASHBOARD",
+        gap="0.55rem"
     )
 
     # =====================================================
@@ -3098,7 +3099,7 @@ if page == "Dashboard":
         unsafe_allow_html=True
     )
 
-    st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     
 # =====================================================
 # PROJECTS
@@ -3636,7 +3637,7 @@ elif page == "Projects":
                 st.rerun()
 
 
-    st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     # =====================================================
     # APPLY KPI STATUS FILTER TO EXISTING TABLE
     # =====================================================
@@ -5505,7 +5506,7 @@ elif page == "Project Timeline":
 #     </div>
 #     """)
 
-#     st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+#     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 
 #     # ==========================================
@@ -5599,7 +5600,7 @@ elif page == "Project Timeline":
 #     with k7:
 #         st.metric("Scoping", scoping)
 
-#     st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+#     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 #     # ==========================================
 #     # PROJECT STATUS DISTRIBUTION
@@ -5720,7 +5721,7 @@ elif page == "Project Timeline":
 #     )
 
 
-#     st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+#     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 
 #     # ==========================================
@@ -5926,7 +5927,7 @@ elif page == "Project Timeline":
 #         )
 
 
-#         st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+#         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 
 #     # ==========================================
@@ -6219,7 +6220,7 @@ elif page == "Project Timeline":
 #         </div>
 #         """)
 
-#     st.markdown("<div style='height:2px;'></div>", unsafe_allow_html=True)
+#     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
 #     # ==========================================
 #     # MICROPHONE AREA
