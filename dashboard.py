@@ -1815,32 +1815,121 @@ if st.session_state.get("page_changed", False):
     scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
 def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
-    _now = datetime.now().strftime("%b %d, %Y  •  %I:%M %p")
-    st.markdown(f"""
-<style>.block-container [data-testid="stVerticalBlock"]{{gap:{gap} !important;}}.block-container [data-testid="stMarkdownContainer"] h2{{padding-top:0 !important;padding-bottom:0 !important;margin-top:12px !important;margin-bottom:8px !important;}}.block-container [data-testid="stMarkdownContainer"] h3{{padding-top:0 !important;padding-bottom:0 !important;}}</style>
-<div style="position:relative;overflow:hidden;display:flex;align-items:center;background:linear-gradient(90deg, rgba(1,30,22,.72) 0%, rgba(1,30,22,.55) 35%, rgba(1,30,22,.12) 65%, rgba(1,30,22,0) 100%), url('data:image/jpeg;base64,{HEADER_BG_B64}');background-size:cover;background-position:center 55%;background-repeat:no-repeat;border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
-<div style="position:relative;width:100%;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
-<div>
-<div style="color:#FFFFFF;font-size:12px;font-weight:800;letter-spacing:1.8px;margin-bottom:5px;text-shadow:0 1px 4px rgba(0,0,0,.85);">{eyebrow}</div>
-<div style="color:white;font-size:29px;font-weight:800;line-height:1.15;margin:0;text-shadow:0 2px 8px rgba(0,0,0,.35);">{title}</div>
-<div style="margin-top:5px;color:#FFFFFF;font-size:14px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.85);">{subtitle}</div>
-<div style="margin-top:10px;display:inline-block;background:rgba(0,0,0,.45);border:1px solid rgba(255,215,0,.7);color:#FFE066;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.4px;text-shadow:0 1px 3px rgba(0,0,0,.6);">● {badge}</div>
-</div>
-<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-<div style="background:rgba(0,0,0,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:8px;">
-<span style="font-size:14px;">📅</span>
-<div style="color:#FFFFFF;font-size:12px;font-weight:700;white-space:nowrap;">{_now}</div>
-</div>
-<div style="background:rgba(0,0,0,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.35);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;position:relative;">
-<span style="font-size:15px;">🔔</span>
-<span style="position:absolute;top:5px;right:6px;width:7px;height:7px;background:#FF4D4D;border-radius:50%;border:1.5px solid #013D2B;"></span>
-</div>
-<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);">DBG</div>
-</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
 
+    st.markdown(f"""
+<style>
+.block-container [data-testid="stVerticalBlock"]{{gap:{gap} !important;}}
+.block-container [data-testid="stMarkdownContainer"] h2{{padding-top:0 !important;padding-bottom:0 !important;margin-top:12px !important;margin-bottom:8px !important;}}
+.block-container [data-testid="stMarkdownContainer"] h3{{padding-top:0 !important;padding-bottom:0 !important;}}
+</style>
+
+<div style="position:relative;overflow:hidden;display:flex;align-items:center;background:linear-gradient(90deg, rgba(1,30,22,.72) 0%, rgba(1,30,22,.55) 35%, rgba(1,30,22,.12) 65%, rgba(1,30,22,0) 100%), url('data:image/jpeg;base64,{HEADER_BG_B64}');background-size:cover;background-position:center 55%;background-repeat:no-repeat;border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
+
+<div style="position:relative;width:100%;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
+
+<div>
+
+<div style="color:#FFFFFF;font-size:12px;font-weight:800;letter-spacing:1.8px;margin-bottom:5px;text-shadow:0 1px 4px rgba(0,0,0,.85);">
+{eyebrow}
+</div>
+
+<div style="color:white;font-size:29px;font-weight:800;line-height:1.15;margin:0;text-shadow:0 2px 8px rgba(0,0,0,.35);">
+{title}
+</div>
+
+<div style="margin-top:5px;color:#FFFFFF;font-size:14px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.85);">
+{subtitle}
+</div>
+
+<div style="margin-top:10px;display:inline-block;background:rgba(0,0,0,.45);border:1px solid rgba(255,215,0,.7);color:#FFE066;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.4px;text-shadow:0 1px 3px rgba(0,0,0,.6);">
+● {badge}
+</div>
+
+</div>
+
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+
+<!-- LIVE TIME -->
+
+<div style="background:rgba(0,0,0,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:8px;">
+
+<span style="font-size:14px;">📅</span>
+
+<div id="smartpay-live-clock"
+style="color:#FFFFFF;font-size:12px;font-weight:700;white-space:nowrap;">
+Loading...
+</div>
+
+</div>
+
+
+<!-- NOTIFICATION -->
+
+<div style="background:rgba(0,0,0,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.35);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;position:relative;">
+
+<span style="font-size:15px;">🔔</span>
+
+<span style="position:absolute;top:5px;right:6px;width:7px;height:7px;background:#FF4D4D;border-radius:50%;border:1.5px solid #013D2B;"></span>
+
+</div>
+
+
+<!-- DBG -->
+
+<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);">
+DBG
+</div>
+
+</div>
+</div>
+</div>
+
+
+<script>
+
+(function() {{
+
+    function updateSmartPayClock() {{
+
+        const clock =
+            document.getElementById(
+                "smartpay-live-clock"
+            );
+
+        if (!clock) return;
+
+        const now = new Date();
+
+        const options = {{
+            timeZone: "Asia/Karachi",
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        }};
+
+        clock.textContent =
+            new Intl.DateTimeFormat(
+                "en-US",
+                options
+            ).format(now);
+    }}
+
+    updateSmartPayClock();
+
+    setInterval(
+        updateSmartPayClock,
+        1000
+    );
+
+}})();
+
+</script>
+
+""", unsafe_allow_html=True)
 
 # =====================================================
 # DASHBOARD
