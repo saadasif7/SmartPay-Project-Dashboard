@@ -47,15 +47,39 @@ DAILY_ISSUES_BRANCH = "main"
 DAILY_ISSUES_PATH = "data/daily_issues.json"
 
 
+# =====================================================
+# DAILY ISSUES - CORE COLUMNS
+# =====================================================
+
+DAILY_ISSUES_CORE_COLUMNS = [
+    "Issue",
+    "Update",
+    "End / Pending With",
+    "Team Member",
+    "Status"
+]
+
+
+# =====================================================
+# GET GITHUB TOKEN
+# =====================================================
+
 def get_github_token():
 
     try:
-        token = st.secrets.get("GITHUB_TOKEN", "")
+        token = st.secrets.get(
+            "GITHUB_TOKEN",
+            ""
+        )
     except Exception:
         token = ""
 
     return str(token).strip()
 
+
+# =====================================================
+# GITHUB HEADERS
+# =====================================================
 
 def github_headers():
 
@@ -69,19 +93,120 @@ def github_headers():
     }
 
 
+# =====================================================
+# EMPTY DAILY ISSUES DATAFRAME
+# =====================================================
+
+def empty_daily_issues_df():
+
+    return pd.DataFrame(
+        columns=DAILY_ISSUES_CORE_COLUMNS
+    )
+
+
+# =====================================================
+# NORMALIZE DAILY ISSUES DATA
+# =====================================================
+
+def normalize_daily_issues_df(df):
+
+    if df is None:
+        df = empty_daily_issues_df()
+
+    df = df.copy()
+
+    # -------------------------------------------------
+    # Ensure Core Columns Exist
+    # -------------------------------------------------
+
+    for col in DAILY_ISSUES_CORE_COLUMNS:
+
+        if col not in df.columns:
+
+            if col == "Status":
+                df[col] = "Active"
+            else:
+                df[col] = ""
+
+    # -------------------------------------------------
+    # Keep Core Columns First
+    # -------------------------------------------------
+
+    extra_columns = [
+        col
+        for col in df.columns
+        if col not in DAILY_ISSUES_CORE_COLUMNS
+    ]
+
+    df = df[
+        DAILY_ISSUES_CORE_COLUMNS +
+        extra_columns
+    ]
+
+    # -------------------------------------------------
+    # Fill Missing Values
+    # -------------------------------------------------
+
+    df = df.fillna("")
+
+    # -------------------------------------------------
+    # Normalize Status
+    # -------------------------------------------------
+
+    def normalize_status(value):
+
+        value = str(value).strip().lower()
+
+        if value == "closed":
+            return "Closed"
+
+        return "Active"
+
+    df["Status"] = df["Status"].apply(
+        normalize_status
+    )
+
+    # -------------------------------------------------
+    # Convert All Values to String
+    # -------------------------------------------------
+
+    df = df.astype(str)
+
+    # -------------------------------------------------
+    # Remove Completely Blank Rows
+    # -------------------------------------------------
+
+    df = df[
+        df.apply(
+            lambda row:
+            any(
+                str(value).strip()
+                for value in row
+            ),
+            axis=1
+        )
+    ].reset_index(
+        drop=True
+    )
+
+    return df
+
+
+# =====================================================
+# LOAD DAILY ISSUES FROM GITHUB
+# =====================================================
+
 def load_daily_issues_from_github():
 
     token = get_github_token()
 
+    # -------------------------------------------------
+    # Token Missing
+    # -------------------------------------------------
+
     if not token:
-        return pd.DataFrame(
-            columns=[
-                "Issue",
-                "Update",
-                "End / Pending With",
-                "Team Member"
-            ]
-        )
+
+        return empty_daily_issues_df()
 
     url = (
         f"https://api.github.com/repos/"
@@ -90,6 +215,10 @@ def load_daily_issues_from_github():
     )
 
     try:
+
+        # -------------------------------------------------
+        # GET FILE FROM GITHUB
+        # -------------------------------------------------
 
         response = requests.get(
             url,
@@ -100,20 +229,25 @@ def load_daily_issues_from_github():
             timeout=20
         )
 
+        # -------------------------------------------------
+        # File Does Not Exist
+        # -------------------------------------------------
+
         if response.status_code == 404:
 
-            return pd.DataFrame(
-                columns=[
-                    "Issue",
-                    "Update",
-                    "End / Pending With",
-                    "Team Member"
-                ]
-            )
+            return empty_daily_issues_df()
+
+        # -------------------------------------------------
+        # Raise Other Errors
+        # -------------------------------------------------
 
         response.raise_for_status()
 
         result = response.json()
+
+        # -------------------------------------------------
+        # Get Encoded Content
+        # -------------------------------------------------
 
         encoded_content = result.get(
             "content",
@@ -125,35 +259,45 @@ def load_daily_issues_from_github():
 
         if not encoded_content:
 
-            return pd.DataFrame(
-                columns=[
-                    "Issue",
-                    "Update",
-                    "End / Pending With",
-                    "Team Member"
-                ]
-            )
+            return empty_daily_issues_df()
+
+        # -------------------------------------------------
+        # Decode Base64
+        # -------------------------------------------------
 
         decoded_content = base64.b64decode(
             encoded_content
-        ).decode("utf-8")
+        ).decode(
+            "utf-8"
+        )
+
+        # -------------------------------------------------
+        # Parse JSON
+        # -------------------------------------------------
 
         data = json.loads(
             decoded_content
         )
 
         if not isinstance(data, list):
+
             data = []
 
-        return pd.DataFrame(
-            data,
-            columns=[
-                "Issue",
-                "Update",
-                "End / Pending With",
-                "Team Member"
-            ]
+        # -------------------------------------------------
+        # Convert to DataFrame
+        # -------------------------------------------------
+
+        daily_df = pd.DataFrame(data)
+
+        # -------------------------------------------------
+        # Normalize
+        # -------------------------------------------------
+
+        daily_df = normalize_daily_issues_df(
+            daily_df
         )
+
+        return daily_df
 
     except Exception as e:
 
@@ -161,19 +305,20 @@ def load_daily_issues_from_github():
             f"Daily Issues load error: {e}"
         )
 
-        return pd.DataFrame(
-            columns=[
-                "Issue",
-                "Update",
-                "End / Pending With",
-                "Team Member"
-            ]
-        )
+        return empty_daily_issues_df()
 
+
+# =====================================================
+# SAVE DAILY ISSUES TO GITHUB
+# =====================================================
 
 def save_daily_issues_to_github(edited_df):
 
     token = get_github_token()
+
+    # -------------------------------------------------
+    # TOKEN CHECK
+    # -------------------------------------------------
 
     if not token:
 
@@ -190,9 +335,9 @@ def save_daily_issues_to_github(edited_df):
 
     try:
 
-        # -----------------------------------------
+        # =================================================
         # GET CURRENT FILE SHA
-        # -----------------------------------------
+        # =================================================
 
         get_response = requests.get(
             url,
@@ -215,31 +360,74 @@ def save_daily_issues_to_github(edited_df):
 
             get_response.raise_for_status()
 
-        # -----------------------------------------
-        # CLEAN DATA
-        # -----------------------------------------
+        # =================================================
+        # PREPARE DATA
+        # =================================================
 
         clean_df = edited_df.copy()
 
-        required_columns = [
-            "Issue",
-            "Update",
-            "End / Pending With",
-            "Team Member"
-        ]
+        # -------------------------------------------------
+        # Ensure Core Columns Exist
+        # -------------------------------------------------
 
-        for col in required_columns:
+        for col in DAILY_ISSUES_CORE_COLUMNS:
 
             if col not in clean_df.columns:
-                clean_df[col] = ""
+
+                if col == "Status":
+                    clean_df[col] = "Active"
+
+                else:
+                    clean_df[col] = ""
+
+        # -------------------------------------------------
+        # Preserve Extra Columns
+        # -------------------------------------------------
+
+        extra_columns = [
+            col
+            for col in clean_df.columns
+            if col not in DAILY_ISSUES_CORE_COLUMNS
+        ]
+
+        final_columns = (
+            DAILY_ISSUES_CORE_COLUMNS +
+            extra_columns
+        )
 
         clean_df = clean_df[
-            required_columns
-        ].fillna("")
+            final_columns
+        ]
+
+        # -------------------------------------------------
+        # Fill Empty Values
+        # -------------------------------------------------
+
+        clean_df = clean_df.fillna("")
+
+        # -------------------------------------------------
+        # Normalize Status
+        # -------------------------------------------------
+
+        clean_df["Status"] = clean_df[
+            "Status"
+        ].apply(
+            lambda value:
+            "Closed"
+            if str(value).strip().lower() == "closed"
+            else "Active"
+        )
+
+        # -------------------------------------------------
+        # Convert Everything to String
+        # -------------------------------------------------
 
         clean_df = clean_df.astype(str)
 
-        # Remove completely blank rows
+        # =================================================
+        # REMOVE COMPLETELY BLANK ROWS
+        # =================================================
+
         clean_df = clean_df[
             clean_df.apply(
                 lambda row:
@@ -253,6 +441,10 @@ def save_daily_issues_to_github(edited_df):
             drop=True
         )
 
+        # =================================================
+        # CONVERT DATA TO JSON
+        # =================================================
+
         data = clean_df.to_dict(
             orient="records"
         )
@@ -263,22 +455,42 @@ def save_daily_issues_to_github(edited_df):
             indent=2
         )
 
-        encoded_content = base64.b64encode(
-            json_content.encode("utf-8")
-        ).decode("utf-8")
+        # =================================================
+        # BASE64 ENCODE
+        # =================================================
 
-        # -----------------------------------------
-        # UPDATE / CREATE FILE
-        # -----------------------------------------
+        encoded_content = base64.b64encode(
+            json_content.encode(
+                "utf-8"
+            )
+        ).decode(
+            "utf-8"
+        )
+
+        # =================================================
+        # GITHUB UPDATE PAYLOAD
+        # =================================================
 
         payload = {
-            "message": "Update Daily Issues from SmartPay Dashboard",
+            "message": (
+                "Update Daily Issues "
+                "from SmartPay Dashboard"
+            ),
             "content": encoded_content,
             "branch": DAILY_ISSUES_BRANCH
         }
 
+        # -------------------------------------------------
+        # Existing File -> SHA Required
+        # -------------------------------------------------
+
         if sha:
+
             payload["sha"] = sha
+
+        # =================================================
+        # CREATE / UPDATE FILE
+        # =================================================
 
         response = requests.put(
             url,
@@ -291,6 +503,24 @@ def save_daily_issues_to_github(edited_df):
 
         return True, (
             "Daily Issues saved successfully."
+        )
+
+    except requests.exceptions.HTTPError as e:
+
+        try:
+            error_details = response.json()
+
+            message = error_details.get(
+                "message",
+                str(e)
+            )
+
+        except Exception:
+
+            message = str(e)
+
+        return False, (
+            f"GitHub save error: {message}"
         )
 
     except Exception as e:
@@ -4506,16 +4736,15 @@ elif page == "Projects":
                     del st.session_state["project_editor"]
 
                 st.rerun()
-
 # =====================================================
 # DAILY ISSUES
 # =====================================================
 
 elif page == "Daily Issues":
 
-    # =====================================================
+    # =================================================
     # HEADER
-    # =====================================================
+    # =================================================
 
     render_header(
         "SMARTPAY DAILY OPERATIONS",
@@ -4525,19 +4754,21 @@ elif page == "Daily Issues":
     )
 
 
-    # =====================================================
-    # LOAD PERSISTENT DATA
-    # =====================================================
+    # =================================================
+    # LOAD DATA
+    # =================================================
 
     daily_issues_df = (
         load_daily_issues_from_github()
     )
 
+
     required_daily_columns = [
         "Issue",
         "Update",
         "End / Pending With",
-        "Team Member"
+        "Team Member",
+        "Status"
     ]
 
 
@@ -4545,20 +4776,242 @@ elif page == "Daily Issues":
 
         if col not in daily_issues_df.columns:
 
-            daily_issues_df[col] = ""
+            if col == "Status":
+
+                daily_issues_df[col] = "Active"
+
+            else:
+
+                daily_issues_df[col] = ""
 
 
-    daily_issues_df = daily_issues_df[
-        required_daily_columns
-    ].fillna("")
+    # =================================================
+    # STATUS CLEAN
+    # =================================================
+
+    daily_issues_df["Status"] = (
+        daily_issues_df["Status"]
+        .fillna("Active")
+        .astype(str)
+        .str.strip()
+        .replace({
+            "ACTIVE": "Active",
+            "active": "Active",
+            "CLOSED": "Closed",
+            "closed": "Closed",
+            "Close": "Closed",
+            "close": "Closed"
+        })
+    )
 
 
-    # =====================================================
+    daily_issues_df.loc[
+        ~daily_issues_df["Status"].isin(
+            ["Active", "Closed"]
+        ),
+        "Status"
+    ] = "Active"
+
+
+    # =================================================
+    # COLUMN ORDER
+    # =================================================
+
+    extra_columns = [
+        col
+        for col in daily_issues_df.columns
+        if col not in required_daily_columns
+    ]
+
+
+    daily_issues_df = (
+        daily_issues_df[
+            required_daily_columns
+            + extra_columns
+        ]
+        .fillna("")
+    )
+
+
+    # =================================================
     # DAILY ISSUES CSS
-    # =====================================================
+    # =================================================
 
     st.markdown("""
 <style>
+
+/* ==========================================
+   KPI CONTAINER
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stButton"] {
+
+    width:100% !important;
+}
+
+
+/* ==========================================
+   KPI CARDS
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stButton"]
+button {
+
+    width:100% !important;
+
+    min-height:96px !important;
+    height:96px !important;
+
+    background:#FFFFFF !important;
+
+    border:1px solid #E5E7EB !important;
+
+    border-radius:16px !important;
+
+    padding:10px 6px !important;
+
+    box-shadow:
+        0 6px 16px
+        rgba(0,0,0,.07) !important;
+
+    color:#111827 !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size:13px !important;
+
+    font-weight:650 !important;
+
+    line-height:1.3 !important;
+
+    white-space:pre-line !important;
+
+    text-align:center !important;
+
+    display:flex !important;
+
+    align-items:center !important;
+
+    justify-content:center !important;
+
+    transition:all .2s ease !important;
+}
+
+
+/* ==========================================
+   BUTTON TEXT
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stButton"]
+button p {
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size:13px !important;
+
+    font-weight:700 !important;
+
+    line-height:1.3 !important;
+
+    white-space:pre-line !important;
+
+    text-align:center !important;
+
+    display:block !important;
+
+    width:100% !important;
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    color:#111827 !important;
+}
+
+
+/* ==========================================
+   HOVER
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stButton"]
+button:hover {
+
+    background:#F8FAFC !important;
+
+    transform:translateY(-2px) !important;
+
+    box-shadow:
+        0 10px 22px
+        rgba(0,0,0,.11) !important;
+}
+
+
+/* ==========================================
+   ALL
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stHorizontalBlock"]
+div[data-testid="stColumn"]:nth-child(1)
+div[data-testid="stButton"]
+button {
+
+    border-top:5px solid #006747 !important;
+}
+
+
+/* ==========================================
+   ACTIVE
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stHorizontalBlock"]
+div[data-testid="stColumn"]:nth-child(2)
+div[data-testid="stButton"]
+button {
+
+    border-top:5px solid #00A86B !important;
+}
+
+
+/* ==========================================
+   CLOSED
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stHorizontalBlock"]
+div[data-testid="stColumn"]:nth-child(3)
+div[data-testid="stButton"]
+button {
+
+    border-top:5px solid #D32F2F !important;
+}
+
+
+/* ==========================================
+   COLUMN GAP
+   ========================================== */
+
+.st-key-daily_issue_kpis
+div[data-testid="stHorizontalBlock"] {
+
+    gap:8px !important;
+}
+
+
+/* ==========================================
+   TABLE
+   ========================================== */
 
 .daily-issues-table-wrapper {
 
@@ -4571,7 +5024,8 @@ elif page == "Daily Issues":
     padding:6px;
 
     box-shadow:
-        0 6px 20px rgba(0,103,71,.08);
+        0 6px 20px
+        rgba(0,103,71,.08);
 
     overflow:auto;
 
@@ -4719,6 +5173,46 @@ elif page == "Daily Issues":
 }
 
 
+.daily-status-active {
+
+    display:inline-block;
+
+    padding:4px 10px;
+
+    border-radius:16px;
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.daily-status-closed {
+
+    display:inline-block;
+
+    padding:4px 10px;
+
+    border-radius:16px;
+
+    background:#FEE2E2;
+
+    color:#991B1B;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
 .daily-edit-info {
 
     background:#ECFDF5;
@@ -4744,151 +5238,143 @@ elif page == "Daily Issues":
 """, unsafe_allow_html=True)
 
 
-    # =====================================================
-    # SUMMARY
-    # =====================================================
+    # =================================================
+    # KPI COUNTS
+    # =================================================
+
+    daily_status = (
+        daily_issues_df["Status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+
 
     total_daily_issues = len(
         daily_issues_df
     )
 
-    active_daily_rows = daily_issues_df[
-        daily_issues_df.apply(
-            lambda row:
-            any(
-                str(value).strip()
-                for value in row
-            ),
-            axis=1
-        )
-    ]
 
-    active_daily_issues = len(
-        active_daily_rows
+    active_daily_issues = (
+        daily_status == "active"
+    ).sum()
+
+
+    closed_daily_issues = (
+        daily_status == "closed"
+    ).sum()
+
+
+    # =================================================
+    # KPI CARD STATE
+    # =================================================
+
+    if (
+        "daily_issue_stage"
+        not in st.session_state
+    ):
+
+        st.session_state[
+            "daily_issue_stage"
+        ] = "All"
+
+
+    # =================================================
+    # CLICKABLE KPI CARDS
+    # =================================================
+
+    with st.container(
+        key="daily_issue_kpis"
+    ):
+
+        c1, c2, c3 = st.columns(3)
+
+
+        # ---------------------------------------------
+        # ALL
+        # ---------------------------------------------
+
+        with c1:
+
+            if st.button(
+                f"ALL\n{total_daily_issues}",
+                key="daily_issue_all",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "daily_issue_stage"
+                ] = "All"
+
+                st.rerun()
+
+
+        # ---------------------------------------------
+        # ACTIVE
+        # ---------------------------------------------
+
+        with c2:
+
+            if st.button(
+                f"ACTIVE ISSUES\n{active_daily_issues}",
+                key="daily_issue_active",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "daily_issue_stage"
+                ] = "Active"
+
+                st.rerun()
+
+
+        # ---------------------------------------------
+        # CLOSED
+        # ---------------------------------------------
+
+        with c3:
+
+            if st.button(
+                f"CLOSED ISSUES\n{closed_daily_issues}",
+                key="daily_issue_closed",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "daily_issue_stage"
+                ] = "Closed"
+
+                st.rerun()
+
+
+    # =================================================
+    # APPLY KPI FILTER
+    # =================================================
+
+    selected_daily_card = (
+        st.session_state.get(
+            "daily_issue_stage",
+            "All"
+        )
     )
 
 
-    k1, k2, k3 = st.columns(3)
+    filtered_daily_df = (
+        daily_issues_df.copy()
+    )
 
 
-    with k1:
+    if selected_daily_card != "All":
 
-        st.markdown(
-            f"""
-<div style="
-background:#FFFFFF;
-border-radius:14px;
-padding:10px 8px;
-text-align:center;
-border-top:5px solid #006747;
-border-left:1px solid #DDE5E1;
-border-right:1px solid #DDE5E1;
-border-bottom:1px solid #DDE5E1;
-box-shadow:0 5px 14px rgba(0,103,71,.06);
-min-height:82px;
-box-sizing:border-box;">
-<div style="
-color:#6B7280;
-font-size:12px;
-font-weight:700;">
-Total Issues
-</div>
-<div style="
-color:#006747;
-font-size:28px;
-font-weight:800;
-line-height:1;
-margin-top:7px;">
-{total_daily_issues}
-</div>
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
-
-    with k2:
-
-        st.markdown(
-            f"""
-<div style="
-background:#FFFFFF;
-border-radius:14px;
-padding:10px 8px;
-text-align:center;
-border-top:5px solid #008A5A;
-border-left:1px solid #DDE5E1;
-border-right:1px solid #DDE5E1;
-border-bottom:1px solid #DDE5E1;
-box-shadow:0 5px 14px rgba(0,103,71,.06);
-min-height:82px;
-box-sizing:border-box;">
-<div style="
-color:#6B7280;
-font-size:12px;
-font-weight:700;">
-Active Records
-</div>
-<div style="
-color:#008A5A;
-font-size:28px;
-font-weight:800;
-line-height:1;
-margin-top:7px;">
-{active_daily_issues}
-</div>
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
-
-    with k3:
-
-        unique_members = (
-            daily_issues_df[
-                "Team Member"
+        filtered_daily_df = (
+            filtered_daily_df[
+                filtered_daily_df["Status"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                ==
+                selected_daily_card.lower()
             ]
-            .astype(str)
-            .str.strip()
-        )
-
-        unique_members = unique_members[
-            unique_members != ""
-        ].nunique()
-
-
-        st.markdown(
-            f"""
-<div style="
-background:#FFFFFF;
-border-radius:14px;
-padding:10px 8px;
-text-align:center;
-border-top:5px solid #20A464;
-border-left:1px solid #DDE5E1;
-border-right:1px solid #DDE5E1;
-border-bottom:1px solid #DDE5E1;
-box-shadow:0 5px 14px rgba(0,103,71,.06);
-min-height:82px;
-box-sizing:border-box;">
-<div style="
-color:#6B7280;
-font-size:12px;
-font-weight:700;">
-Team Members
-</div>
-<div style="
-color:#20A464;
-font-size:28px;
-font-weight:800;
-line-height:1;
-margin-top:7px;">
-{unique_members}
-</div>
-</div>
-""",
-            unsafe_allow_html=True
         )
 
 
@@ -4898,12 +5384,12 @@ margin-top:7px;">
     )
 
 
-    # =====================================================
+    # =================================================
     # TABLE DISPLAY
-    # =====================================================
+    # =================================================
 
     display_daily_df = (
-        daily_issues_df.copy()
+        filtered_daily_df.copy()
     )
 
 
@@ -4955,6 +5441,33 @@ margin-top:7px;">
         )
 
 
+        # ---------------------------------------------
+        # STATUS BADGE
+        # ---------------------------------------------
+
+        display_daily_df[
+            "Status"
+        ] = (
+            display_daily_df[
+                "Status"
+            ]
+            .apply(
+                lambda x:
+                (
+                    '<span class="daily-status-closed">'
+                    'Closed'
+                    '</span>'
+                    if str(x).strip().lower()
+                    == "closed"
+                    else
+                    '<span class="daily-status-active">'
+                    'Active'
+                    '</span>'
+                )
+            )
+        )
+
+
         table_html = (
             display_daily_df
             .to_html(
@@ -4977,14 +5490,14 @@ margin-top:7px;">
     else:
 
         st.info(
-            "No Daily Issues available yet. "
-            "Click Edit Daily Issues to add the first issue."
+            f"No {selected_daily_card.lower()} "
+            "Daily Issues available."
         )
 
 
-    # =====================================================
+    # =================================================
     # EDIT MODE STATE
-    # =====================================================
+    # =================================================
 
     if (
         "daily_issues_edit_mode"
@@ -4996,9 +5509,9 @@ margin-top:7px;">
         ] = False
 
 
-    # =====================================================
+    # =================================================
     # EDIT BUTTON
-    # =====================================================
+    # =================================================
 
     if not st.session_state[
         "daily_issues_edit_mode"
@@ -5017,9 +5530,9 @@ margin-top:7px;">
             st.rerun()
 
 
-    # =====================================================
+    # =================================================
     # EDITOR
-    # =====================================================
+    # =================================================
 
     if st.session_state[
         "daily_issues_edit_mode"
@@ -5028,25 +5541,275 @@ margin-top:7px;">
         st.markdown(
             """
 <div class="daily-edit-info">
-✏️ Edit existing issues or add new rows directly below.
-After editing, click <b>Save Changes</b>.
-Your changes are stored separately from the Projects,
-CRPL and PAYSYS data.
+✏️ Edit existing issues, add/delete rows,
+or manage columns below.
+<br>
+💾 Click <b>Save Changes</b> after editing.
 </div>
 """,
             unsafe_allow_html=True
         )
 
 
+        # =================================================
+        # COLUMN MANAGEMENT
+        # =================================================
+
+        st.markdown(
+            """
+<h3 style="
+color:#006747;
+font-size:19px;
+font-weight:700;
+margin-top:10px;
+margin-bottom:6px;">
+⚙️ Manage Columns
+</h3>
+""",
+            unsafe_allow_html=True
+        )
+
+
+        field_col1, field_col2 = st.columns(
+            [3, 1]
+        )
+
+
+        # ---------------------------------------------
+        # ADD FIELD
+        # ---------------------------------------------
+
+        with field_col1:
+
+            new_daily_field = st.text_input(
+                "New Column Name",
+                placeholder="e.g. Vendor Update",
+                key="daily_new_field_input"
+            )
+
+
+        with field_col2:
+
+            st.markdown(
+                "<div style='height:26px;'></div>",
+                unsafe_allow_html=True
+            )
+
+
+            if st.button(
+                "➕ Add Column",
+                key="daily_add_field",
+                use_container_width=True
+            ):
+
+                field_name = (
+                    new_daily_field
+                    .strip()
+                )
+
+
+                if not field_name:
+
+                    st.warning(
+                        "⚠️ Please enter a column name."
+                    )
+
+                elif (
+                    field_name
+                    in daily_issues_df.columns
+                ):
+
+                    st.warning(
+                        "⚠️ This column already exists."
+                    )
+
+                else:
+
+                    daily_issues_df[
+                        field_name
+                    ] = ""
+
+
+                    # Save current extra-column
+                    # structure in session
+
+                    current_extra = [
+                        col
+                        for col
+                        in daily_issues_df.columns
+                        if col
+                        not in required_daily_columns
+                    ]
+
+
+                    st.session_state[
+                        "daily_extra_columns"
+                    ] = current_extra
+
+
+                    st.success(
+                        f"✅ '{field_name}' "
+                        "column added."
+                    )
+
+                    st.rerun()
+
+
+        # ---------------------------------------------
+        # REMOVE FIELD
+        # ---------------------------------------------
+
+        current_extra_columns = [
+            col
+            for col
+            in daily_issues_df.columns
+            if col
+            not in required_daily_columns
+        ]
+
+
+        if current_extra_columns:
+
+            remove_col1, remove_col2 = st.columns(
+                [3, 1]
+            )
+
+
+            with remove_col1:
+
+                remove_daily_field = st.selectbox(
+                    "Remove Column",
+                    current_extra_columns,
+                    key="daily_remove_field_select"
+                )
+
+
+            with remove_col2:
+
+                st.markdown(
+                    "<div style='height:26px;'></div>",
+                    unsafe_allow_html=True
+                )
+
+
+                if st.button(
+                    "🗑 Remove Column",
+                    key="daily_remove_field",
+                    use_container_width=True
+                ):
+
+                    daily_issues_df = (
+                        daily_issues_df
+                        .drop(
+                            columns=[
+                                remove_daily_field
+                            ]
+                        )
+                    )
+
+
+                    remaining_extra = [
+                        col
+                        for col
+                        in daily_issues_df.columns
+                        if col
+                        not in required_daily_columns
+                    ]
+
+
+                    st.session_state[
+                        "daily_extra_columns"
+                    ] = remaining_extra
+
+
+                    st.success(
+                        f"✅ '{remove_daily_field}' "
+                        "column removed."
+                    )
+
+                    st.rerun()
+
+
+        else:
+
+            st.info(
+                "No extra columns available to remove. "
+                "Core columns are protected."
+            )
+
+
+        # =================================================
+        # RESTORE SESSION EXTRA COLUMNS
+        # =================================================
+
+        session_extra = (
+            st.session_state.get(
+                "daily_extra_columns",
+                []
+            )
+        )
+
+
+        for col in session_extra:
+
+            if col not in daily_issues_df.columns:
+
+                daily_issues_df[col] = ""
+
+
+        final_extra_columns = [
+            col
+            for col in daily_issues_df.columns
+            if col not in required_daily_columns
+        ]
+
+
+        daily_issues_df = (
+            daily_issues_df[
+                required_daily_columns
+                + final_extra_columns
+            ]
+        )
+
+
+        # =================================================
+        # EDITABLE TABLE
+        # =================================================
+
         edited_daily_df = st.data_editor(
+
             daily_issues_df,
+
             use_container_width=True,
+
             hide_index=True,
+
             num_rows="dynamic",
+
             height=500,
+
+            disabled=[],
+
+            column_config={
+
+                "Status":
+                    st.column_config.SelectboxColumn(
+                        "Status",
+                        options=[
+                            "Active",
+                            "Closed"
+                        ],
+                        required=True
+                    )
+            },
+
             key="daily_issues_editor"
         )
 
+
+        # =================================================
+        # SAVE / CLOSE
+        # =================================================
 
         save_col, close_col = st.columns(2)
 
@@ -5082,9 +5845,10 @@ CRPL and PAYSYS data.
                     if success:
 
                         st.success(
-                            "✅ Daily Issues saved successfully "
-                            "to persistent storage."
+                            "✅ Daily Issues saved "
+                            "successfully to GitHub."
                         )
+
 
                         st.session_state[
                             "daily_issues_edit_mode"
@@ -5103,6 +5867,7 @@ CRPL and PAYSYS data.
 
                         st.rerun()
 
+
                     else:
 
                         st.error(
@@ -5110,10 +5875,11 @@ CRPL and PAYSYS data.
                             f"{message}"
                         )
 
+
                 except Exception as e:
 
                     st.error(
-                        f"Save error: {e}"
+                        f"❌ Save error: {e}"
                     )
 
 
