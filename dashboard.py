@@ -4129,7 +4129,6 @@ elif page == "Projects":
 
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     # =====================================================
-    # =====================================================
     # TEAM OVERVIEW - COMPACT CLICKABLE CARDS
     # =====================================================
 
@@ -4151,36 +4150,75 @@ elif page == "Projects":
         # ALL BUTTON
         # -------------------------
         with cols[0]:
+
             if st.button(
                 f"📊 ALL\n{len(df)} Projects",
                 key="team_all_btn",
                 use_container_width=True
             ):
-                st.session_state.pop("selected_team_project", None)
-                st.session_state.pop("project_filter_allocation", None)
-                st.session_state.pop("project_status_filter", None)
+
+                st.session_state.pop(
+                    "selected_team_project",
+                    None
+                )
+
+                st.session_state.pop(
+                    "project_filter_allocation",
+                    None
+                )
+
+                st.session_state.pop(
+                    "project_status_filter",
+                    None
+                )
+
                 st.session_state["navigate_to"] = "Projects"
                 st.session_state["page_changed"] = True
+
                 st.rerun()
 
         # -------------------------
         # TEAM MEMBER BUTTONS
         # -------------------------
-        for i, (member, count) in enumerate(allocation.items(), start=1):
+        for i, (member, count) in enumerate(
+            allocation.items(),
+            start=1
+        ):
 
             with cols[i]:
+
                 if st.button(
                     f"👤 {member}\n{count} Projects",
                     key=f"team_member_{i}",
                     use_container_width=True
                 ):
-                    st.session_state.pop("navigate_to", None)
-                    st.session_state.pop("project_status_filter", None)
-                    st.session_state.pop("selected_team_project", None)
 
-                    st.session_state["selected_team_project"] = member
-                    st.session_state["navigate_to"] = "Projects"
-                    st.session_state["page_changed"] = True
+                    st.session_state.pop(
+                        "navigate_to",
+                        None
+                    )
+
+                    st.session_state.pop(
+                        "project_status_filter",
+                        None
+                    )
+
+                    st.session_state.pop(
+                        "selected_team_project",
+                        None
+                    )
+
+                    st.session_state[
+                        "selected_team_project"
+                    ] = member
+
+                    st.session_state[
+                        "navigate_to"
+                    ] = "Projects"
+
+                    st.session_state[
+                        "page_changed"
+                    ] = True
 
                     st.rerun()
 
@@ -4189,7 +4227,7 @@ elif page == "Projects":
     <style>
 
     /* =========================================
-    COMPACT TEAM CARDS
+    TEAM KPI CARDS
     ========================================= */
 
     div[data-testid="stVerticalBlock"]:has(
@@ -4199,9 +4237,15 @@ elif page == "Projects":
         margin-bottom: 0px !important;
     }
 
-    /* Card buttons */
+
+    /* =========================================
+    CARD BUTTON
+    ========================================= */
+
     div[data-testid="stButton"] > button {
+
         width: 100% !important;
+
         min-height: 52px !important;
         height: 52px !important;
 
@@ -4213,9 +4257,10 @@ elif page == "Projects":
         ) !important;
 
         border: 1px solid rgba(255,255,255,.35) !important;
+
         border-radius: 9px !important;
 
-        padding: 3px 4px !important;
+        padding: 4px 5px !important;
 
         box-shadow:
             0 2px 6px rgba(0,103,71,.14) !important;
@@ -4228,17 +4273,47 @@ elif page == "Projects":
             sans-serif !important;
 
         font-size: 10px !important;
+
         font-weight: 700 !important;
 
-        line-height: 1.1 !important;
+        line-height: 1.15 !important;
+
         white-space: pre-line !important;
+
         text-align: center !important;
 
         margin: 0px !important;
     }
 
-    /* Hover */
+
+    /* =========================================
+    BUTTON TEXT
+    ========================================= */
+
+    div[data-testid="stButton"] > button p {
+
+        font-size: 10px !important;
+
+        font-weight: 700 !important;
+
+        line-height: 1.15 !important;
+
+        color: white !important;
+
+        margin: 0 !important;
+
+        white-space: pre-line !important;
+
+        text-align: center !important;
+    }
+
+
+    /* =========================================
+    HOVER
+    ========================================= */
+
     div[data-testid="stButton"] > button:hover {
+
         background: linear-gradient(
             135deg,
             #006747,
@@ -4251,30 +4326,39 @@ elif page == "Projects":
             0 3px 7px rgba(0,103,71,.20) !important;
     }
 
-    /* Focus */
+
+    /* =========================================
+    FOCUS
+    ========================================= */
+
     div[data-testid="stButton"] > button:focus {
+
         background: #006747 !important;
+
         border-color: #FFD700 !important;
     }
 
-    /* Text inside button */
-    div[data-testid="stButton"] > button p {
-        font-size: 10px !important;
-        font-weight: 700 !important;
-        line-height: 1.1 !important;
-        color: white !important;
-        margin: 0 !important;
-    }
 
-    /* Compact columns */
+    /* =========================================
+    COMPACT COLUMNS
+    ========================================= */
+
     div[data-testid="stHorizontalBlock"] {
+
         gap: 4px !important;
+
         margin-top: 0px !important;
+
         margin-bottom: 0px !important;
     }
 
-    /* Remove extra vertical spacing */
+
+    /* =========================================
+    REMOVE EXTRA SPACING
+    ========================================= */
+
     div[data-testid="stVerticalBlock"] {
+
         gap: 2px !important;
     }
 
