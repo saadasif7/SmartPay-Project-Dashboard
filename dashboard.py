@@ -15,6 +15,8 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Image
 from utils.pdf_report import generate_executive_pdf
 import os
+import json
+import base64
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 from reportlab.lib import colors
@@ -36,7 +38,264 @@ from reportlab.lib.units import inch
 
 
 
+# =====================================================
+# DAILY ISSUES - PERSISTENT GITHUB STORAGE
+# =====================================================
 
+DAILY_ISSUES_REPO = "saadasif7/SmartPay-Project-Dashboard"
+DAILY_ISSUES_BRANCH = "main"
+DAILY_ISSUES_PATH = "data/daily_issues.json"
+
+
+def get_github_token():
+
+    try:
+        token = st.secrets.get("GITHUB_TOKEN", "")
+    except Exception:
+        token = ""
+
+    return str(token).strip()
+
+
+def github_headers():
+
+    token = get_github_token()
+
+    return {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "X-GitHub-Api-Version": "2026-03-10",
+        "Content-Type": "application/json"
+    }
+
+
+def load_daily_issues_from_github():
+
+    token = get_github_token()
+
+    if not token:
+        return pd.DataFrame(
+            columns=[
+                "Issue",
+                "Update",
+                "End / Pending With",
+                "Team Member"
+            ]
+        )
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{DAILY_ISSUES_REPO}/contents/"
+        f"{DAILY_ISSUES_PATH}"
+    )
+
+    try:
+
+        response = requests.get(
+            url,
+            headers=github_headers(),
+            params={
+                "ref": DAILY_ISSUES_BRANCH
+            },
+            timeout=20
+        )
+
+        if response.status_code == 404:
+
+            return pd.DataFrame(
+                columns=[
+                    "Issue",
+                    "Update",
+                    "End / Pending With",
+                    "Team Member"
+                ]
+            )
+
+        response.raise_for_status()
+
+        result = response.json()
+
+        encoded_content = result.get(
+            "content",
+            ""
+        ).replace(
+            "\n",
+            ""
+        )
+
+        if not encoded_content:
+
+            return pd.DataFrame(
+                columns=[
+                    "Issue",
+                    "Update",
+                    "End / Pending With",
+                    "Team Member"
+                ]
+            )
+
+        decoded_content = base64.b64decode(
+            encoded_content
+        ).decode("utf-8")
+
+        data = json.loads(
+            decoded_content
+        )
+
+        if not isinstance(data, list):
+            data = []
+
+        return pd.DataFrame(
+            data,
+            columns=[
+                "Issue",
+                "Update",
+                "End / Pending With",
+                "Team Member"
+            ]
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"Daily Issues load error: {e}"
+        )
+
+        return pd.DataFrame(
+            columns=[
+                "Issue",
+                "Update",
+                "End / Pending With",
+                "Team Member"
+            ]
+        )
+
+
+def save_daily_issues_to_github(edited_df):
+
+    token = get_github_token()
+
+    if not token:
+
+        return False, (
+            "GITHUB_TOKEN is not configured. "
+            "Please add it in Streamlit Secrets."
+        )
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{DAILY_ISSUES_REPO}/contents/"
+        f"{DAILY_ISSUES_PATH}"
+    )
+
+    try:
+
+        # -----------------------------------------
+        # GET CURRENT FILE SHA
+        # -----------------------------------------
+
+        get_response = requests.get(
+            url,
+            headers=github_headers(),
+            params={
+                "ref": DAILY_ISSUES_BRANCH
+            },
+            timeout=20
+        )
+
+        sha = None
+
+        if get_response.status_code == 200:
+
+            sha = get_response.json().get(
+                "sha"
+            )
+
+        elif get_response.status_code != 404:
+
+            get_response.raise_for_status()
+
+        # -----------------------------------------
+        # CLEAN DATA
+        # -----------------------------------------
+
+        clean_df = edited_df.copy()
+
+        required_columns = [
+            "Issue",
+            "Update",
+            "End / Pending With",
+            "Team Member"
+        ]
+
+        for col in required_columns:
+
+            if col not in clean_df.columns:
+                clean_df[col] = ""
+
+        clean_df = clean_df[
+            required_columns
+        ].fillna("")
+
+        clean_df = clean_df.astype(str)
+
+        # Remove completely blank rows
+        clean_df = clean_df[
+            clean_df.apply(
+                lambda row:
+                any(
+                    str(value).strip()
+                    for value in row
+                ),
+                axis=1
+            )
+        ].reset_index(
+            drop=True
+        )
+
+        data = clean_df.to_dict(
+            orient="records"
+        )
+
+        json_content = json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2
+        )
+
+        encoded_content = base64.b64encode(
+            json_content.encode("utf-8")
+        ).decode("utf-8")
+
+        # -----------------------------------------
+        # UPDATE / CREATE FILE
+        # -----------------------------------------
+
+        payload = {
+            "message": "Update Daily Issues from SmartPay Dashboard",
+            "content": encoded_content,
+            "branch": DAILY_ISSUES_BRANCH
+        }
+
+        if sha:
+            payload["sha"] = sha
+
+        response = requests.put(
+            url,
+            headers=github_headers(),
+            json=payload,
+            timeout=30
+        )
+
+        response.raise_for_status()
+
+        return True, (
+            "Daily Issues saved successfully."
+        )
+
+    except Exception as e:
+
+        return False, str(e)
 
 # =====================================================
 # EMBEDDED BACKGROUND IMAGES (base64, self-contained)
@@ -1207,9 +1466,10 @@ if "navigate_to" in st.session_state:
 
 page = st.sidebar.radio(
     "Menu",
-    [
+   [
         "Dashboard",
         "Projects",
+        "Daily Issues",
         "Analytics",
         "Project Timeline",
         "BAU Monitoring",
@@ -3639,6 +3899,159 @@ elif page == "Projects":
 
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     # =====================================================
+    # =====================================================
+    # TEAM OVERVIEW - COMPACT CLICKABLE CARDS
+    # =====================================================
+
+    with st.container(key="team_overview_kpis"):
+
+        allocation = (
+            df["Allocation"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .value_counts()
+        )
+
+        total_cards = len(allocation) + 1
+
+        cols = st.columns(total_cards, gap="small")
+
+        # -------------------------
+        # ALL BUTTON
+        # -------------------------
+        with cols[0]:
+            if st.button(
+                f"📊 ALL\n{len(df)} Projects",
+                key="team_all_btn",
+                use_container_width=True
+            ):
+                st.session_state.pop("selected_team_project", None)
+                st.session_state.pop("project_filter_allocation", None)
+                st.session_state.pop("project_status_filter", None)
+                st.session_state["navigate_to"] = "Projects"
+                st.session_state["page_changed"] = True
+                st.rerun()
+
+        # -------------------------
+        # TEAM MEMBER BUTTONS
+        # -------------------------
+        for i, (member, count) in enumerate(allocation.items(), start=1):
+
+            with cols[i]:
+                if st.button(
+                    f"👤 {member}\n{count} Projects",
+                    key=f"team_member_{i}",
+                    use_container_width=True
+                ):
+                    st.session_state.pop("navigate_to", None)
+                    st.session_state.pop("project_status_filter", None)
+                    st.session_state.pop("selected_team_project", None)
+
+                    st.session_state["selected_team_project"] = member
+                    st.session_state["navigate_to"] = "Projects"
+                    st.session_state["page_changed"] = True
+
+                    st.rerun()
+
+
+    st.html("""
+    <style>
+
+    /* =========================================
+    COMPACT TEAM CARDS
+    ========================================= */
+
+    div[data-testid="stVerticalBlock"]:has(
+        > div[data-testid="stHorizontalBlock"]
+    ) {
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    }
+
+    /* Card buttons */
+    div[data-testid="stButton"] > button {
+        width: 100% !important;
+        min-height: 52px !important;
+        height: 52px !important;
+
+        background: linear-gradient(
+            135deg,
+            #013D2B,
+            #006747,
+            #008A5A
+        ) !important;
+
+        border: 1px solid rgba(255,255,255,.35) !important;
+        border-radius: 9px !important;
+
+        padding: 3px 4px !important;
+
+        box-shadow:
+            0 2px 6px rgba(0,103,71,.14) !important;
+
+        color: white !important;
+
+        font-family:
+            Segoe UI,
+            Arial,
+            sans-serif !important;
+
+        font-size: 10px !important;
+        font-weight: 700 !important;
+
+        line-height: 1.1 !important;
+        white-space: pre-line !important;
+        text-align: center !important;
+
+        margin: 0px !important;
+    }
+
+    /* Hover */
+    div[data-testid="stButton"] > button:hover {
+        background: linear-gradient(
+            135deg,
+            #006747,
+            #008A5A
+        ) !important;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 3px 7px rgba(0,103,71,.20) !important;
+    }
+
+    /* Focus */
+    div[data-testid="stButton"] > button:focus {
+        background: #006747 !important;
+        border-color: #FFD700 !important;
+    }
+
+    /* Text inside button */
+    div[data-testid="stButton"] > button p {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        line-height: 1.1 !important;
+        color: white !important;
+        margin: 0 !important;
+    }
+
+    /* Compact columns */
+    div[data-testid="stHorizontalBlock"] {
+        gap: 4px !important;
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    }
+
+    /* Remove extra vertical spacing */
+    div[data-testid="stVerticalBlock"] {
+        gap: 2px !important;
+    }
+
+    </style>
+    """)
+    
+    # =====================================================
     # APPLY KPI STATUS FILTER TO EXISTING TABLE
     # =====================================================
 
@@ -4093,6 +4506,647 @@ elif page == "Projects":
                     del st.session_state["project_editor"]
 
                 st.rerun()
+
+# =====================================================
+# DAILY ISSUES
+# =====================================================
+
+elif page == "Daily Issues":
+
+    # =====================================================
+    # HEADER
+    # =====================================================
+
+    render_header(
+        "SMARTPAY DAILY OPERATIONS",
+        "📝 Daily Issues",
+        "Daily Issues, Updates & Ownership Tracking",
+        "DAILY ISSUE MANAGEMENT"
+    )
+
+
+    # =====================================================
+    # LOAD PERSISTENT DATA
+    # =====================================================
+
+    daily_issues_df = (
+        load_daily_issues_from_github()
+    )
+
+    required_daily_columns = [
+        "Issue",
+        "Update",
+        "End / Pending With",
+        "Team Member"
+    ]
+
+
+    for col in required_daily_columns:
+
+        if col not in daily_issues_df.columns:
+
+            daily_issues_df[col] = ""
+
+
+    daily_issues_df = daily_issues_df[
+        required_daily_columns
+    ].fillna("")
+
+
+    # =====================================================
+    # DAILY ISSUES CSS
+    # =====================================================
+
+    st.markdown("""
+<style>
+
+.daily-issues-table-wrapper {
+
+    background:#FFFFFF;
+
+    border:1px solid #DDE5E1;
+
+    border-radius:16px;
+
+    padding:6px;
+
+    box-shadow:
+        0 6px 20px rgba(0,103,71,.08);
+
+    overflow:auto;
+
+    margin-top:5px;
+
+    margin-bottom:10px;
+}
+
+
+.daily-issues-table {
+
+    width:100%;
+
+    border-collapse:separate;
+
+    border-spacing:0;
+
+    font-size:14px;
+
+    table-layout:fixed;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+
+.daily-issues-table thead th {
+
+    background:
+        linear-gradient(
+            135deg,
+            #013D2B,
+            #006747,
+            #008A5A
+        );
+
+    color:#FFFFFF;
+
+    font-weight:700;
+
+    padding:14px 12px;
+
+    text-align:left;
+
+    border-bottom:1px solid
+        rgba(255,255,255,.20);
+
+    line-height:1.6;
+}
+
+
+.daily-issues-table thead th:first-child {
+
+    border-top-left-radius:10px;
+}
+
+
+.daily-issues-table thead th:last-child {
+
+    border-top-right-radius:10px;
+}
+
+
+.daily-issues-table tbody td {
+
+    padding:13px 12px;
+
+    color:#1F2937;
+
+    border-bottom:1px solid #E5E7EB;
+
+    background:#FFFFFF;
+
+    vertical-align:top;
+
+    line-height:1.6;
+
+    white-space:normal;
+
+    word-wrap:break-word;
+
+    overflow-wrap:anywhere;
+}
+
+
+.daily-issues-table tbody tr:nth-child(even) td {
+
+    background:#F8FAFC;
+}
+
+
+.daily-issues-table tbody tr:hover td {
+
+    background:#ECFDF5;
+}
+
+
+.daily-issue-name {
+
+    color:#006747;
+
+    font-weight:700;
+}
+
+
+.daily-pending-badge {
+
+    display:inline-block;
+
+    padding:4px 9px;
+
+    border-radius:16px;
+
+    background:#FEF3C7;
+
+    color:#92400E;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.daily-member-badge {
+
+    display:inline-block;
+
+    padding:4px 9px;
+
+    border-radius:16px;
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.daily-edit-info {
+
+    background:#ECFDF5;
+
+    border:1px solid #B7E4C7;
+
+    border-left:5px solid #006747;
+
+    border-radius:10px;
+
+    padding:9px 12px;
+
+    color:#006747;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+    # =====================================================
+    # SUMMARY
+    # =====================================================
+
+    total_daily_issues = len(
+        daily_issues_df
+    )
+
+    active_daily_rows = daily_issues_df[
+        daily_issues_df.apply(
+            lambda row:
+            any(
+                str(value).strip()
+                for value in row
+            ),
+            axis=1
+        )
+    ]
+
+    active_daily_issues = len(
+        active_daily_rows
+    )
+
+
+    k1, k2, k3 = st.columns(3)
+
+
+    with k1:
+
+        st.markdown(
+            f"""
+<div style="
+background:#FFFFFF;
+border-radius:14px;
+padding:10px 8px;
+text-align:center;
+border-top:5px solid #006747;
+border-left:1px solid #DDE5E1;
+border-right:1px solid #DDE5E1;
+border-bottom:1px solid #DDE5E1;
+box-shadow:0 5px 14px rgba(0,103,71,.06);
+min-height:82px;
+box-sizing:border-box;">
+<div style="
+color:#6B7280;
+font-size:12px;
+font-weight:700;">
+Total Issues
+</div>
+<div style="
+color:#006747;
+font-size:28px;
+font-weight:800;
+line-height:1;
+margin-top:7px;">
+{total_daily_issues}
+</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    with k2:
+
+        st.markdown(
+            f"""
+<div style="
+background:#FFFFFF;
+border-radius:14px;
+padding:10px 8px;
+text-align:center;
+border-top:5px solid #008A5A;
+border-left:1px solid #DDE5E1;
+border-right:1px solid #DDE5E1;
+border-bottom:1px solid #DDE5E1;
+box-shadow:0 5px 14px rgba(0,103,71,.06);
+min-height:82px;
+box-sizing:border-box;">
+<div style="
+color:#6B7280;
+font-size:12px;
+font-weight:700;">
+Active Records
+</div>
+<div style="
+color:#008A5A;
+font-size:28px;
+font-weight:800;
+line-height:1;
+margin-top:7px;">
+{active_daily_issues}
+</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    with k3:
+
+        unique_members = (
+            daily_issues_df[
+                "Team Member"
+            ]
+            .astype(str)
+            .str.strip()
+        )
+
+        unique_members = unique_members[
+            unique_members != ""
+        ].nunique()
+
+
+        st.markdown(
+            f"""
+<div style="
+background:#FFFFFF;
+border-radius:14px;
+padding:10px 8px;
+text-align:center;
+border-top:5px solid #20A464;
+border-left:1px solid #DDE5E1;
+border-right:1px solid #DDE5E1;
+border-bottom:1px solid #DDE5E1;
+box-shadow:0 5px 14px rgba(0,103,71,.06);
+min-height:82px;
+box-sizing:border-box;">
+<div style="
+color:#6B7280;
+font-size:12px;
+font-weight:700;">
+Team Members
+</div>
+<div style="
+color:#20A464;
+font-size:28px;
+font-weight:800;
+line-height:1;
+margin-top:7px;">
+{unique_members}
+</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    st.markdown(
+        "<div style='height:8px;'></div>",
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # TABLE DISPLAY
+    # =====================================================
+
+    display_daily_df = (
+        daily_issues_df.copy()
+    )
+
+
+    if not display_daily_df.empty:
+
+        display_daily_df["Issue"] = (
+            display_daily_df["Issue"]
+            .apply(
+                lambda x:
+                f'<span class="daily-issue-name">'
+                f'{x}</span>'
+            )
+        )
+
+
+        display_daily_df[
+            "End / Pending With"
+        ] = (
+            display_daily_df[
+                "End / Pending With"
+            ]
+            .apply(
+                lambda x:
+                (
+                    f'<span class="daily-pending-badge">'
+                    f'{x}</span>'
+                    if str(x).strip()
+                    else ""
+                )
+            )
+        )
+
+
+        display_daily_df[
+            "Team Member"
+        ] = (
+            display_daily_df[
+                "Team Member"
+            ]
+            .apply(
+                lambda x:
+                (
+                    f'<span class="daily-member-badge">'
+                    f'{x}</span>'
+                    if str(x).strip()
+                    else ""
+                )
+            )
+        )
+
+
+        table_html = (
+            display_daily_df
+            .to_html(
+                index=False,
+                escape=False,
+                classes="daily-issues-table"
+            )
+        )
+
+
+        st.markdown(
+            f"""
+<div class="daily-issues-table-wrapper">
+{table_html}
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+    else:
+
+        st.info(
+            "No Daily Issues available yet. "
+            "Click Edit Daily Issues to add the first issue."
+        )
+
+
+    # =====================================================
+    # EDIT MODE STATE
+    # =====================================================
+
+    if (
+        "daily_issues_edit_mode"
+        not in st.session_state
+    ):
+
+        st.session_state[
+            "daily_issues_edit_mode"
+        ] = False
+
+
+    # =====================================================
+    # EDIT BUTTON
+    # =====================================================
+
+    if not st.session_state[
+        "daily_issues_edit_mode"
+    ]:
+
+        if st.button(
+            "✏️ Edit Daily Issues",
+            key="daily_issues_edit_button",
+            use_container_width=True
+        ):
+
+            st.session_state[
+                "daily_issues_edit_mode"
+            ] = True
+
+            st.rerun()
+
+
+    # =====================================================
+    # EDITOR
+    # =====================================================
+
+    if st.session_state[
+        "daily_issues_edit_mode"
+    ]:
+
+        st.markdown(
+            """
+<div class="daily-edit-info">
+✏️ Edit existing issues or add new rows directly below.
+After editing, click <b>Save Changes</b>.
+Your changes are stored separately from the Projects,
+CRPL and PAYSYS data.
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+        edited_daily_df = st.data_editor(
+            daily_issues_df,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="dynamic",
+            height=500,
+            key="daily_issues_editor"
+        )
+
+
+        save_col, close_col = st.columns(2)
+
+
+        # =================================================
+        # SAVE
+        # =================================================
+
+        with save_col:
+
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="daily_issues_save",
+                use_container_width=True
+            ):
+
+                try:
+
+                    edited_daily_df = (
+                        edited_daily_df
+                        .fillna("")
+                    )
+
+
+                    success, message = (
+                        save_daily_issues_to_github(
+                            edited_daily_df
+                        )
+                    )
+
+
+                    if success:
+
+                        st.success(
+                            "✅ Daily Issues saved successfully "
+                            "to persistent storage."
+                        )
+
+                        st.session_state[
+                            "daily_issues_edit_mode"
+                        ] = False
+
+
+                        if (
+                            "daily_issues_editor"
+                            in st.session_state
+                        ):
+
+                            del st.session_state[
+                                "daily_issues_editor"
+                            ]
+
+
+                        st.rerun()
+
+                    else:
+
+                        st.error(
+                            f"❌ Daily Issues save failed: "
+                            f"{message}"
+                        )
+
+                except Exception as e:
+
+                    st.error(
+                        f"Save error: {e}"
+                    )
+
+
+        # =================================================
+        # CLOSE
+        # =================================================
+
+        with close_col:
+
+            if st.button(
+                "❌ Close Editor",
+                key="daily_issues_close",
+                use_container_width=True
+            ):
+
+                st.session_state[
+                    "daily_issues_edit_mode"
+                ] = False
+
+
+                if (
+                    "daily_issues_editor"
+                    in st.session_state
+                ):
+
+                    del st.session_state[
+                        "daily_issues_editor"
+                    ]
+
+
+                st.rerun()
+
+
 # =====================================================
 # ANALYTICS
 # =====================================================
