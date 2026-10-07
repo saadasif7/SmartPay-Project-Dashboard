@@ -2,7 +2,78 @@
   {
     "Issue": "99 Timeout IBFT NRSP",
     "Update": "Response Pending from 1 Link",
-    "End / Pending With": "At 1 link End",
-    "Team Member": "Saad Asif "
+    "End / Pending With": "At 1 Link End",
+    "Team Member": "Saad Asif ",
+    "Status": "Active"
+  },
+  {
+    "Issue": "UAT Issues \n",
+    "Update": " jawwad sb will Revert back\n",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "Control GAP \n",
+    "Update": "Ubaid is working",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "Resend Interface ",
+    "Update": "Response awaited",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "UBCS late Response Update ",
+    "Update": "Under UAT",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "UBCS CBA Posting Error",
+    "Update": "Muneeb is working",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "RAAST OTC Reversal",
+    "Update": "",
+    "End / Pending With": "At ADC End",
+    "Team Member": "Mubashir ",
+    "Status": "Active"
+  },
+  {
+    "Issue": "RE attempt title fetch",
+    "Update": "Stan Number will change by CRPL",
+    "End / Pending With": "At CRPL End ",
+    "Team Member": "Mubashir ",
+    "Status": "Active"
+  },
+  {
+    "Issue": "Email for file upload",
+    "Update": "",
+    "End / Pending With": "At IT End",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "UAT Core Down",
+    "Update": "",
+    "End / Pending With": "At IT End",
+    "Team Member": "Adnan Younis ",
+    "Status": "Active"
+  },
+  {
+    "Issue": "PTCL Bills ",
+    "Update": "Response awaited from 1 Link",
+    "End / Pending With": "At 1 Link End",
+    "Team Member": "Adnan Younis",
+    "Status": "Active"
   }
 ]
