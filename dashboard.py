@@ -4233,11 +4233,36 @@ elif page == "Projects":
     TEAM KPI CARDS
     ========================================= */
 
-    div[data-testid="stVerticalBlock"]:has(
-        > div[data-testid="stHorizontalBlock"]
-    ) {
+    div.st-key-team_overview_kpis {
         margin-top: 0px !important;
         margin-bottom: 0px !important;
+    }
+
+
+    /* =========================================
+    DESKTOP - EXISTING LOOK
+    ========================================= */
+
+    div.st-key-team_overview_kpis
+    div[data-testid="stHorizontalBlock"] {
+
+        gap: 4px !important;
+
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+
+        flex-wrap: nowrap !important;
+    }
+
+
+    /* =========================================
+    CARD COLUMN
+    ========================================= */
+
+    div.st-key-team_overview_kpis
+    div[data-testid="column"] {
+
+        min-width: 0 !important;
     }
 
 
@@ -4245,6 +4270,7 @@ elif page == "Projects":
     CARD BUTTON
     ========================================= */
 
+    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button {
 
         width: 100% !important;
@@ -4293,6 +4319,7 @@ elif page == "Projects":
     BUTTON TEXT
     ========================================= */
 
+    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button p {
 
         font-size: 10px !important;
@@ -4315,6 +4342,7 @@ elif page == "Projects":
     HOVER
     ========================================= */
 
+    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button:hover {
 
         background: linear-gradient(
@@ -4334,6 +4362,7 @@ elif page == "Projects":
     FOCUS
     ========================================= */
 
+    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button:focus {
 
         background: #006747 !important;
@@ -4343,26 +4372,153 @@ elif page == "Projects":
 
 
     /* =========================================
-    COMPACT COLUMNS
-    ========================================= */
-
-    div[data-testid="stHorizontalBlock"] {
-
-        gap: 4px !important;
-
-        margin-top: 0px !important;
-
-        margin-bottom: 0px !important;
-    }
-
-
-    /* =========================================
     REMOVE EXTRA SPACING
     ========================================= */
 
+    div.st-key-team_overview_kpis
     div[data-testid="stVerticalBlock"] {
 
         gap: 2px !important;
+    }
+
+
+    /* =================================================
+    MOBILE VIEW
+    ================================================= */
+
+    @media (max-width: 768px) {
+
+        /* Horizontal swipe instead of squeezing cards */
+        div.st-key-team_overview_kpis
+        div[data-testid="stHorizontalBlock"] {
+
+            display: flex !important;
+
+            flex-wrap: nowrap !important;
+
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+
+            gap: 6px !important;
+
+            padding-bottom: 5px !important;
+
+            scrollbar-width: thin;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+
+        /* Fixed readable card width */
+        div.st-key-team_overview_kpis
+        div[data-testid="column"] {
+
+            flex: 0 0 78px !important;
+
+            width: 78px !important;
+
+            min-width: 78px !important;
+
+            max-width: 78px !important;
+        }
+
+
+        /* Mobile card */
+        div.st-key-team_overview_kpis
+        div[data-testid="stButton"] > button {
+
+            width: 78px !important;
+
+            min-width: 78px !important;
+
+            max-width: 78px !important;
+
+            height: 58px !important;
+
+            min-height: 58px !important;
+
+            padding: 4px 3px !important;
+
+            border-radius: 9px !important;
+
+            font-size: 9px !important;
+
+            line-height: 1.15 !important;
+
+            white-space: pre-line !important;
+
+            overflow: hidden !important;
+        }
+
+
+        /* Mobile text */
+        div.st-key-team_overview_kpis
+        div[data-testid="stButton"] > button p {
+
+            font-size: 9px !important;
+
+            line-height: 1.15 !important;
+
+            font-weight: 700 !important;
+
+            white-space: pre-line !important;
+
+            overflow: hidden !important;
+
+            text-overflow: clip !important;
+
+            text-align: center !important;
+
+            margin: 0 !important;
+        }
+
+    }
+
+
+    /* =================================================
+    VERY SMALL MOBILE
+    ================================================= */
+
+    @media (max-width: 400px) {
+
+        div.st-key-team_overview_kpis
+        div[data-testid="column"] {
+
+            flex: 0 0 74px !important;
+
+            width: 74px !important;
+
+            min-width: 74px !important;
+
+            max-width: 74px !important;
+        }
+
+
+        div.st-key-team_overview_kpis
+        div[data-testid="stButton"] > button {
+
+            width: 74px !important;
+
+            min-width: 74px !important;
+
+            max-width: 74px !important;
+
+            height: 58px !important;
+
+            min-height: 58px !important;
+
+            font-size: 8.5px !important;
+        }
+
+
+        div.st-key-team_overview_kpis
+        div[data-testid="stButton"] > button p {
+
+            font-size: 8.5px !important;
+
+            line-height: 1.15 !important;
+        }
+
     }
 
     </style>
