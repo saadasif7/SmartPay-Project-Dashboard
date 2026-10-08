@@ -17,6 +17,7 @@ from utils.pdf_report import generate_executive_pdf
 import os
 import json
 import base64
+from zoneinfo import ZoneInfo
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 from reportlab.lib import colors
@@ -1815,7 +1816,10 @@ if st.session_state.get("page_changed", False):
     scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
 def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
-    _now = datetime.now().strftime("%b %d, %Y  •  %I:%M %p")
+    _now = datetime.now(
+        ZoneInfo("Asia/Karachi")
+    ).strftime("%b %d, %Y  •  %I:%M %p")
+
     st.markdown(f"""
 <style>.block-container [data-testid="stVerticalBlock"]{{gap:{gap} !important;}}.block-container [data-testid="stMarkdownContainer"] h2{{padding-top:0 !important;padding-bottom:0 !important;margin-top:12px !important;margin-bottom:8px !important;}}.block-container [data-testid="stMarkdownContainer"] h3{{padding-top:0 !important;padding-bottom:0 !important;}}</style>
 <div style="position:relative;overflow:hidden;display:flex;align-items:center;background:linear-gradient(90deg, rgba(1,30,22,.72) 0%, rgba(1,30,22,.55) 35%, rgba(1,30,22,.12) 65%, rgba(1,30,22,0) 100%), url('data:image/jpeg;base64,{HEADER_BG_B64}');background-size:cover;background-position:center 55%;background-repeat:no-repeat;border-radius:16px;padding:16px 22px;border:1px solid rgba(255,255,255,.15);box-shadow:0 7px 18px rgba(0,0,0,.12);box-sizing:border-box;margin-bottom:10px;">
@@ -1840,7 +1844,6 @@ def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
 </div>
 </div>
 """, unsafe_allow_html=True)
-
 
 # =====================================================
 # DASHBOARD
