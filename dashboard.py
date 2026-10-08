@@ -4227,50 +4227,36 @@ elif page == "Projects":
 
 
     st.html("""
+
     <style>
 
-    /* =========================================
-    TEAM KPI CARDS
-    ========================================= */
+    /* =====================================================
+    TEAM OVERVIEW
+    ===================================================== */
 
-    div.st-key-team_overview_kpis {
+    div[data-testid="stVerticalBlock"]:has(
+        div[data-testid="stHorizontalBlock"]
+    ) {
         margin-top: 0px !important;
         margin-bottom: 0px !important;
     }
 
 
-    /* =========================================
-    DESKTOP - EXISTING LOOK
-    ========================================= */
+    /* =====================================================
+    TEAM KPI ROW
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
     div[data-testid="stHorizontalBlock"] {
-
         gap: 4px !important;
-
         margin-top: 0px !important;
         margin-bottom: 0px !important;
-
-        flex-wrap: nowrap !important;
     }
 
 
-    /* =========================================
-    CARD COLUMN
-    ========================================= */
+    /* =====================================================
+    KPI BUTTON
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
-    div[data-testid="column"] {
-
-        min-width: 0 !important;
-    }
-
-
-    /* =========================================
-    CARD BUTTON
-    ========================================= */
-
-    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button {
 
         width: 100% !important;
@@ -4315,12 +4301,19 @@ elif page == "Projects":
     }
 
 
-    /* =========================================
-    BUTTON TEXT
-    ========================================= */
+    /* =====================================================
+    KPI TEXT
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button p {
+
+        width: 100% !important;
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+
+        color: white !important;
 
         font-size: 10px !important;
 
@@ -4328,21 +4321,20 @@ elif page == "Projects":
 
         line-height: 1.15 !important;
 
-        color: white !important;
-
-        margin: 0 !important;
-
         white-space: pre-line !important;
+
+        overflow-wrap: anywhere !important;
+
+        word-break: normal !important;
 
         text-align: center !important;
     }
 
 
-    /* =========================================
+    /* =====================================================
     HOVER
-    ========================================= */
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button:hover {
 
         background: linear-gradient(
@@ -4358,11 +4350,10 @@ elif page == "Projects":
     }
 
 
-    /* =========================================
+    /* =====================================================
     FOCUS
-    ========================================= */
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
     div[data-testid="stButton"] > button:focus {
 
         background: #006747 !important;
@@ -4371,75 +4362,85 @@ elif page == "Projects":
     }
 
 
-    /* =========================================
-    REMOVE EXTRA SPACING
-    ========================================= */
+    /* =====================================================
+    MOBILE
+    ===================================================== */
 
-    div.st-key-team_overview_kpis
-    div[data-testid="stVerticalBlock"] {
+    @media screen and (max-width: 768px) {
 
-        gap: 2px !important;
-    }
-
-
-    /* =================================================
-    MOBILE VIEW
-    ================================================= */
-
-    @media (max-width: 768px) {
-
-        /* Horizontal swipe instead of squeezing cards */
-        div.st-key-team_overview_kpis
+        /* Make the KPI row horizontally scrollable */
         div[data-testid="stHorizontalBlock"] {
 
             display: flex !important;
 
+            flex-direction: row !important;
+
             flex-wrap: nowrap !important;
 
             overflow-x: auto !important;
+
             overflow-y: hidden !important;
+
+            width: 100% !important;
+
+            max-width: 100% !important;
 
             gap: 6px !important;
 
-            padding-bottom: 5px !important;
+            padding: 0 0 6px 0 !important;
 
-            scrollbar-width: thin;
+            margin: 0 !important;
 
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch !important;
+
+            scrollbar-width: thin !important;
         }
 
 
-        /* Fixed readable card width */
-        div.st-key-team_overview_kpis
-        div[data-testid="column"] {
+        /* IMPORTANT:
+        Force every Streamlit column
+        to keep its own width.
+        */
 
-            flex: 0 0 78px !important;
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"] {
 
-            width: 78px !important;
+            flex-grow: 0 !important;
 
-            min-width: 78px !important;
+            flex-shrink: 0 !important;
 
-            max-width: 78px !important;
+            flex-basis: 76px !important;
+
+            width: 76px !important;
+
+            min-width: 76px !important;
+
+            max-width: 76px !important;
+
+            padding: 0 !important;
+
+            margin: 0 !important;
         }
 
 
-        /* Mobile card */
-        div.st-key-team_overview_kpis
+        /* Button width */
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"]
         div[data-testid="stButton"] > button {
 
-            width: 78px !important;
+            width: 76px !important;
 
-            min-width: 78px !important;
+            min-width: 76px !important;
 
-            max-width: 78px !important;
+            max-width: 76px !important;
 
             height: 58px !important;
 
             min-height: 58px !important;
 
-            padding: 4px 3px !important;
+            max-height: 58px !important;
 
-            border-radius: 9px !important;
+            padding: 4px 3px !important;
 
             font-size: 9px !important;
 
@@ -4451,9 +4452,12 @@ elif page == "Projects":
         }
 
 
-        /* Mobile text */
-        div.st-key-team_overview_kpis
+        /* Text */
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"]
         div[data-testid="stButton"] > button p {
+
+            width: 100% !important;
 
             font-size: 9px !important;
 
@@ -4463,45 +4467,50 @@ elif page == "Projects":
 
             white-space: pre-line !important;
 
-            overflow: hidden !important;
+            overflow-wrap: anywhere !important;
 
-            text-overflow: clip !important;
+            word-break: normal !important;
 
             text-align: center !important;
 
+            overflow: hidden !important;
+
             margin: 0 !important;
+
+            padding: 0 !important;
         }
 
     }
 
 
-    /* =================================================
-    VERY SMALL MOBILE
-    ================================================= */
+    /* =====================================================
+    SMALL MOBILE
+    ===================================================== */
 
-    @media (max-width: 400px) {
+    @media screen and (max-width: 400px) {
 
-        div.st-key-team_overview_kpis
-        div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"] {
 
-            flex: 0 0 74px !important;
+            flex-basis: 72px !important;
 
-            width: 74px !important;
+            width: 72px !important;
 
-            min-width: 74px !important;
+            min-width: 72px !important;
 
-            max-width: 74px !important;
+            max-width: 72px !important;
         }
 
 
-        div.st-key-team_overview_kpis
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"]
         div[data-testid="stButton"] > button {
 
-            width: 74px !important;
+            width: 72px !important;
 
-            min-width: 74px !important;
+            min-width: 72px !important;
 
-            max-width: 74px !important;
+            max-width: 72px !important;
 
             height: 58px !important;
 
@@ -4511,7 +4520,8 @@ elif page == "Projects":
         }
 
 
-        div.st-key-team_overview_kpis
+        div[data-testid="stHorizontalBlock"]
+        > div[data-testid="column"]
         div[data-testid="stButton"] > button p {
 
             font-size: 8.5px !important;
