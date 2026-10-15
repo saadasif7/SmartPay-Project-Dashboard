@@ -9221,17 +9221,21 @@ elif page == "BAU Monitoring":
         st.info(
             "No BAU update field is available in the Excel data."
         )
+
 # =====================================================
-# IS ISSUES
+# IS ISSUES - SMARTPAY DASHBOARD
+# Main KPI Navigation + Readable Summary + Detail Table
 # =====================================================
 
 elif page == "IS Issues":
 
     import os
+    import html
     import pandas as pd
+    import streamlit as st
 
     # =====================================================
-    # LOAD IS ISSUES FILE
+    # LOAD EXCEL
     # =====================================================
 
     file = os.path.join(
@@ -9241,48 +9245,30 @@ elif page == "IS Issues":
     )
 
     try:
-
-        excel_file = pd.ExcelFile(file)
-
-        sheet_name = excel_file.sheet_names[0]
-
-        raw = pd.read_excel(
-            file,
-            sheet_name=sheet_name,
-            header=None
-        )
+        excel = pd.ExcelFile(file)
+        sheet_name = excel.sheet_names[0]
+        raw = pd.read_excel(file, sheet_name=sheet_name, header=None)
 
         header_row = None
 
         for i in range(min(20, len(raw))):
-
-            row = " ".join(
-                str(x).lower()
-                for x in raw.iloc[i]
-                if pd.notna(x)
+            row_text = " ".join(
+                str(v).lower()
+                for v in raw.iloc[i]
+                if pd.notna(v)
             )
 
             if (
-                "application name" in row
-                and "severity" in row
-                and "issues description" in row
+                "application name" in row_text
+                and "severity" in row_text
+                and "issues description" in row_text
             ):
-
                 header_row = i
                 break
 
         if header_row is None:
-
-            st.error(
-                "IS Issues header row not found."
-            )
-
-            st.dataframe(
-                raw.head(20)
-            )
-
+            st.error("Could not find the IS Issues header row.")
             st.stop()
-
 
         df = pd.read_excel(
             file,
@@ -9290,34 +9276,15 @@ elif page == "IS Issues":
             header=header_row
         )
 
-
-        df.columns = [
-            str(x).strip()
-            for x in df.columns
-        ]
-
-
-        df = (
-            df
-            .dropna(how="all")
-            .reset_index(drop=True)
-        )
-
-
     except Exception as e:
-
-        st.error(
-            f"IS Issues file error: {e}"
-        )
-
+        st.error(f"Unable to load IS Issues.xlsx: {e}")
         st.stop()
-
 
     # =====================================================
     # REQUIRED COLUMNS
     # =====================================================
 
-    columns = [
+    required_columns = [
         "Application Name",
         "Severity",
         "Issues Description",
@@ -9325,1658 +9292,989 @@ elif page == "IS Issues":
         "DBG Remarks"
     ]
 
+    df.columns = [str(c).strip() for c in df.columns]
 
-    for col in columns:
+    for column in required_columns:
+        if column not in df.columns:
+            df[column] = ""
 
-        if col not in df.columns:
+    df = df[required_columns].copy()
+    df = df.dropna(how="all").fillna("")
 
-            df[col] = ""
-
-
-    df = df[
-        columns
-    ].fillna("")
-
-
-    # =====================================================
-    # CLEAN DATA
-    # =====================================================
-
-    for col in columns:
-
-        df[col] = (
-            df[col]
+    for column in required_columns:
+        df[column] = (
+            df[column]
             .astype(str)
-            .str.replace(
-                r"\s+",
-                " ",
-                regex=True
-            )
+            .str.replace(r"\s+", " ", regex=True)
             .str.strip()
+            .replace({"nan": "", "None": ""})
         )
 
-
-    df["Severity"] = (
-        df["Severity"]
-        .str.upper()
-        .str.strip()
+    df["Application Name"] = df["Application Name"].replace(
+        "", "Uncategorized"
     )
 
+    df["Severity"] = df["Severity"].str.upper().str.strip()
 
     df["Status of Issue"] = (
         df["Status of Issue"]
-        .str.replace(
-            r"\s+",
-            " ",
-            regex=True
-        )
+        .str.replace(r"\s+", " ", regex=True)
         .str.strip()
     )
-
 
     # =====================================================
     # HEADER
     # =====================================================
 
-    render_header('INFORMATION SECURITY MONITORING', '🔐 IS Issues', 'Information Security Issues &amp; Fixation Tracking', 'SECURITY ISSUE MONITORING')
-
-
-    # =====================================================
-    # KPI COUNTS
-    # =====================================================
-
-    severity = (
-        df["Severity"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
+    render_header(
+        "INFORMATION SECURITY MONITORING",
+        "🔐 IS Issues",
+        "Information Security Issues & Fixation Tracking",
+        "SECURITY ISSUE MONITORING"
     )
 
+    # =====================================================
+    # SESSION STATE
+    # =====================================================
 
-    issue_status = (
-        df["Status of Issue"]
-        .astype(str)
-        .str.replace(
-            r"\s+",
-            " ",
-            regex=True
+    defaults = {
+        "is_issue_view": "summary",
+        "is_issue_application": "All",
+        "is_issue_stage": "All",
+        "is_issue_search": "",
+        "is_issue_severity_filter": "All",
+        "is_issue_status_filter": "All",
+        "is_issues_edit_mode": False
+    }
+
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+    # =====================================================
+    # COUNTS
+    # =====================================================
+
+    def get_issue_counts(data):
+        severity = (
+            data["Severity"]
+            .astype(str)
+            .str.upper()
+            .str.strip()
         )
-        .str.strip()
-        .str.upper()
-    )
 
+        status = (
+            data["Status of Issue"]
+            .astype(str)
+            .str.upper()
+            .str.replace(r"\s+", " ", regex=True)
+            .str.strip()
+        )
 
-    total_count = len(df)
-
-    high_count = (
-        severity == "HIGH"
-    ).sum()
-
-    medium_count = (
-        severity == "MEDIUM"
-    ).sum()
-
-    low_count = (
-        severity == "LOW"
-    ).sum()
-
-    fixed_count = (
-        issue_status == "FIXED"
-    ).sum()
-
-    fixation_count = (
-        issue_status
-        == "FIXATION IN PROGRESS"
-    ).sum()
-
+        return {
+            "All": len(data),
+            "CRITICAL": int((severity == "CRITICAL").sum()),
+            "HIGH": int((severity == "HIGH").sum()),
+            "MEDIUM": int((severity == "MEDIUM").sum()),
+            "LOW": int((severity == "LOW").sum()),
+            "FIXED": int((status == "FIXED").sum()),
+            "FIXATION IN PROGRESS": int(
+                (status == "FIXATION IN PROGRESS").sum()
+            )
+        }
 
     # =====================================================
-    # VIP CLICKABLE KPI CARDS CSS
+    # KPI THEME - SAME AS DASHBOARD_KPIS
     # =====================================================
 
     st.markdown("""
     <style>
 
-    /* =====================================================
-    KPI CARD CONTAINER
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"] {
-
+    .st-key-dashboard_kpis div[data-testid="stButton"],
+    .st-key-is_detail_kpis div[data-testid="stButton"] {
         width:100% !important;
     }
 
-
-    /* =====================================================
-    BASE CARD
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button {
-
+    .st-key-dashboard_kpis div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button {
         width:100% !important;
-
-        min-height:88px !important;
-
-        height:88px !important;
-
+        min-height:96px !important;
+        height:96px !important;
         background:#FFFFFF !important;
-
-        border:
-            1px solid
-            #DDE5E1 !important;
-
-        border-radius:14px !important;
-
+        border:1px solid #E5E7EB !important;
+        border-radius:16px !important;
         padding:10px 6px !important;
-
-        box-shadow:
-            0 5px 16px
-            rgba(0,103,71,.08) !important;
-
+        box-shadow:0 6px 16px rgba(0,0,0,.08) !important;
         color:#111827 !important;
-
-        font-family:
-            "Segoe UI",
-            Arial,
-            sans-serif !important;
-
         font-size:13px !important;
-
-        font-weight:700 !important;
-
-        line-height:1.15 !important;
-
+        font-weight:600 !important;
+        font-family:"Segoe UI",Arial,sans-serif !important;
+        line-height:1.2 !important;
         white-space:pre-line !important;
-
         text-align:center !important;
-
         display:flex !important;
-
-        flex-direction:column !important;
-
-        justify-content:center !important;
-
         align-items:center !important;
-
-        transition:
-            all .2s ease !important;
+        justify-content:center !important;
+        transition:all .2s ease !important;
     }
 
-
-    /* =====================================================
-    BUTTON TEXT
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button p {
-
-        width:100% !important;
-
-        margin:0 !important;
-
-        padding:0 !important;
-
-        font-family:
-            "Segoe UI",
-            Arial,
-            sans-serif !important;
-
+    .st-key-dashboard_kpis div[data-testid="stButton"] button p,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button p {
+        font-family:"Segoe UI",Arial,sans-serif !important;
         font-size:13px !important;
-
-        font-weight:700 !important;
-
-        line-height:1.25 !important;
-
-        color:#111827 !important;
-
+        font-weight:650 !important;
+        line-height:1.3 !important;
         white-space:pre-line !important;
-
         text-align:center !important;
+        display:block !important;
+        width:100% !important;
+        margin:0 !important;
+        padding:0 !important;
+        color:#111827 !important;
     }
 
-
-    /* =====================================================
-    HOVER
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button:hover {
-
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:hover,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button:hover {
         background:#F8FAFC !important;
-
-        color:#111827 !important;
-
-        transform:
-            translateY(-2px) !important;
-
-        box-shadow:
-            0 8px 20px
-            rgba(0,103,71,.14) !important;
+        transform:translateY(-2px) !important;
+        box-shadow:0 10px 22px rgba(0,0,0,.11) !important;
     }
 
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button:hover p {
-
-        color:#111827 !important;
-    }
-
-
-    /* =====================================================
-    SELECTED / FOCUS
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button:focus {
-
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button:focus {
         outline:none !important;
-
+        min-height:96px !important;
+        height:96px !important;
         background:#EAF5F0 !important;
-
-        border:
-            2px solid
-            #006747 !important;
-
+        border:2px solid #006747 !important;
         box-shadow:
-            0 0 0 3px
-            rgba(0,103,71,.12),
-            0 8px 18px
-            rgba(0,103,71,.15) !important;
-
+            0 0 0 3px rgba(0,103,71,.12),
+            0 10px 22px rgba(0,103,71,.16) !important;
         color:#006747 !important;
+        transform:translateY(-2px) !important;
     }
 
-
-    .st-key-is_issues_kpis
-    div[data-testid="stButton"]
-    button:focus p {
-
+    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus p,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button:focus p {
         color:#006747 !important;
-
-        font-weight:700 !important;
+        font-weight:750 !important;
     }
 
+    /* KPI accent colours */
 
-    /* =====================================================
-    ALL
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #006747 !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(1) div[data-testid="stButton"] button {
+        border-top:6px solid #006747 !important;
     }
 
-
-    /* =====================================================
-    HIGH
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #D32F2F !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button {
+        border-top:6px solid #8E24AA !important;
     }
 
-
-    /* =====================================================
-    MEDIUM
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #F9A825 !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(3) div[data-testid="stButton"] button {
+        border-top:6px solid #F9A825 !important;
     }
 
-
-    /* =====================================================
-    LOW
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #008A5A !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(4) div[data-testid="stButton"] button {
+        border-top:6px solid #00ACC1 !important;
     }
 
-
-    /* =====================================================
-    FIXED
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #00C853 !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(5) div[data-testid="stButton"] button {
+        border-top:6px solid #3949AB !important;
     }
 
-
-    /* =====================================================
-    FIXATION IN PROGRESS
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6)
-    div[data-testid="stButton"]
-    button {
-
-        border-top:
-            4px solid
-            #FF9800 !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(6) div[data-testid="stButton"] button {
+        border-top:6px solid #00C853 !important;
     }
 
-
-    /* =====================================================
-    COLUMN SPACING
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stHorizontalBlock"] {
-
-        gap:8px !important;
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7) div[data-testid="stButton"] button,
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
+    div[data-testid="stColumn"]:nth-child(7) div[data-testid="stButton"] button {
+        border-top:6px solid #607D8B !important;
     }
 
-
-    /* =====================================================
-    REMOVE EXTRA GAPS
-    ===================================================== */
-
-    .st-key-is_issues_kpis
-    div[data-testid="stVerticalBlock"] {
-
+    .st-key-dashboard_kpis div[data-testid="stVerticalBlock"],
+    .st-key-is_detail_kpis div[data-testid="stVerticalBlock"] {
         gap:0 !important;
     }
 
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
+        gap:10px !important;
+        align-items:stretch !important;
+    }
 
-    /* =====================================================
-    MOBILE
-    ===================================================== */
+    /* Summary styling */
 
-    @media (max-width:768px) {
+    .is-summary-heading {
+        color:#006747;
+        font-size:22px;
+        font-weight:750;
+        margin:14px 0 4px;
+    }
 
-        .st-key-is_issues_kpis
-        div[data-testid="stButton"]
-        button {
+    .is-summary-subtitle {
+        color:#64748B;
+        font-size:13px;
+        margin-bottom:12px;
+    }
 
-            min-height:82px !important;
+    .is-summary-header {
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:white;
+        border-radius:8px;
+        padding:10px 3px;
+        text-align:center;
+        font-size:10px;
+        font-weight:800;
+        min-height:40px;
+    }
 
-            height:82px !important;
+    /* Number and category name in each summary box */
 
-            padding:8px 4px !important;
+    .is-count-box {
+        background:#F8FAFC;
+        border:1px solid #E2E8F0;
+        border-radius:8px;
+        padding:7px 2px;
+        text-align:center;
+        min-height:55px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:4px;
+        overflow-wrap:anywhere;
+    }
 
-            font-size:12px !important;
-        }
+    .is-count-number {
+        font-size:17px;
+        line-height:1.2;
+        font-weight:800;
+        color:#1F2937;
+    }
 
-        .st-key-is_issues_kpis
-        div[data-testid="stButton"]
-        button p {
+    .is-count-label {
+        font-size:9px;
+        line-height:1.2;
+        font-weight:800;
+        letter-spacing:.2px;
+        color:#64748B;
+    }
 
-            font-size:12px !important;
+    .is-count-critical {
+        color:#991B1B;
+        background:#FEF2F2;
+    }
 
-            line-height:1.2 !important;
-        }
+    .is-count-high {
+        color:#B91C1C;
+        background:#FFF1F2;
+    }
+
+    .is-count-medium {
+        color:#92400E;
+        background:#FFFBEB;
+    }
+
+    .is-count-low {
+        color:#047857;
+        background:#ECFDF5;
+    }
+
+    .is-count-fixed {
+        color:#166534;
+        background:#DCFCE7;
+    }
+
+    .is-count-progress {
+        color:#92400E;
+        background:#FEF3C7;
+    }
+
+    /* Each application and its counts share one bordered row */
+
+    .is-summary-row {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:12px;
+        padding:8px 5px;
+        margin:5px 0;
+        box-shadow:0 3px 9px rgba(0,103,71,.05);
+    }
+
+    .is-summary-row div[data-testid="stHorizontalBlock"] {
+        align-items:center !important;
+        gap:6px !important;
+    }
+
+    .is-summary-row div[data-testid="stButton"] button {
+        width:100% !important;
+        min-height:42px !important;
+        background:#F0F8F4 !important;
+        color:#006747 !important;
+        border:1px solid #C8DED3 !important;
+        border-radius:8px !important;
+        font-weight:700 !important;
+        text-align:left !important;
+        white-space:normal !important;
+        overflow-wrap:anywhere !important;
+    }
+
+    .is-summary-row div[data-testid="stButton"] button:hover {
+        background:#E0F0E8 !important;
+        border-color:#006747 !important;
+    }
+
+    .is-issues-table-wrapper {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:14px;
+        padding:6px;
+        box-shadow:0 6px 20px rgba(0,103,71,.08);
+        overflow-x:auto;
+    }
+
+    .is-issues-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:13px;
+        table-layout:fixed;
+    }
+
+    .is-issues-table thead th {
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color:white;
+        font-weight:700;
+        padding:13px 10px;
+        text-align:left;
+    }
+
+    .is-issues-table tbody td {
+        padding:12px 10px;
+        color:#1F2937;
+        border-bottom:1px solid #E5E7EB;
+        overflow-wrap:anywhere;
+        vertical-align:top;
+        line-height:1.55;
+    }
+
+    .is-issues-table tbody tr:nth-child(even) td {
+        background:#F8FAFC;
+    }
+
+    .is-issues-table tbody tr:hover td {
+        background:#ECFDF5;
+    }
+
+    .severity-badge,.issue-status {
+        display:inline-block;
+        padding:5px 8px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:800;
+    }
+
+    .severity-critical {
+        background:#7F1D1D;
+        color:white!important;
+    }
+
+    .severity-high {
+        background:#FEE2E2;
+        color:#B91C1C!important;
+    }
+
+    .severity-medium {
+        background:#FEF3C7;
+        color:#92400E!important;
+    }
+
+    .severity-low {
+        background:#D1FAE5;
+        color:#087443!important;
+    }
+
+    .issue-fixed {
+        background:#DCFCE7;
+        color:#166534!important;
+    }
+
+    .issue-progress {
+        background:#FEF3C7;
+        color:#92400E!important;
     }
 
     </style>
     """, unsafe_allow_html=True)
+
     # =====================================================
-    # KPI CARD CONTAINER
+    # KPI CARDS
+    # Main KPI click opens All Issues detail table.
+    # Detail KPI click filters the selected group's table.
     # =====================================================
 
-    with st.container(
-        key="is_issues_kpis"
+    def render_issue_kpis(
+        data,
+        container_key,
+        key_prefix,
+        main_page=False
     ):
+        counts = get_issue_counts(data)
 
-        c1, c2, c3, c4, c5, c6 = st.columns(
-            6,
-            gap="small"
-        )
-
-
-        # =================================================
-        # ALL
-        # =================================================
-
-        with c1:
-
-            if st.button(
-                f"ALL\n{total_count}",
-                key="is_all",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "All"
-
-                st.rerun()
-
-
-        # =================================================
-        # HIGH
-        # =================================================
-
-        with c2:
-
-            if st.button(
-                f"HIGH\n{high_count}",
-                key="is_high",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "HIGH"
-
-                st.rerun()
-
-
-        # =================================================
-        # MEDIUM
-        # =================================================
-
-        with c3:
-
-            if st.button(
-                f"MEDIUM\n{medium_count}",
-                key="is_medium",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "MEDIUM"
-
-                st.rerun()
-
-
-        # =================================================
-        # LOW
-        # =================================================
-
-        with c4:
-
-            if st.button(
-                f"LOW\n{low_count}",
-                key="is_low",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "LOW"
-
-                st.rerun()
-
-
-        # =================================================
-        # FIXED
-        # =================================================
-
-        with c5:
-
-            if st.button(
-                f"FIXED\n{fixed_count}",
-                key="is_fixed",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "FIXED"
-
-                st.rerun()
-
-
-        # =================================================
-        # FIXATION IN PROGRESS
-        # =================================================
-
-        with c6:
-
-            if st.button(
-                f"FIXATION IN PROGRESS\n{fixation_count}",
-                key="is_fixation",
-                use_container_width=True
-            ):
-
-                st.session_state[
-                    "is_issue_stage"
-                ] = "FIXATION IN PROGRESS"
-
-                st.rerun()
-
-
-    # =====================================================
-    # ACTIVE KPI FILTER
-    # =====================================================
-
-    selected_card = st.session_state.get(
-        "is_issue_stage",
-        "All"
-    )
-
-
-    # =====================================================
-    # FILTERS
-    # =====================================================
-
-    st.html("""
-<div style="
-color:#006747;
-font-size:22px;
-font-weight:700;
-margin-top:0;
-margin-bottom:5px;
-font-family:Segoe UI,Arial,sans-serif;">
-🎯 Filters
-</div>
-""")
-
-
-    c1, c2, c3 = st.columns(3)
-
-
-    with c1:
-
-        search = st.text_input(
-            "Search IS Issues",
-            placeholder="🔍 Search application, issue or remarks...",
-            key="is_issue_search"
-        )
-
-
-    with c2:
-
-        severity_filter = st.selectbox(
-            "Severity",
-            [
-                "All",
-                "HIGH",
-                "MEDIUM",
-                "LOW"
-            ],
-            key="is_issue_severity_filter"
-        )
-
-
-    with c3:
-
-        status_filter = st.selectbox(
-            "Status",
-            [
-                "All",
-                "Fixed",
-                "Fixation in Progress"
-            ],
-            key="is_issue_status_filter"
-        )
-
-
-    # =====================================================
-    # FILTER DATA
-    # =====================================================
-
-    filtered_df = df.copy()
-
-
-    # =====================================================
-    # SEARCH
-    # =====================================================
-
-    if search:
-
-        search_columns = [
-            "Application Name",
-            "Severity",
-            "Issues Description",
-            "Status of Issue",
-            "DBG Remarks"
+        specs = [
+            ("ALL", "All", "all"),
+            ("CRITICAL", "CRITICAL", "critical"),
+            ("HIGH", "HIGH", "high"),
+            ("MEDIUM", "MEDIUM", "medium"),
+            ("LOW", "LOW", "low"),
+            ("FIXED", "FIXED", "fixed"),
+            ("IN PROGRESS", "FIXATION IN PROGRESS", "progress")
         ]
 
-        search_mask = pd.Series(
-            False,
-            index=filtered_df.index
-        )
+        with st.container(key=container_key):
+            cols = st.columns([1.2, 1.1, 1.0, 1.1, 1.0, 1.0, 1.0])
 
+            for col, (label, stage, suffix) in zip(cols, specs):
+                with col:
+                    if st.button(
+                        f"{label}\n{counts[stage]}",
+                        key=f"{key_prefix}_{suffix}",
+                        use_container_width=True
+                    ):
+                        st.session_state["is_issue_stage"] = stage
 
-        for col in search_columns:
+                        if main_page:
+                            st.session_state["is_issue_application"] = "All"
+                            st.session_state["is_issue_view"] = "details"
 
-            search_mask = (
-                search_mask
-                |
-                filtered_df[col]
-                .astype(str)
-                .str.contains(
-                    search,
-                    case=False,
-                    na=False
-                )
-            )
+                            st.session_state["is_issue_search"] = ""
+                            st.session_state["is_issue_severity_filter"] = "All"
+                            st.session_state["is_issue_status_filter"] = "All"
 
-
-        filtered_df = filtered_df[
-            search_mask
-        ]
-
+                        st.rerun()
 
     # =====================================================
-    # SEVERITY FILTER
+    # SUMMARY VIEW
     # =====================================================
 
-    if severity_filter != "All":
+    if st.session_state["is_issue_view"] == "summary":
 
-        filtered_df = filtered_df[
-            filtered_df["Severity"]
-            .astype(str)
-            .str.upper()
-            .str.strip()
-            == severity_filter
-        ]
-
-
-    # =====================================================
-    # STATUS FILTER
-    # =====================================================
-
-    if status_filter != "All":
-
-        filtered_df = filtered_df[
-            filtered_df["Status of Issue"]
-            .astype(str)
-            .str.replace(
-                r"\s+",
-                " ",
-                regex=True
-            )
-            .str.upper()
-            .str.strip()
-            ==
-            status_filter.upper()
-        ]
-
-
-    # =====================================================
-    # KPI CARD FILTER
-    # =====================================================
-
-    if selected_card != "All":
-
-        if selected_card in [
-            "HIGH",
-            "MEDIUM",
-            "LOW"
-        ]:
-
-            filtered_df = filtered_df[
-                filtered_df["Severity"]
-                .astype(str)
-                .str.upper()
-                .str.strip()
-                == selected_card
-            ]
-
-
-        elif selected_card == "FIXED":
-
-            filtered_df = filtered_df[
-                filtered_df["Status of Issue"]
-                .astype(str)
-                .str.replace(
-                    r"\s+",
-                    " ",
-                    regex=True
-                )
-                .str.upper()
-                .str.strip()
-                == "FIXED"
-            ]
-
-
-        elif selected_card == "FIXATION IN PROGRESS":
-
-            filtered_df = filtered_df[
-                filtered_df["Status of Issue"]
-                .astype(str)
-                .str.replace(
-                    r"\s+",
-                    " ",
-                    regex=True
-                )
-                .str.upper()
-                .str.strip()
-                == "FIXATION IN PROGRESS"
-            ]
-
-
-    # =====================================================
-    # SHOWING COUNT
-    # =====================================================
-
-    left, right = st.columns(
-        [5, 1]
-    )
-
-
-    with left:
-
-        filter_name = (
-            "All"
-            if selected_card == "All"
-            else selected_card
+        render_issue_kpis(
+            df.copy(),
+            "dashboard_kpis",
+            "is_main",
+            main_page=True
         )
 
         st.markdown(
-            f"""
-<div style="background:#E8F5E9;padding:7px 12px;border-radius:9px;color:#006747;font-size:13px;font-weight:700;margin-top:3px;">
-🔐 Showing <b>{len(filtered_df)}</b> Issue(s)
-&nbsp;•&nbsp;
-Filter: <b>{filter_name}</b>
-</div>
-""",
+            '<div class="is-summary-heading">📊 Issue Summary</div>',
             unsafe_allow_html=True
         )
 
-
-    with right:
-
-        csv = (
-            filtered_df
-            .to_csv(index=False)
-            .encode("utf-8-sig")
+        st.markdown(
+            '<div class="is-summary-subtitle">'
+            'Each application and its issue counts are grouped inside '
+            'a separate bordered row. Click an application to open details.'
+            '</div>',
+            unsafe_allow_html=True
         )
 
-        st.download_button(
-            "⬇ Download CSV",
-            csv,
-            "IS_Issues.csv",
-            "text/csv",
-            width="stretch"
+        if st.button(
+            "📋 All Issues — View Every Category",
+            key="is_open_all_issues",
+            type="primary",
+            use_container_width=True
+        ):
+            st.session_state["is_issue_application"] = "All"
+            st.session_state["is_issue_stage"] = "All"
+            st.session_state["is_issue_view"] = "details"
+            st.session_state["is_issue_search"] = ""
+            st.session_state["is_issue_severity_filter"] = "All"
+            st.session_state["is_issue_status_filter"] = "All"
+            st.rerun()
+
+        group_names = sorted(
+            df["Application Name"].dropna().unique().tolist(),
+            key=str.casefold
         )
 
+        widths = [3.0, 0.8, 0.9, 0.8, 0.9, 0.8, 0.8, 1.2]
+
+        # Column headings
+        header_cols = st.columns(widths)
+
+        headers = [
+            "ISSUE NAME",
+            "TOTAL",
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "FIXED",
+            "IN PROGRESS"
+        ]
+
+        for col, label in zip(header_cols, headers):
+            with col:
+                st.markdown(
+                    f'<div class="is-summary-header">'
+                    f'{label}</div>',
+                    unsafe_allow_html=True
+                )
+
+        # Each application and all its labelled counts share one border
+        for index, app_name in enumerate(group_names):
+
+            group_df = df[
+                df["Application Name"] == app_name
+            ].copy()
+
+            counts = get_issue_counts(group_df)
+
+            with st.container(
+                key=f"is_summary_row_{index}",
+                border=True
+            ):
+
+                row = st.columns(widths)
+
+                with row[0]:
+                    if st.button(
+                        f"📂 {app_name}",
+                        key=f"is_group_{index}",
+                        use_container_width=True
+                    ):
+                        st.session_state["is_issue_application"] = app_name
+                        st.session_state["is_issue_stage"] = "All"
+                        st.session_state["is_issue_view"] = "details"
+                        st.session_state["is_issue_search"] = ""
+                        st.session_state["is_issue_severity_filter"] = "All"
+                        st.session_state["is_issue_status_filter"] = "All"
+                        st.rerun()
+
+                # Actual counts for this application
+                values = [
+                    counts["All"],
+                    counts["CRITICAL"],
+                    counts["HIGH"],
+                    counts["MEDIUM"],
+                    counts["LOW"],
+                    counts["FIXED"],
+                    counts["FIXATION IN PROGRESS"]
+                ]
+
+                # NEW: label for every number
+                labels = [
+                    "TOTAL",
+                    "CRITICAL",
+                    "HIGH",
+                    "MEDIUM",
+                    "LOW",
+                    "FIXED",
+                    "IN PROGRESS"
+                ]
+
+                classes = [
+                    "",
+                    "is-count-critical",
+                    "is-count-high",
+                    "is-count-medium",
+                    "is-count-low",
+                    "is-count-fixed",
+                    "is-count-progress"
+                ]
+
+                # Number appears above its category name
+                for j, (value, label, css_class) in enumerate(
+                    zip(values, labels, classes)
+                ):
+                    with row[j + 1]:
+                        st.markdown(
+                            f'<div class="is-count-box {css_class}">'
+                            f'<div class="is-count-number">{value}</div>'
+                            f'<div class="is-count-label">{label}</div>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
 
     # =====================================================
-    # TABLE TITLE
+    # DETAIL VIEW
+    # Main-page KPI cards do not appear here.
     # =====================================================
 
-    st.html("""
-<div style="
-color:#006747;
-font-size:24px;
-font-weight:700;
-margin-top:2px;
-margin-bottom:3px;
-font-family:Segoe UI,Arial,sans-serif;">
-📋 IS Issues Details
-</div>
-""")
-
-
-    # =====================================================
-    # VIP TABLE CSS
-    # =====================================================
-
-    st.markdown("""
-<style>
-
-.is-issues-table-wrapper {
-
-    background:#FFFFFF;
-
-    border:
-        1px solid
-        #DDE5E1;
-
-    border-radius:16px;
-
-    padding:6px;
-
-    box-shadow:
-        0 6px 20px
-        rgba(0,103,71,.08);
-
-    overflow:hidden;
-}
-
-
-.is-issues-table {
-
-    width:100%;
-
-    border-collapse:
-        separate;
-
-    border-spacing:0;
-
-    font-size:14px;
-
-    table-layout:fixed;
-}
-
-
-.is-issues-table thead th {
-
-    background:
-        linear-gradient(
-            135deg,
-            #013D2B,
-            #006747,
-            #008A5A
-        );
-
-    color:#FFFFFF;
-
-    font-weight:700;
-
-    padding:14px 12px;
-
-    text-align:left;
-}
-
-
-.is-issues-table thead th:first-child {
-
-    border-top-left-radius:11px;
-}
-
-
-.is-issues-table thead th:last-child {
-
-    border-top-right-radius:11px;
-}
-
-
-.is-issues-table tbody td {
-
-    padding:13px 12px;
-
-    color:#1F2937;
-
-    border-bottom:
-        1px solid
-        #E5E7EB;
-
-    background:#FFFFFF;
-
-    white-space:
-        normal !important;
-
-    word-wrap:
-        break-word !important;
-
-    overflow-wrap:
-        anywhere !important;
-
-    vertical-align:top;
-
-    line-height:1.6;
-}
-
-
-.is-issues-table tbody tr:nth-child(even) td {
-
-    background:#F8FAFC;
-}
-
-
-.is-issues-table tbody tr:hover td {
-
-    background:#ECFDF5;
-}
-
-
-/* =====================================================
-APPLICATION
-===================================================== */
-
-.is-application {
-
-    font-weight:700;
-
-    color:#006747 !important;
-}
-
-
-/* =====================================================
-SEVERITY BADGES
-===================================================== */
-
-.severity-badge {
-
-    display:inline-block;
-
-    padding:5px 11px;
-
-    border-radius:20px;
-
-    font-size:11px;
-
-    font-weight:800;
-
-    white-space:nowrap;
-}
-
-
-.severity-high {
-
-    background:#FEE2E2;
-
-    color:#B91C1C;
-}
-
-
-.severity-medium {
-
-    background:#FEF3C7;
-
-    color:#92400E;
-}
-
-
-.severity-low {
-
-    background:#D1FAE5;
-
-    color:#087443;
-}
-
-
-/* =====================================================
-STATUS BADGES
-===================================================== */
-
-.issue-status {
-
-    display:inline-block;
-
-    padding:5px 11px;
-
-    border-radius:20px;
-
-    font-size:11px;
-
-    font-weight:800;
-
-    white-space:nowrap;
-}
-
-
-.issue-fixed {
-
-    background:#DCFCE7;
-
-    color:#166534;
-}
-
-
-.issue-progress {
-
-    background:#FEF3C7;
-
-    color:#92400E;
-}
-
-
-/* =====================================================
-ACTION BUTTONS
-===================================================== */
-
-div.stButton > button {
-
-    background:#006747 !important;
-
-    color:white !important;
-
-    border:
-        1px solid
-        #006747 !important;
-
-    border-radius:10px !important;
-
-    font-weight:700 !important;
-}
-
-
-div.stButton > button:hover {
-
-    background:#008A5A !important;
-
-    color:white !important;
-
-    border-color:#008A5A !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-
-    # =====================================================
-    # TABLE DATA
-    # =====================================================
-
-    display_df = filtered_df.copy()
-
-
-    # =====================================================
-    # APPLICATION BADGE
-    # =====================================================
-
-    display_df["Application Name"] = (
-        display_df["Application Name"]
-        .apply(
-            lambda x:
-            f'<span class="is-application">{x}</span>'
+    else:
+
+        selected_app = st.session_state["is_issue_application"]
+
+        back_col, title_col = st.columns([1.5, 4])
+
+        with back_col:
+            if st.button(
+                "← Back to All Issues",
+                key="is_issue_back",
+                use_container_width=True
+            ):
+                st.session_state["is_issue_view"] = "summary"
+                st.session_state["is_issue_application"] = "All"
+                st.session_state["is_issue_stage"] = "All"
+                st.session_state["is_issue_search"] = ""
+                st.session_state["is_issue_severity_filter"] = "All"
+                st.session_state["is_issue_status_filter"] = "All"
+                st.rerun()
+
+        with title_col:
+            title_text = (
+                "All Issues" if selected_app == "All" else selected_app
+            )
+
+            st.markdown(
+                f'<div class="is-summary-heading">📋 '
+                f'{html.escape(title_text)}</div>',
+                unsafe_allow_html=True
+            )
+
+        # Selected application's data only
+        if selected_app == "All":
+            detail_base_df = df.copy()
+        else:
+            detail_base_df = df[
+                df["Application Name"] == selected_app
+            ].copy()
+
+        st.markdown(
+            '<div class="is-summary-subtitle">'
+            'Click a KPI card to filter the table below. '
+            'Counts reflect this selected group.'
+            '</div>',
+            unsafe_allow_html=True
         )
-    )
 
+        # Only detail-page KPIs are displayed here
+        render_issue_kpis(
+            detail_base_df,
+            "is_detail_kpis",
+            "is_detail",
+            main_page=False
+        )
 
-    # =====================================================
-    # SEVERITY BADGE
-    # =====================================================
+        selected_stage = st.session_state["is_issue_stage"]
 
-    def severity_badge(value):
+        # =================================================
+        # FILTER CONTROLS
+        # =================================================
 
-        value = str(value).strip()
+        f1, f2, f3 = st.columns(3)
 
-        upper = value.upper()
+        with f1:
+            search = st.text_input(
+                "Search Issues",
+                placeholder="Search application, description, remarks...",
+                key="is_issue_search"
+            )
 
+        with f2:
+            severity_filter = st.selectbox(
+                "Severity Filter",
+                ["All", "CRITICAL", "HIGH", "MEDIUM", "LOW"],
+                key="is_issue_severity_filter"
+            )
 
-        if upper == "HIGH":
+        with f3:
+            status_filter = st.selectbox(
+                "Status Filter",
+                ["All", "Fixed", "Fixation in Progress"],
+                key="is_issue_status_filter"
+            )
 
-            css = "severity-high"
+        # =================================================
+        # FILTER TABLE DATA
+        # =================================================
 
+        filtered_df = detail_base_df.copy()
 
-        elif upper == "MEDIUM":
+        if search:
+            search_mask = pd.Series(
+                False,
+                index=filtered_df.index
+            )
 
-            css = "severity-medium"
+            for col in required_columns:
+                search_mask |= filtered_df[col].astype(str).str.contains(
+                    search,
+                    case=False,
+                    na=False,
+                    regex=False
+                )
 
+            filtered_df = filtered_df[search_mask]
 
-        elif upper == "LOW":
+        if severity_filter != "All":
+            filtered_df = filtered_df[
+                filtered_df["Severity"].str.upper() == severity_filter
+            ]
 
-            css = "severity-low"
+        if status_filter != "All":
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"]
+                .str.upper()
+                .str.replace(r"\s+", " ", regex=True)
+                .str.strip()
+                == status_filter.upper()
+            ]
 
+        # Apply selected KPI filter
+        if selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+            filtered_df = filtered_df[
+                filtered_df["Severity"].str.upper() == selected_stage
+            ]
+
+        elif selected_stage in ["FIXED", "FIXATION IN PROGRESS"]:
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"]
+                .str.upper()
+                .str.replace(r"\s+", " ", regex=True)
+                .str.strip()
+                == selected_stage
+            ]
+
+        # =================================================
+        # COUNT + CSV
+        # =================================================
+
+        left, right = st.columns([5, 1])
+
+        with left:
+            st.markdown(
+                f"""
+                <div style="
+                    background:#EAF5F0;
+                    padding:10px 12px;
+                    border-radius:9px;
+                    color:#006747;
+                    font-size:13px;
+                    font-weight:700;">
+                    Showing {len(filtered_df)} issue(s)
+                    &nbsp; | &nbsp; KPI: {html.escape(selected_stage)}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with right:
+            st.download_button(
+                "⬇ CSV",
+                data=filtered_df.to_csv(index=False).encode("utf-8-sig"),
+                file_name="IS_Issues.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+
+        st.markdown(
+            '<div class="is-summary-heading">📋 Issue Details</div>',
+            unsafe_allow_html=True
+        )
+
+        # =================================================
+        # TABLE BADGES
+        # =================================================
+
+        def safe_text(value):
+            return html.escape(str(value), quote=True)
+
+        def severity_badge(value):
+            value = str(value).strip()
+
+            css = {
+                "CRITICAL": "severity-critical",
+                "HIGH": "severity-high",
+                "MEDIUM": "severity-medium",
+                "LOW": "severity-low"
+            }.get(value.upper(), "")
+
+            return (
+                f'<span class="severity-badge {css}">'
+                f'{safe_text(value)}</span>'
+            )
+
+        def status_badge(value):
+            value = str(value).strip()
+            upper = value.upper()
+
+            if upper == "FIXED":
+                css = "issue-fixed"
+            elif upper == "FIXATION IN PROGRESS":
+                css = "issue-progress"
+            else:
+                css = ""
+
+            return (
+                f'<span class="issue-status {css}">'
+                f'{safe_text(value)}</span>'
+            )
+
+        if filtered_df.empty:
+            st.info("No issues match the selected filters.")
 
         else:
+            display_df = filtered_df.copy()
 
-            css = ""
+            display_df["Application Name"] = display_df[
+                "Application Name"
+            ].apply(
+                lambda x: (
+                    '<strong style="color:#006747;">'
+                    + safe_text(x)
+                    + '</strong>'
+                )
+            )
 
+            display_df["Severity"] = display_df["Severity"].apply(
+                severity_badge
+            )
 
-        return (
-            f'<span class="severity-badge {css}">'
-            f'{value}'
-            f'</span>'
-        )
+            display_df["Status of Issue"] = display_df[
+                "Status of Issue"
+            ].apply(status_badge)
 
+            table_html = display_df.to_html(
+                index=False,
+                escape=False,
+                classes="is-issues-table"
+            )
 
-    display_df["Severity"] = (
-        display_df["Severity"]
-        .apply(severity_badge)
-    )
-
-
-    # =====================================================
-    # STATUS BADGE
-    # =====================================================
-
-    def status_badge(value):
-
-        value = str(value).strip()
-
-        upper = (
-            value
-            .replace("  ", " ")
-            .upper()
-        )
-
-
-        if upper == "FIXED":
-
-            css = "issue-fixed"
-
-
-        else:
-
-            css = "issue-progress"
-
-
-        return (
-            f'<span class="issue-status {css}">'
-            f'{value}'
-            f'</span>'
-        )
-
-
-    display_df["Status of Issue"] = (
-        display_df["Status of Issue"]
-        .apply(status_badge)
-    )
-
+            st.markdown(
+                f'<div class="is-issues-table-wrapper">'
+                f'{table_html}</div>',
+                unsafe_allow_html=True
+            )
 
     # =====================================================
-    # HTML TABLE
+    # EDIT / SAVE
     # =====================================================
 
-    table_html = display_df.to_html(
-        index=False,
-        escape=False,
-        classes="is-issues-table"
-    )
+    st.markdown("---")
 
-
-    st.markdown(
-        f"""
-<div class="is-issues-table-wrapper">
-{table_html}
-</div>
-""",
-        unsafe_allow_html=True
-    )
-
-
-    # =====================================================
-    # EDIT IS ISSUES
-    # =====================================================
-
-    st.markdown(
-        "<div style='height:4px;'></div>",
-        unsafe_allow_html=True
-    )
-
-
-    if "is_issues_edit_mode" not in st.session_state:
-
-        st.session_state[
-            "is_issues_edit_mode"
-        ] = False
-
-
-    # =====================================================
-    # EDIT BUTTON
-    # =====================================================
-
-    if not st.session_state[
-        "is_issues_edit_mode"
-    ]:
+    if not st.session_state["is_issues_edit_mode"]:
 
         if st.button(
             "✏️ Edit IS Issues",
             key="is_issues_edit_button",
-            type="secondary",
             use_container_width=True
         ):
-
-            st.session_state[
-                "is_issues_edit_mode"
-            ] = True
-
+            st.session_state["is_issues_edit_mode"] = True
             st.rerun()
 
+    if st.session_state["is_issues_edit_mode"]:
 
-    # =====================================================
-    # EDITOR
-    # =====================================================
-
-    if st.session_state[
-        "is_issues_edit_mode"
-    ]:
-
-        st.markdown("""
-<h2 style="
-color:#006747;
-font-size:24px;
-font-weight:700;
-margin-top:14px;
-margin-bottom:8px;">
-✏️ Edit IS Issues
-</h2>
-""", unsafe_allow_html=True)
-
-
-        st.markdown("""
-<div style="background:#ECFDF5;border:1px solid #B7E4C7;border-left:5px solid #006747;border-radius:10px;padding:9px 12px;color:#006747;font-size:13px;font-weight:600;margin-bottom:8px;">
-✏️ Edit existing records, add new records, or create a new field/column.
-</div>
-""", unsafe_allow_html=True)
-
-
-        # =================================================
-        # ADD NEW FIELD
-        # =================================================
-
-        st.markdown("""
-<h3 style="
-color:#006747;
-font-size:19px;
-font-weight:700;
-margin-top:10px;
-margin-bottom:6px;">
-➕ Add New Field
-</h3>
-""", unsafe_allow_html=True)
-
-
-        field_col1, field_col2 = st.columns(
-            [3, 1]
-        )
-
-
-        with field_col1:
-
-            new_field = st.text_input(
-                "New Field Name",
-                placeholder="e.g. IS Remarks",
-                key="is_issues_new_field_input"
-            )
-
-
-        with field_col2:
-
-            st.markdown(
-                "<div style='height:26px;'></div>",
-                unsafe_allow_html=True
-            )
-
-
-            if st.button(
-                "➕ Add Field",
-                key="is_issues_add_field",
-                use_container_width=True
-            ):
-
-                if new_field.strip():
-
-                    new_field = (
-                        new_field
-                        .strip()
-                    )
-
-
-                    if new_field not in df.columns:
-
-                        df[new_field] = ""
-
-
-                        st.session_state[
-                            "is_issues_added_fields"
-                        ] = df.columns.tolist()
-
-
-                        st.success(
-                            f"✅ '{new_field}' field added!"
-                        )
-
-
-                        st.rerun()
-
-
-                    else:
-
-                        st.warning(
-                            "⚠️ This field already exists."
-                        )
-
-
-                else:
-
-                    st.warning(
-                        "⚠️ Please enter a field name."
-                    )
-
-
-        # =================================================
-        # GET CURRENT DATA
-        # =================================================
-
-        edit_df = df.copy()
-
-
-        # =================================================
-        # SEARCH FILTER
-        # =================================================
-
-        if search:
-
-            search_mask = pd.Series(
-                False,
-                index=edit_df.index
-            )
-
-
-            for col in edit_df.columns:
-
-                search_mask = (
-                    search_mask
-                    |
-                    edit_df[col]
-                    .astype(str)
-                    .str.contains(
-                        search,
-                        case=False,
-                        na=False
-                    )
-                )
-
-
-            edit_df = edit_df[
-                search_mask
-            ]
-
-
-        # =================================================
-        # SEVERITY FILTER
-        # =================================================
-
-        if severity_filter != "All":
-
-            edit_df = edit_df[
-                edit_df["Severity"]
-                .astype(str)
-                .str.upper()
-                .str.strip()
-                == severity_filter
-            ]
-
-
-        # =================================================
-        # STATUS FILTER
-        # =================================================
-
-        if status_filter != "All":
-
-            edit_df = edit_df[
-                edit_df["Status of Issue"]
-                .astype(str)
-                .str.replace(
-                    r"\s+",
-                    " ",
-                    regex=True
-                )
-                .str.upper()
-                .str.strip()
-                ==
-                status_filter.upper()
-            ]
-
-
-        # =================================================
-        # KPI FILTER
-        # =================================================
-
-        selected_card = st.session_state.get(
-            "is_issue_stage",
-            "All"
-        )
-
-
-        if selected_card != "All":
-
-            if selected_card in [
-                "HIGH",
-                "MEDIUM",
-                "LOW"
-            ]:
-
-                edit_df = edit_df[
-                    edit_df["Severity"]
-                    .astype(str)
-                    .str.upper()
-                    .str.strip()
-                    == selected_card
-                ]
-
-
-            elif selected_card == "FIXED":
-
-                edit_df = edit_df[
-                    edit_df["Status of Issue"]
-                    .astype(str)
-                    .str.replace(
-                        r"\s+",
-                        " ",
-                        regex=True
-                    )
-                    .str.upper()
-                    .str.strip()
-                    == "FIXED"
-                ]
-
-
-            elif selected_card == "FIXATION IN PROGRESS":
-
-                edit_df = edit_df[
-                    edit_df["Status of Issue"]
-                    .astype(str)
-                    .str.replace(
-                        r"\s+",
-                        " ",
-                        regex=True
-                    )
-                    .str.upper()
-                    .str.strip()
-                    == "FIXATION IN PROGRESS"
-                ]
-
-
-        # =================================================
-        # EDITABLE TABLE
-        # =================================================
+        st.markdown("### ✏️ Edit IS Issues")
 
         edited_df = st.data_editor(
-
-            edit_df,
-
+            df.copy(),
             use_container_width=True,
-
             hide_index=True,
-
             num_rows="dynamic",
-
             height=500,
-
-            disabled=[],
-
             column_config={
-
-                "Severity":
-                    st.column_config.SelectboxColumn(
-                        "Severity",
-                        options=[
-                            "HIGH",
-                            "MEDIUM",
-                            "LOW"
-                        ]
-                    ),
-
-                "Status of Issue":
-                    st.column_config.SelectboxColumn(
-                        "Status of Issue",
-                        options=[
-                            "Fixed",
-                            "Fixation in Progress"
-                        ]
-                    )
+                "Severity": st.column_config.SelectboxColumn(
+                    "Severity",
+                    options=["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+                ),
+                "Status of Issue": st.column_config.SelectboxColumn(
+                    "Status of Issue",
+                    options=["Fixed", "Fixation in Progress"]
+                )
             },
-
             key="is_issues_editor"
         )
 
-
-        # =================================================
-        # SAVE / CLOSE
-        # =================================================
-
         save_col, close_col = st.columns(2)
 
-
-        # =================================================
-        # SAVE
-        # =================================================
-
         with save_col:
-
             if st.button(
                 "💾 Save Changes",
-                type="primary",
                 key="is_issues_save",
+                type="primary",
                 use_container_width=True
             ):
-
                 try:
+                    from openpyxl import load_workbook
 
-                    # -------------------------------------
-                    # READ ORIGINAL EXCEL
-                    # -------------------------------------
+                    edited_df = edited_df[required_columns].fillna("")
 
-                    original = pd.read_excel(
-                        file,
-                        sheet_name=sheet_name,
-                        header=header_row
-                    )
+                    workbook = load_workbook(file)
+                    worksheet = workbook[sheet_name]
 
+                    # Clear old data without changing header location
+                    for row_num in range(
+                        header_row + 2,
+                        worksheet.max_row + 1
+                    ):
+                        for cell in worksheet[row_num]:
+                            cell.value = None
 
-                    original.columns = [
-                        str(x).strip()
-                        for x in original.columns
-                    ]
+                    for col_num, column_name in enumerate(
+                        required_columns,
+                        start=1
+                    ):
+                        worksheet.cell(
+                            row=header_row + 1,
+                            column=col_num
+                        ).value = column_name
 
+                    for row_num, row_values in enumerate(
+                        edited_df.itertuples(index=False, name=None),
+                        start=header_row + 2
+                    ):
+                        for col_num, value in enumerate(
+                            row_values,
+                            start=1
+                        ):
+                            worksheet.cell(
+                                row=row_num,
+                                column=col_num
+                            ).value = value
 
-                    original = original.fillna("")
+                    workbook.save(file)
 
+                    st.success("IS Issues saved successfully.")
 
-                    # -------------------------------------
-                    # ADD NEW COLUMNS
-                    # -------------------------------------
-
-                    for col in edited_df.columns:
-
-                        if col not in original.columns:
-
-                            original[col] = ""
-
-
-                    # -------------------------------------
-                    # UPDATE EXISTING ROWS
-                    # -------------------------------------
-
-                    for idx in edited_df.index:
-
-                        if idx < len(original):
-
-                            for col in edited_df.columns:
-
-                                original.loc[
-                                    idx,
-                                    col
-                                ] = edited_df.loc[
-                                    idx,
-                                    col
-                                ]
-
-
-                    # -------------------------------------
-                    # SAVE EXCEL
-                    # -------------------------------------
-
-                    with pd.ExcelWriter(
-                        file,
-                        engine="openpyxl",
-                        mode="a",
-                        if_sheet_exists="replace"
-                    ) as writer:
-
-                        original.to_excel(
-                            writer,
-                            sheet_name=sheet_name,
-                            index=False
-                        )
-
-
-                    st.success(
-                        "✅ IS Issues changes, new rows and new fields saved successfully!"
-                    )
-
-
-                    st.session_state[
-                        "is_issues_edit_mode"
-                    ] = False
-
-
-                    if "is_issues_editor" in st.session_state:
-
-                        del st.session_state[
-                            "is_issues_editor"
-                        ]
-
-
+                    st.session_state["is_issues_edit_mode"] = False
+                    st.session_state.pop("is_issues_editor", None)
                     st.rerun()
 
-
                 except Exception as e:
-
-                    st.error(
-                        f"Save error: {e}"
-                    )
-
-
-        # =================================================
-        # CLOSE
-        # =================================================
+                    st.error(f"Unable to save changes: {e}")
 
         with close_col:
-
             if st.button(
                 "❌ Close Editor",
                 key="is_issues_close_editor",
                 use_container_width=True
             ):
-
-                st.session_state[
-                    "is_issues_edit_mode"
-                ] = False
-
-
-                if "is_issues_editor" in st.session_state:
-
-                    del st.session_state[
-                        "is_issues_editor"
-                    ]
-
-
+                st.session_state["is_issues_edit_mode"] = False
+                st.session_state.pop("is_issues_editor", None)
                 st.rerun()
+
 # =====================================================
 # CRPL
 # =====================================================
