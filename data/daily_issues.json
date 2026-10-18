@@ -35,11 +35,11 @@
     "Status": "Closed"
   },
   {
-    "Issue": "UBCS CBA Posting Error",
+    "Issue": "UBCS CBS Posting Error",
     "Update": "Muneeb is working",
     "End / Pending With": "At CRPL End ",
     "Team Member": "Saad Asif",
-    "Status": "Active"
+    "Status": "Closed"
   },
   {
     "Issue": "RAAST OTC Reversal",
@@ -74,6 +74,6 @@
     "Update": "Response awaited from 1 Link",
     "End / Pending With": "At 1 Link End",
     "Team Member": "Adnan Younis",
-    "Status": "Active"
+    "Status": "Closed"
   }
 ]
