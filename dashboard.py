@@ -17,6 +17,12 @@ from utils.pdf_report import generate_executive_pdf
 import os
 import json
 import base64
+import io
+import requests
+import streamlit as st
+import streamlit.components.v1 as components
+from PIL import Image
+from pathlib import Path
 from zoneinfo import ZoneInfo
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
@@ -1682,29 +1688,28 @@ unsafe_allow_html=True
 )
 
 
+
 # =====================================================
 # NAVIGATION
 # =====================================================
 
 if "navigate_to" in st.session_state:
-
     st.session_state["page_navigation"] = (
         st.session_state["navigate_to"]
     )
-
     del st.session_state["navigate_to"]
-
 
 page = st.sidebar.radio(
     "Menu",
-   [
+    [
         "Dashboard",
         "Projects",
-        "Daily Issues",
-        "Analytics",
-        "Project Timeline",
-        "BAU Monitoring",
         "IS Issues",
+        "SmartPay Data",
+        "Daily Issues",
+        "Project Timeline",
+        "Analytics",
+        "BAU Monitoring",
         "CRPL",
         "PAYSYS",
         "Export"
@@ -8667,6 +8672,574 @@ elif page == "Project Timeline":
 
 
 
+# =====================================================
+# SMARTPAY DATA
+# =====================================================
+
+elif page == "SmartPay Data":
+
+    render_header(
+        "SMARTPAY",
+        "SmartPay Data",
+        "SmartPay Transaction Analytics Dashboard",
+        "POWER BI"
+    )
+
+    # -------------------------------------------------
+    # GITHUB CONFIGURATION
+    # -------------------------------------------------
+    GITHUB_REPO = "saadasif7/SmartPay-Project-Dashboard"
+    GITHUB_BRANCH = "main"
+    GITHUB_IMAGE_PATH = "data/smartpay_data.jpg"
+
+    GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "")
+
+    GITHUB_API_URL = (
+        f"https://api.github.com/repos/{GITHUB_REPO}"
+        f"/contents/{GITHUB_IMAGE_PATH}"
+    )
+
+    GITHUB_HEADERS = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+    # -------------------------------------------------
+    # STYLING
+    # -------------------------------------------------
+    st.markdown("""
+    <style>
+    .smartpay-upload-note {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    div[data-testid="stFileUploader"] {
+        border-radius: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # -------------------------------------------------
+    # LOAD SAVED IMAGE FROM GITHUB
+    # -------------------------------------------------
+    @st.cache_data(ttl=60, show_spinner=False)
+    def load_smartpay_github_image(api_url, token, branch):
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json"
+        }
+
+        response = requests.get(
+            api_url,
+            headers=headers,
+            params={"ref": branch},
+            timeout=30
+        )
+
+        if response.status_code == 404:
+            return None
+
+        response.raise_for_status()
+
+        file_info = response.json()
+        content = file_info.get("content", "")
+
+        if not content.strip():
+            raise ValueError(
+                "GitHub image content is empty or unavailable."
+            )
+
+        return base64.b64decode(content)
+
+    # -------------------------------------------------
+    # INTERACTIVE IMAGE VIEWER
+    # Zoom with mouse wheel
+    # Drag image to move
+    # Full-screen support
+    # -------------------------------------------------
+    def render_smartpay_image_viewer(image_bytes):
+
+        encoded_image = base64.b64encode(
+            image_bytes
+        ).decode("utf-8")
+
+        viewer_html = r"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                background: #f1f5f3;
+            }
+
+            #toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px;
+                background: #004B34;
+                border-radius: 9px 9px 0 0;
+            }
+
+            #toolbar button {
+                border: none;
+                border-radius: 5px;
+                padding: 8px 12px;
+                background: #ffffff;
+                color: #004B34;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            #toolbar button:hover {
+                background: #dcefe6;
+            }
+
+            #zoomLabel {
+                color: white;
+                min-width: 54px;
+                text-align: center;
+                font-size: 13px;
+            }
+
+            #viewer {
+                width: 100%;
+                height: 72vh;
+                min-height: 400px;
+                position: relative;
+                overflow: hidden;
+                background: #e7ece9;
+                border: 1px solid #cbd5d0;
+                cursor: grab;
+                touch-action: none;
+                user-select: none;
+            }
+
+            #viewer.dragging {
+                cursor: grabbing;
+            }
+
+            #picture {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                display: block;
+                max-width: none;
+                max-height: none;
+                width: auto;
+                height: auto;
+                transform-origin: center center;
+                pointer-events: none;
+                user-select: none;
+                -webkit-user-drag: none;
+            }
+
+            #viewer:fullscreen {
+                width: 100vw;
+                height: 100vh;
+                min-height: 0;
+                border: none;
+                background: #e7ece9;
+            }
+
+            #viewer:fullscreen #picture {
+                /* Actual image position and scale remain controlled by JS */
+            }
+
+            #viewer:fullscreen::backdrop {
+                background: #e7ece9;
+            }
+
+            @media (max-width: 600px) {
+                #viewer {
+                    height: 65vh;
+                    min-height: 300px;
+                }
+
+                #toolbar button {
+                    padding: 7px 9px;
+                    font-size: 12px;
+                }
+            }
+        </style>
+        </head>
+
+        <body>
+
+        <div id="toolbar">
+            <button onclick="zoomBy(1.25)">＋ Zoom In</button>
+            <button onclick="zoomBy(0.8)">－ Zoom Out</button>
+            <button onclick="fitToScreen()">Fit to Screen</button>
+            <button onclick="resetView()">Reset</button>
+            <button onclick="toggleFullscreen()">⛶ Full Screen</button>
+            <span id="zoomLabel">100%</span>
+        </div>
+
+        <div id="viewer">
+            <img
+                id="picture"
+                src="data:image/jpeg;base64,IMAGE_BASE64"
+                draggable="false"
+                alt="SmartPay Transaction Dashboard"
+            >
+        </div>
+
+        <script>
+            const viewer = document.getElementById("viewer");
+            const picture = document.getElementById("picture");
+            const zoomLabel = document.getElementById("zoomLabel");
+
+            let scale = 1;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            let isDragging = false;
+            let dragStartX = 0;
+            let dragStartY = 0;
+
+            function drawImage() {
+                picture.style.transform =
+                    "translate(calc(-50% + " + offsetX + "px), " +
+                    "calc(-50% + " + offsetY + "px)) scale(" +
+                    scale + ")";
+
+                zoomLabel.textContent =
+                    Math.round(scale * 100) + "%";
+            }
+
+            function fitToScreen() {
+                if (!picture.naturalWidth || !picture.naturalHeight) {
+                    return;
+                }
+
+                const availableWidth = viewer.clientWidth * 0.96;
+                const availableHeight = viewer.clientHeight * 0.96;
+
+                scale = Math.min(
+                    availableWidth / picture.naturalWidth,
+                    availableHeight / picture.naturalHeight
+                );
+
+                scale = Math.max(0.05, Math.min(8, scale));
+
+                offsetX = 0;
+                offsetY = 0;
+
+                drawImage();
+            }
+
+            function resetView() {
+                fitToScreen();
+            }
+
+            function zoomBy(factor) {
+                const rect = viewer.getBoundingClientRect();
+
+                zoomAtPoint(
+                    rect.width / 2,
+                    rect.height / 2,
+                    factor
+                );
+            }
+
+            function zoomAtPoint(localX, localY, factor) {
+                const oldScale = scale;
+
+                const newScale = Math.max(
+                    0.05,
+                    Math.min(8, oldScale * factor)
+                );
+
+                const ratio = newScale / oldScale;
+
+                const pointX = localX - viewer.clientWidth / 2;
+                const pointY = localY - viewer.clientHeight / 2;
+
+                offsetX = pointX - (pointX - offsetX) * ratio;
+                offsetY = pointY - (pointY - offsetY) * ratio;
+
+                scale = newScale;
+                drawImage();
+            }
+
+            viewer.addEventListener("wheel", function(event) {
+                event.preventDefault();
+
+                const rect = viewer.getBoundingClientRect();
+
+                const localX = event.clientX - rect.left;
+                const localY = event.clientY - rect.top;
+
+                zoomAtPoint(
+                    localX,
+                    localY,
+                    event.deltaY < 0 ? 1.12 : 0.89
+                );
+            }, { passive: false });
+
+            viewer.addEventListener("pointerdown", function(event) {
+                isDragging = true;
+
+                dragStartX = event.clientX - offsetX;
+                dragStartY = event.clientY - offsetY;
+
+                viewer.classList.add("dragging");
+
+                try {
+                    viewer.setPointerCapture(event.pointerId);
+                } catch (error) {}
+            });
+
+            viewer.addEventListener("pointermove", function(event) {
+                if (!isDragging) return;
+
+                offsetX = event.clientX - dragStartX;
+                offsetY = event.clientY - dragStartY;
+
+                drawImage();
+            });
+
+            function stopDragging() {
+                isDragging = false;
+                viewer.classList.remove("dragging");
+            }
+
+            viewer.addEventListener("pointerup", stopDragging);
+            viewer.addEventListener("pointercancel", stopDragging);
+            viewer.addEventListener("lostpointercapture", stopDragging);
+
+            async function toggleFullscreen() {
+                try {
+                    if (!document.fullscreenElement) {
+                        await viewer.requestFullscreen();
+                    } else {
+                        await document.exitFullscreen();
+                    }
+                } catch (error) {
+                    alert("Full Screen is not supported in this view.");
+                }
+            }
+
+            picture.addEventListener("load", fitToScreen);
+
+            document.addEventListener("fullscreenchange", function() {
+                setTimeout(fitToScreen, 150);
+            });
+
+            window.addEventListener("resize", function() {
+                fitToScreen();
+            });
+
+            if (picture.complete && picture.naturalWidth) {
+                fitToScreen();
+            }
+        </script>
+
+        </body>
+        </html>
+        """
+
+        viewer_html = viewer_html.replace(
+            "IMAGE_BASE64",
+            encoded_image
+        )
+
+        components.html(
+            viewer_html,
+            height=790,
+            scrolling=False
+        )
+
+    # -------------------------------------------------
+    # UPLOAD / REPLACE IMAGE
+    # -------------------------------------------------
+    st.markdown("### Upload / Replace Power BI Screenshot")
+
+    st.caption(
+        "Upload the latest screenshot. After saving, the updated "
+        "image will be available to users who can access this app."
+    )
+
+    uploaded_image = st.file_uploader(
+        "Choose dashboard image",
+        type=["png", "jpg", "jpeg"],
+        key="smartpay_data_uploader"
+    )
+
+    if uploaded_image is not None:
+        try:
+            preview_image = Image.open(
+                io.BytesIO(uploaded_image.getvalue())
+            )
+
+            st.image(
+                preview_image,
+                caption="Selected screenshot preview",
+                use_container_width=True
+            )
+
+        except Exception as error:
+            st.error(f"Unable to preview image: {error}")
+
+    if not GITHUB_TOKEN:
+        st.warning(
+            "GITHUB_TOKEN is not configured in Streamlit Secrets. "
+            "GitHub upload and loading are unavailable."
+        )
+
+    save_disabled = (
+        uploaded_image is None or not bool(GITHUB_TOKEN)
+    )
+
+    if st.button(
+        "💾 Save / Replace Image on GitHub",
+        type="primary",
+        use_container_width=True,
+        key="smartpay_save_github",
+        disabled=save_disabled
+    ):
+        try:
+            # Normalize and compress the screenshot.
+            source_image = Image.open(
+                io.BytesIO(uploaded_image.getvalue())
+            ).convert("RGB")
+
+            source_image.thumbnail((2400, 2400))
+
+            image_content = None
+
+            for quality in (90, 85, 80, 75, 70, 65, 60):
+                buffer = io.BytesIO()
+
+                source_image.save(
+                    buffer,
+                    format="JPEG",
+                    quality=quality,
+                    optimize=True
+                )
+
+                image_content = buffer.getvalue()
+
+                if len(image_content) < 900_000:
+                    break
+
+            if not image_content or len(image_content) >= 900_000:
+                st.error(
+                    "Image is too large after compression. "
+                    "Please upload a smaller screenshot."
+                )
+                st.stop()
+
+            # Retrieve current file SHA for replacement.
+            current_response = requests.get(
+                GITHUB_API_URL,
+                headers=GITHUB_HEADERS,
+                params={"ref": GITHUB_BRANCH},
+                timeout=30
+            )
+
+            if current_response.status_code == 200:
+                file_sha = current_response.json().get("sha")
+
+            elif current_response.status_code == 404:
+                file_sha = None
+
+            else:
+                st.error(
+                    f"Unable to check existing GitHub image: "
+                    f"{current_response.status_code} "
+                    f"{current_response.text[:300]}"
+                )
+                st.stop()
+
+            payload = {
+                "message": "Update SmartPay dashboard screenshot",
+                "content": base64.b64encode(
+                    image_content
+                ).decode("utf-8"),
+                "branch": GITHUB_BRANCH
+            }
+
+            if file_sha:
+                payload["sha"] = file_sha
+
+            save_response = requests.put(
+                GITHUB_API_URL,
+                headers=GITHUB_HEADERS,
+                json=payload,
+                timeout=60
+            )
+
+            if save_response.status_code in (200, 201):
+                load_smartpay_github_image.clear()
+
+                st.success(
+                    "Screenshot successfully saved to GitHub."
+                )
+
+                st.rerun()
+
+            else:
+                st.error(
+                    f"GitHub save failed: "
+                    f"{save_response.status_code} "
+                    f"{save_response.text[:500]}"
+                )
+
+        except Exception as error:
+            st.error(f"Unable to save screenshot: {error}")
+
+    st.divider()
+
+    # -------------------------------------------------
+    # LOAD AND DISPLAY CURRENT SAVED IMAGE
+    # -------------------------------------------------
+    st.markdown("### SmartPay Transaction Dashboard")
+
+    if GITHUB_TOKEN:
+        try:
+            with st.spinner("Loading saved dashboard image..."):
+                saved_image = load_smartpay_github_image(
+                    GITHUB_API_URL,
+                    GITHUB_TOKEN,
+                    GITHUB_BRANCH
+                )
+
+            if saved_image:
+                render_smartpay_image_viewer(saved_image)
+            else:
+                st.info(
+                    "No screenshot has been saved yet. "
+                    "Upload a screenshot above and save it to GitHub."
+                )
+
+        except Exception as error:
+            st.error(
+                f"Unable to load the saved GitHub image: {error}"
+            )
+    else:
+        st.info(
+            "Configure GITHUB_TOKEN in Streamlit Secrets to "
+            "load the saved dashboard image."
+        )
+
+
+
 
 # =====================================================
 # BAU MONITORING
@@ -9222,9 +9795,10 @@ elif page == "BAU Monitoring":
             "No BAU update field is available in the Excel data."
         )
 
+
 # =====================================================
 # IS ISSUES - SMARTPAY DASHBOARD
-# Main KPI Navigation + Readable Summary + Detail Table
+# Main KPIs + Application Summary + Filtered Detail Table
 # =====================================================
 
 elif page == "IS Issues":
@@ -9322,6 +9896,16 @@ elif page == "IS Issues":
         .str.strip()
     )
 
+    # Normalize equivalent status spellings for consistent counting.
+    df["Status of Issue"] = df["Status of Issue"].replace(
+        {
+            "FIXED": "Fixed",
+            "UNDER REVALIDATION": "Under Revalidation",
+            "UNDER RE-VALIDATION": "Under Revalidation",
+            "FIXATION IN PROGRESS": "Fixation in Progress"
+        }
+    )
+
     # =====================================================
     # HEADER
     # =====================================================
@@ -9356,12 +9940,7 @@ elif page == "IS Issues":
     # =====================================================
 
     def get_issue_counts(data):
-        severity = (
-            data["Severity"]
-            .astype(str)
-            .str.upper()
-            .str.strip()
-        )
+        severity = data["Severity"].astype(str).str.upper().str.strip()
 
         status = (
             data["Status of Issue"]
@@ -9373,391 +9952,563 @@ elif page == "IS Issues":
 
         return {
             "All": len(data),
+            "FIXED": int((status == "FIXED").sum()),
+            "UNDER REVALIDATION": int(
+                (status == "UNDER REVALIDATION").sum()
+            ),
+            "FIXATION IN PROGRESS": int(
+                (status == "FIXATION IN PROGRESS").sum()
+            ),
             "CRITICAL": int((severity == "CRITICAL").sum()),
             "HIGH": int((severity == "HIGH").sum()),
             "MEDIUM": int((severity == "MEDIUM").sum()),
-            "LOW": int((severity == "LOW").sum()),
-            "FIXED": int((status == "FIXED").sum()),
-            "FIXATION IN PROGRESS": int(
-                (status == "FIXATION IN PROGRESS").sum()
-            )
+            "LOW": int((severity == "LOW").sum())
         }
 
+    
     # =====================================================
-    # KPI THEME - SAME AS DASHBOARD_KPIS
+    # CSS - EQUAL KPI SIZES + TEXT WRAPPING + MOBILE
     # =====================================================
 
     st.markdown("""
     <style>
+    .st-key-dashboard_kpis,
+    .st-key-is_detail_kpis {
+        width: 100%;
+    }
+    
+    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
+    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+
+    .st-key-dashboard_kpis div[data-testid="stColumn"],
+    .st-key-is_detail_kpis div[data-testid="stColumn"] {
+        min-width: 0 !important;
+    }
+    
+    .st-key-dashboard_kpis div[data-testid="stButton"] button p,
+    .st-key-is_detail_kpis div[data-testid="stButton"] button p {
+        white-space: pre-line !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        text-align: center !important;
+        line-height: 1.3 !important;
+    }
 
     .st-key-dashboard_kpis div[data-testid="stButton"],
     .st-key-is_detail_kpis div[data-testid="stButton"] {
-        width:100% !important;
+        width: 100% !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stButton"] button,
     .st-key-is_detail_kpis div[data-testid="stButton"] button {
-        width:100% !important;
-        min-height:96px !important;
-        height:96px !important;
-        background:#FFFFFF !important;
-        border:1px solid #E5E7EB !important;
-        border-radius:16px !important;
-        padding:10px 6px !important;
-        box-shadow:0 6px 16px rgba(0,0,0,.08) !important;
-        color:#111827 !important;
-        font-size:13px !important;
-        font-weight:600 !important;
-        font-family:"Segoe UI",Arial,sans-serif !important;
-        line-height:1.2 !important;
-        white-space:pre-line !important;
-        text-align:center !important;
-        display:flex !important;
-        align-items:center !important;
-        justify-content:center !important;
-        transition:all .2s ease !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 96px !important;
+        min-height: 96px !important;
+        padding: 9px 5px !important;
+        border: 1px solid #E5E7EB !important;
+        border-top: 5px solid #006747 !important;
+        border-radius: 13px !important;
+        background: #FFFFFF !important;
+        color: #111827 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,.07) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        text-align: center !important;
+        line-height: 1.3 !important;
+        font-family: "Segoe UI", Arial, sans-serif !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
     }
-
+    
     .st-key-dashboard_kpis div[data-testid="stButton"] button p,
     .st-key-is_detail_kpis div[data-testid="stButton"] button p {
-        font-family:"Segoe UI",Arial,sans-serif !important;
-        font-size:13px !important;
-        font-weight:650 !important;
-        line-height:1.3 !important;
-        white-space:pre-line !important;
-        text-align:center !important;
-        display:block !important;
-        width:100% !important;
-        margin:0 !important;
-        padding:0 !important;
-        color:#111827 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        text-align: center !important;
+        line-height: 1.3 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: inherit !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stButton"] button:hover,
     .st-key-is_detail_kpis div[data-testid="stButton"] button:hover {
-        background:#F8FAFC !important;
-        transform:translateY(-2px) !important;
-        box-shadow:0 10px 22px rgba(0,0,0,.11) !important;
+        background: #F0F8F4 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 16px rgba(0,103,71,.12) !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stButton"] button:focus,
     .st-key-is_detail_kpis div[data-testid="stButton"] button:focus {
-        outline:none !important;
-        min-height:96px !important;
-        height:96px !important;
-        background:#EAF5F0 !important;
-        border:2px solid #006747 !important;
-        box-shadow:
-            0 0 0 3px rgba(0,103,71,.12),
-            0 10px 22px rgba(0,103,71,.16) !important;
-        color:#006747 !important;
-        transform:translateY(-2px) !important;
+        outline: 2px solid #006747 !important;
+        outline-offset: 1px !important;
+        background: #EAF5F0 !important;
     }
 
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus p,
-    .st-key-is_detail_kpis div[data-testid="stButton"] button:focus p {
-        color:#006747 !important;
-        font-weight:750 !important;
-    }
-
-    /* KPI accent colours */
-
+    /* KPI accent colours by position */
     .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1) div[data-testid="stButton"] button,
+    div[data-testid="stColumn"]:nth-child(1) button,
     .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1) div[data-testid="stButton"] button {
-        border-top:6px solid #006747 !important;
+    div[data-testid="stColumn"]:nth-child(1) button {
+        border-top-color: #006747 !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button,
+    div[data-testid="stColumn"]:nth-child(2) button,
     .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2) div[data-testid="stButton"] button {
-        border-top:6px solid #8E24AA !important;
+    div[data-testid="stColumn"]:nth-child(2) button {
+        border-top-color: #16A34A !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3) div[data-testid="stButton"] button,
+    div[data-testid="stColumn"]:nth-child(3) button,
     .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3) div[data-testid="stButton"] button {
-        border-top:6px solid #F9A825 !important;
+    div[data-testid="stColumn"]:nth-child(3) button {
+        border-top-color: #8E24AA !important;
     }
 
     .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4) div[data-testid="stButton"] button,
+    div[data-testid="stColumn"]:nth-child(4) button,
     .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4) div[data-testid="stButton"] button {
-        border-top:6px solid #00ACC1 !important;
+    div[data-testid="stColumn"]:nth-child(4) button {
+        border-top-color: #F9A825 !important;
     }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5) div[data-testid="stButton"] button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(5) div[data-testid="stButton"] button {
-        border-top:6px solid #3949AB !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6) div[data-testid="stButton"] button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(6) div[data-testid="stButton"] button {
-        border-top:6px solid #00C853 !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(7) div[data-testid="stButton"] button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(7) div[data-testid="stButton"] button {
-        border-top:6px solid #607D8B !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stVerticalBlock"],
-    .st-key-is_detail_kpis div[data-testid="stVerticalBlock"] {
-        gap:0 !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
-        gap:10px !important;
-        align-items:stretch !important;
-    }
-
-    /* Summary styling */
 
     .is-summary-heading {
-        color:#006747;
-        font-size:22px;
-        font-weight:750;
-        margin:14px 0 4px;
+        color: #006747;
+        font-size: 22px;
+        font-weight: 750;
+        margin: 14px 0 4px;
+        overflow-wrap: anywhere;
     }
 
     .is-summary-subtitle {
-        color:#64748B;
-        font-size:13px;
-        margin-bottom:12px;
+        color: #64748B;
+        font-size: 13px;
+        margin-bottom: 12px;
+        overflow-wrap: anywhere;
     }
 
     .is-summary-header {
-        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
-        color:white;
-        border-radius:8px;
-        padding:10px 3px;
-        text-align:center;
-        font-size:10px;
-        font-weight:800;
-        min-height:40px;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 44px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color: #FFFFFF;
+        border-radius: 8px;
+        padding: 6px 3px;
+        text-align: center;
+        font-size: 10px;
+        line-height: 1.25;
+        font-weight: 800;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
     }
 
-    /* Number and category name in each summary box */
-
     .is-count-box {
-        background:#F8FAFC;
-        border:1px solid #E2E8F0;
-        border-radius:8px;
-        padding:7px 2px;
-        text-align:center;
-        min-height:55px;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:4px;
-        overflow-wrap:anywhere;
+        box-sizing: border-box;
+        width: 100%;
+        height: 64px;
+        min-height: 64px;
+        padding: 5px 2px;
+        text-align: center;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        overflow: hidden;
+        overflow-wrap: anywhere;
     }
 
     .is-count-number {
-        font-size:17px;
-        line-height:1.2;
-        font-weight:800;
-        color:#1F2937;
+        font-size: 17px;
+        line-height: 1.1;
+        font-weight: 800;
+        color: #1F2937;
     }
 
     .is-count-label {
-        font-size:9px;
-        line-height:1.2;
-        font-weight:800;
-        letter-spacing:.2px;
-        color:#64748B;
+        font-size: 9px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: .1px;
+        color: #64748B;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
     }
 
     .is-count-critical {
-        color:#991B1B;
-        background:#FEF2F2;
+        color: #991B1B;
+        background: #FEF2F2;
     }
 
     .is-count-high {
-        color:#B91C1C;
-        background:#FFF1F2;
+        color: #B91C1C;
+        background: #FFF1F2;
     }
 
     .is-count-medium {
-        color:#92400E;
-        background:#FFFBEB;
+        color: #92400E;
+        background: #FFFBEB;
     }
 
     .is-count-low {
-        color:#047857;
-        background:#ECFDF5;
+        color: #047857;
+        background: #ECFDF5;
     }
 
     .is-count-fixed {
-        color:#166534;
-        background:#DCFCE7;
+        color: #166534;
+        background: #DCFCE7;
+    }
+
+    .is-count-revalidation {
+        color: #5B21B6;
+        background: #EDE9FE;
     }
 
     .is-count-progress {
-        color:#92400E;
-        background:#FEF3C7;
+        color: #92400E;
+        background: #FEF3C7;
     }
 
-    /* Each application and its counts share one bordered row */
-
     .is-summary-row {
-        background:#FFFFFF;
-        border:1px solid #DDE5E1;
-        border-radius:12px;
-        padding:8px 5px;
-        margin:5px 0;
-        box-shadow:0 3px 9px rgba(0,103,71,.05);
+        background: #FFFFFF;
+        border: 1px solid #DDE5E1;
+        border-radius: 12px;
+        padding: 8px 5px;
+        margin: 5px 0;
+        box-shadow: 0 3px 9px rgba(0,103,71,.05);
     }
 
     .is-summary-row div[data-testid="stHorizontalBlock"] {
-        align-items:center !important;
-        gap:6px !important;
+        align-items: stretch !important;
+        gap: 6px !important;
+    }
+
+    .is-summary-row div[data-testid="stColumn"] {
+        min-width: 0 !important;
+    }
+
+    .is-summary-row div[data-testid="stButton"] {
+        width: 100% !important;
+        height: 100% !important;
     }
 
     .is-summary-row div[data-testid="stButton"] button {
-        width:100% !important;
-        min-height:42px !important;
-        background:#F0F8F4 !important;
-        color:#006747 !important;
-        border:1px solid #C8DED3 !important;
-        border-radius:8px !important;
-        font-weight:700 !important;
-        text-align:left !important;
-        white-space:normal !important;
-        overflow-wrap:anywhere !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        min-height: 64px !important;
+        height: 100% !important;
+        padding: 7px !important;
+        background: #F0F8F4 !important;
+        color: #006747 !important;
+        border: 1px solid #C8DED3 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        text-align: left !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        line-height: 1.35 !important;
+    }
+
+    .is-summary-row div[data-testid="stButton"] button p {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        line-height: 1.35 !important;
+    }
+
+    /* ADDED: wrap summary status labels into multiple lines */
+    .is-summary-row,
+    .is-summary-row *,
+    .is-summary-header,
+    .is-count-label {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        line-height: 1.25 !important;
+    }
+
+    .is-summary-row div[data-testid="stButton"] button p {
+        text-align: center !important;
     }
 
     .is-summary-row div[data-testid="stButton"] button:hover {
-        background:#E0F0E8 !important;
-        border-color:#006747 !important;
+        background: #E0F0E8 !important;
+        border-color: #006747 !important;
     }
 
     .is-issues-table-wrapper {
-        background:#FFFFFF;
-        border:1px solid #DDE5E1;
-        border-radius:14px;
-        padding:6px;
-        box-shadow:0 6px 20px rgba(0,103,71,.08);
-        overflow-x:auto;
+        width: 100%;
+        box-sizing: border-box;
+        background: #FFFFFF;
+        border: 1px solid #DDE5E1;
+        border-radius: 14px;
+        padding: 6px;
+        box-shadow: 0 6px 20px rgba(0,103,71,.08);
+        overflow-x: auto;
     }
 
     .is-issues-table {
-        width:100%;
-        border-collapse:separate;
-        border-spacing:0;
-        font-size:13px;
-        table-layout:fixed;
+        width: 100%;
+        min-width: 720px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+        table-layout: fixed;
     }
 
     .is-issues-table thead th {
-        background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
-        color:white;
-        font-weight:700;
-        padding:13px 10px;
-        text-align:left;
+        background: linear-gradient(135deg,#013D2B,#006747,#008A5A);
+        color: #FFFFFF;
+        font-weight: 700;
+        padding: 13px 10px;
+        text-align: left;
+        overflow-wrap: anywhere;
     }
 
     .is-issues-table tbody td {
-        padding:12px 10px;
-        color:#1F2937;
-        border-bottom:1px solid #E5E7EB;
-        overflow-wrap:anywhere;
-        vertical-align:top;
-        line-height:1.55;
+        padding: 12px 10px;
+        color: #1F2937;
+        border-bottom: 1px solid #E5E7EB;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        vertical-align: top;
+        line-height: 1.55;
     }
 
     .is-issues-table tbody tr:nth-child(even) td {
-        background:#F8FAFC;
+        background: #F8FAFC;
     }
 
     .is-issues-table tbody tr:hover td {
-        background:#ECFDF5;
+        background: #ECFDF5;
     }
 
-    .severity-badge,.issue-status {
-        display:inline-block;
-        padding:5px 8px;
-        border-radius:20px;
-        font-size:11px;
-        font-weight:800;
+    .severity-badge,
+    .issue-status {
+        display: inline-block;
+        padding: 5px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
     }
 
     .severity-critical {
-        background:#7F1D1D;
-        color:white!important;
+        background: #7F1D1D;
+        color: white !important;
     }
 
     .severity-high {
-        background:#FEE2E2;
-        color:#B91C1C!important;
+        background: #FEE2E2;
+        color: #B91C1C !important;
     }
 
     .severity-medium {
-        background:#FEF3C7;
-        color:#92400E!important;
+        background: #FEF3C7;
+        color: #92400E !important;
     }
 
     .severity-low {
-        background:#D1FAE5;
-        color:#087443!important;
+        background: #D1FAE5;
+        color: #087443 !important;
     }
 
     .issue-fixed {
-        background:#DCFCE7;
-        color:#166534!important;
+        background: #DCFCE7;
+        color: #166534 !important;
+    }
+
+    .issue-revalidation {
+        background: #EDE9FE;
+        color: #5B21B6 !important;
     }
 
     .issue-progress {
-        background:#FEF3C7;
-        color:#92400E!important;
+        background: #FEF3C7;
+        color: #92400E !important;
     }
 
+    @media (max-width: 900px) {
+        .is-count-box {
+            height: 62px;
+            min-height: 62px;
+        }
+
+        .is-count-number {
+            font-size: 15px;
+        }
+
+        .is-count-label {
+            font-size: 8px;
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
+        .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
+            flex-wrap: wrap !important;
+        }
+
+        .st-key-dashboard_kpis div[data-testid="stColumn"],
+        .st-key-is_detail_kpis div[data-testid="stColumn"] {
+            min-width: calc(50% - 8px) !important;
+            flex: 1 1 calc(50% - 8px) !important;
+        }
+
+        .st-key-dashboard_kpis div[data-testid="stButton"] button,
+        .st-key-is_detail_kpis div[data-testid="stButton"] button {
+            height: 82px !important;
+            min-height: 82px !important;
+            font-size: 11px !important;
+        }
+
+        .is-summary-row div[data-testid="stHorizontalBlock"] {
+            flex-wrap: wrap !important;
+        }
+
+        .is-summary-row div[data-testid="stColumn"] {
+            min-width: calc(25% - 6px) !important;
+            flex: 1 1 calc(25% - 6px) !important;
+        }
+
+        .is-summary-row div[data-testid="stColumn"]:first-child {
+            min-width: 100% !important;
+            flex: 1 1 100% !important;
+        }
+
+        .is-summary-header {
+            min-height: 38px;
+            font-size: 9px;
+        }
+
+        .is-summary-heading {
+            font-size: 19px;
+        }
+    }
+    
     </style>
     """, unsafe_allow_html=True)
 
+
+    
+   
     # =====================================================
     # KPI CARDS
-    # Main KPI click opens All Issues detail table.
-    # Detail KPI click filters the selected group's table.
     # =====================================================
 
-    def render_issue_kpis(
-        data,
-        container_key,
-        key_prefix,
-        main_page=False
-    ):
-        counts = get_issue_counts(data)
+    def render_issue_kpis(data, container_key, key_prefix, main_page=False):
 
-        specs = [
+        all_specs = [
             ("ALL", "All", "all"),
+            ("FIXED", "FIXED", "fixed"),
+            ("UNDER\nREVALIDATION", "UNDER REVALIDATION", "revalidation"),
+            ("FIXATION\nIN PROGRESS", "FIXATION IN PROGRESS", "progress"),
             ("CRITICAL", "CRITICAL", "critical"),
             ("HIGH", "HIGH", "high"),
             ("MEDIUM", "MEDIUM", "medium"),
             ("LOW", "LOW", "low"),
-            ("FIXED", "FIXED", "fixed"),
-            ("IN PROGRESS", "FIXATION IN PROGRESS", "progress")
         ]
 
+        selected_stage = st.session_state.get("is_issue_stage", "All")
+        counts = get_issue_counts(data)
+
+        # Main page: 4 status cards
+        if main_page:
+            specs = all_specs[:4]
+
+        # Detail page: FIXED selected ho to ALL + FIXED + 4 severity cards
+        elif selected_stage == "FIXED":
+            specs = [
+                all_specs[0],
+                all_specs[1],
+                all_specs[4],
+                all_specs[5],
+                all_specs[6],
+                all_specs[7],
+            ]
+
+            status_values = (
+                data["Status of Issue"].astype(str).str.strip().str.upper()
+            )
+            fixed_data = data[status_values == "FIXED"]
+            fixed_total = len(fixed_data)
+
+            counts = get_issue_counts(data)
+
+            counts["All"] = fixed_total
+            counts["FIXED"] = fixed_total
+
+            # Baqi status aur severity cards ke actual counts bhi show hon
+            fixed_severity = fixed_data["Severity"].astype(str).str.strip().str.upper()
+
+            counts["CRITICAL"] = int((fixed_severity == "CRITICAL").sum())
+            counts["HIGH"] = int((fixed_severity == "HIGH").sum())
+            counts["MEDIUM"] = int((fixed_severity == "MEDIUM").sum())
+            counts["LOW"] = int((fixed_severity == "LOW").sum())
+
+        else:
+            specs = all_specs
+
+            if selected_stage != "All":
+                status_values = (
+                    data["Status of Issue"].astype(str).str.strip().str.upper()
+                )
+                severity_values = (
+                    data["Severity"].astype(str).str.strip().str.upper()
+                )
+
+                if selected_stage == "UNDER REVALIDATION":
+                    filtered_data = data[
+                        status_values == "UNDER REVALIDATION"
+                    ]
+                elif selected_stage == "FIXATION IN PROGRESS":
+                    filtered_data = data[
+                        status_values == "FIXATION IN PROGRESS"
+                    ]
+                elif selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+                    filtered_data = data[
+                        severity_values == selected_stage
+                    ]
+                else:
+                    filtered_data = data
+
+                total = len(filtered_data)
+                counts = {key: 0 for key in counts}
+                counts["All"] = total
+                counts[selected_stage] = total
+
         with st.container(key=container_key):
-            cols = st.columns([1.2, 1.1, 1.0, 1.1, 1.0, 1.0, 1.0])
+            cols = st.columns(len(specs))
 
             for col, (label, stage, suffix) in zip(cols, specs):
                 with col:
                     if st.button(
-                        f"{label}\n{counts[stage]}",
+                        f"{label}\n{counts.get(stage, 0)}",
                         key=f"{key_prefix}_{suffix}",
                         use_container_width=True
                     ):
@@ -9766,12 +10517,14 @@ elif page == "IS Issues":
                         if main_page:
                             st.session_state["is_issue_application"] = "All"
                             st.session_state["is_issue_view"] = "details"
-
                             st.session_state["is_issue_search"] = ""
                             st.session_state["is_issue_severity_filter"] = "All"
                             st.session_state["is_issue_status_filter"] = "All"
 
                         st.rerun()
+
+
+
 
     # =====================================================
     # SUMMARY VIEW
@@ -9793,8 +10546,8 @@ elif page == "IS Issues":
 
         st.markdown(
             '<div class="is-summary-subtitle">'
-            'Each application and its issue counts are grouped inside '
-            'a separate bordered row. Click an application to open details.'
+            'Each application has eight issue counts. Click an application '
+            'to open its details.'
             '</div>',
             unsafe_allow_html=True
         )
@@ -9818,31 +10571,29 @@ elif page == "IS Issues":
             key=str.casefold
         )
 
-        widths = [3.0, 0.8, 0.9, 0.8, 0.9, 0.8, 0.8, 1.2]
-
-        # Column headings
-        header_cols = st.columns(widths)
+        widths = [3.0, 0.9, 1.0, 1.4, 1.5, 0.9, 0.8, 0.8, 0.8]
 
         headers = [
             "ISSUE NAME",
-            "TOTAL",
+            "ALL",
+            "FIXED",
+            "UNDER REVALIDATION",
+            "FIXATION IN PROGRESS",
             "CRITICAL",
             "HIGH",
             "MEDIUM",
-            "LOW",
-            "FIXED",
-            "IN PROGRESS"
+            "LOW"
         ]
+
+        header_cols = st.columns(widths)
 
         for col, label in zip(header_cols, headers):
             with col:
                 st.markdown(
-                    f'<div class="is-summary-header">'
-                    f'{label}</div>',
+                    f'<div class="is-summary-header">{label}</div>',
                     unsafe_allow_html=True
                 )
 
-        # Each application and all its labelled counts share one border
         for index, app_name in enumerate(group_names):
 
             group_df = df[
@@ -9855,7 +10606,6 @@ elif page == "IS Issues":
                 key=f"is_summary_row_{index}",
                 border=True
             ):
-
                 row = st.columns(widths)
 
                 with row[0]:
@@ -9872,54 +10622,31 @@ elif page == "IS Issues":
                         st.session_state["is_issue_status_filter"] = "All"
                         st.rerun()
 
-                # Actual counts for this application
-                values = [
-                    counts["All"],
-                    counts["CRITICAL"],
-                    counts["HIGH"],
-                    counts["MEDIUM"],
-                    counts["LOW"],
-                    counts["FIXED"],
-                    counts["FIXATION IN PROGRESS"]
-                ]
+                
+                summary_specs = [
+                        ("All", ""),
+                        ("FIXED", "is-count-fixed"),
+                        ("UNDER REVALIDATION", "is-count-revalidation"),
+                        ("FIXATION IN PROGRESS", "is-count-progress"),
+                        ("CRITICAL", "is-count-critical"),
+                        ("HIGH", "is-count-high"),
+                        ("MEDIUM", "is-count-medium"),
+                        ("LOW", "is-count-low")
+                    ]
 
-                # NEW: label for every number
-                labels = [
-                    "TOTAL",
-                    "CRITICAL",
-                    "HIGH",
-                    "MEDIUM",
-                    "LOW",
-                    "FIXED",
-                    "IN PROGRESS"
-                ]
 
-                classes = [
-                    "",
-                    "is-count-critical",
-                    "is-count-high",
-                    "is-count-medium",
-                    "is-count-low",
-                    "is-count-fixed",
-                    "is-count-progress"
-                ]
-
-                # Number appears above its category name
-                for j, (value, label, css_class) in enumerate(
-                    zip(values, labels, classes)
-                ):
+                for j, (count_key, css_class) in enumerate(summary_specs):
                     with row[j + 1]:
                         st.markdown(
                             f'<div class="is-count-box {css_class}">'
-                            f'<div class="is-count-number">{value}</div>'
-                            f'<div class="is-count-label">{label}</div>'
+                            f'<div class="is-count-number">{counts[count_key]}</div>'
+                            f'<div class="is-count-label">{html.escape(count_key.upper())}</div>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
 
     # =====================================================
     # DETAIL VIEW
-    # Main-page KPI cards do not appear here.
     # =====================================================
 
     else:
@@ -9930,7 +10657,7 @@ elif page == "IS Issues":
 
         with back_col:
             if st.button(
-                "← Back to All Issues",
+                "← Back to Summary",
                 key="is_issue_back",
                 use_container_width=True
             ):
@@ -9943,17 +10670,13 @@ elif page == "IS Issues":
                 st.rerun()
 
         with title_col:
-            title_text = (
-                "All Issues" if selected_app == "All" else selected_app
-            )
+            title_text = "All Issues" if selected_app == "All" else selected_app
 
             st.markdown(
-                f'<div class="is-summary-heading">📋 '
-                f'{html.escape(title_text)}</div>',
+                f'<div class="is-summary-heading">📋 {html.escape(title_text)}</div>',
                 unsafe_allow_html=True
             )
 
-        # Selected application's data only
         if selected_app == "All":
             detail_base_df = df.copy()
         else:
@@ -9963,13 +10686,12 @@ elif page == "IS Issues":
 
         st.markdown(
             '<div class="is-summary-subtitle">'
-            'Click a KPI card to filter the table below. '
-            'Counts reflect this selected group.'
+            'Click a KPI card to filter the table. Counts are based on '
+            'the selected application.'
             '</div>',
             unsafe_allow_html=True
         )
 
-        # Only detail-page KPIs are displayed here
         render_issue_kpis(
             detail_base_df,
             "is_detail_kpis",
@@ -10002,21 +10724,45 @@ elif page == "IS Issues":
         with f3:
             status_filter = st.selectbox(
                 "Status Filter",
-                ["All", "Fixed", "Fixation in Progress"],
+                [
+                    "All",
+                    "Fixed",
+                    "Under Revalidation",
+                    "Fixation in Progress"
+                ],
                 key="is_issue_status_filter"
             )
 
         # =================================================
-        # FILTER TABLE DATA
+        # FILTER TABLE
         # =================================================
 
         filtered_df = detail_base_df.copy()
 
+        if selected_stage == "FIXED":
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"].str.upper() == "FIXED"
+            ]
+
+        elif selected_stage == "UNDER REVALIDATION":
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"].str.upper()
+                == "UNDER REVALIDATION"
+            ]
+
+        elif selected_stage == "FIXATION IN PROGRESS":
+            filtered_df = filtered_df[
+                filtered_df["Status of Issue"].str.upper()
+                == "FIXATION IN PROGRESS"
+            ]
+
+        elif selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+            filtered_df = filtered_df[
+                filtered_df["Severity"].str.upper() == selected_stage
+            ]
+
         if search:
-            search_mask = pd.Series(
-                False,
-                index=filtered_df.index
-            )
+            search_mask = pd.Series(False, index=filtered_df.index)
 
             for col in required_columns:
                 search_mask |= filtered_df[col].astype(str).str.contains(
@@ -10035,30 +10781,12 @@ elif page == "IS Issues":
 
         if status_filter != "All":
             filtered_df = filtered_df[
-                filtered_df["Status of Issue"]
-                .str.upper()
-                .str.replace(r"\s+", " ", regex=True)
-                .str.strip()
+                filtered_df["Status of Issue"].str.upper()
                 == status_filter.upper()
             ]
 
-        # Apply selected KPI filter
-        if selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
-            filtered_df = filtered_df[
-                filtered_df["Severity"].str.upper() == selected_stage
-            ]
-
-        elif selected_stage in ["FIXED", "FIXATION IN PROGRESS"]:
-            filtered_df = filtered_df[
-                filtered_df["Status of Issue"]
-                .str.upper()
-                .str.replace(r"\s+", " ", regex=True)
-                .str.strip()
-                == selected_stage
-            ]
-
         # =================================================
-        # COUNT + CSV
+        # RESULT COUNT + CSV
         # =================================================
 
         left, right = st.columns([5, 1])
@@ -10072,7 +10800,8 @@ elif page == "IS Issues":
                     border-radius:9px;
                     color:#006747;
                     font-size:13px;
-                    font-weight:700;">
+                    font-weight:700;
+                    overflow-wrap:anywhere;">
                     Showing {len(filtered_df)} issue(s)
                     &nbsp; | &nbsp; KPI: {html.escape(selected_stage)}
                 </div>
@@ -10122,6 +10851,8 @@ elif page == "IS Issues":
 
             if upper == "FIXED":
                 css = "issue-fixed"
+            elif upper == "UNDER REVALIDATION":
+                css = "issue-revalidation"
             elif upper == "FIXATION IN PROGRESS":
                 css = "issue-progress"
             else:
@@ -10201,7 +10932,11 @@ elif page == "IS Issues":
                 ),
                 "Status of Issue": st.column_config.SelectboxColumn(
                     "Status of Issue",
-                    options=["Fixed", "Fixation in Progress"]
+                    options=[
+                        "Fixed",
+                        "Under Revalidation",
+                        "Fixation in Progress"
+                    ]
                 )
             },
             key="is_issues_editor"
@@ -10224,7 +10959,7 @@ elif page == "IS Issues":
                     workbook = load_workbook(file)
                     worksheet = workbook[sheet_name]
 
-                    # Clear old data without changing header location
+                    # Clear old data but preserve rows above the header.
                     for row_num in range(
                         header_row + 2,
                         worksheet.max_row + 1
@@ -10232,6 +10967,7 @@ elif page == "IS Issues":
                         for cell in worksheet[row_num]:
                             cell.value = None
 
+                    # Preserve the original header position.
                     for col_num, column_name in enumerate(
                         required_columns,
                         start=1
