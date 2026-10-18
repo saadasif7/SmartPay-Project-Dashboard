@@ -1837,8 +1837,10 @@ section[data-testid="stSidebar"] hr {
 
 st.markdown(_sidebar_css, unsafe_allow_html=True)
 
+
+
 # =====================================================
-# LOGO
+# SIDEBAR LOGO - TOP
 # =====================================================
 
 st.sidebar.image(
@@ -1846,23 +1848,89 @@ st.sidebar.image(
     use_container_width=True
 )
 
-
 # =====================================================
-# SMARTPAY TITLE
+# SMARTPAY TITLE - BELOW LOGO
 # =====================================================
 
 st.sidebar.markdown(
-"""
-<div class="sidebar-brand">
-<div class="sidebar-title">🏦 SmartPay</div>
-<div class="sidebar-subtitle">PROJECT DASHBOARD</div>
-<div class="sidebar-brand-line"></div>
-</div>
-""",
-unsafe_allow_html=True
+    """
+    <div class="sidebar-brand">
+        <div class="sidebar-title">🏦 SmartPay</div>
+        <div class="sidebar-subtitle">PROJECT DASHBOARD</div>
+        <div class="sidebar-brand-line"></div>
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
+# =====================================================
+# FULL SCREEN BUTTON - CENTER
+# =====================================================
 
+with st.sidebar:
+    components.html(
+        """
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            margin:0;
+            padding:0;
+        ">
+            <button id="smartpay-fs-btn" title="Full Screen" style="
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                gap:7px;
+                width:auto;
+                height:28px;
+                padding:2px 10px;
+                background:transparent;
+                color:white;
+                border:none;
+                outline:none;
+                box-shadow:none;
+                font-family:Arial,sans-serif;
+                font-size:12px;
+                font-weight:600;
+                cursor:pointer;
+            ">
+                <span>⛶</span>
+                <span id="smartpay-fs-text">Full Screen</span>
+            </button>
+        </div>
+
+        <script>
+        (() => {
+            const doc = window.parent.document;
+            const btn = document.getElementById("smartpay-fs-btn");
+            const label = document.getElementById("smartpay-fs-text");
+
+            function updateLabel() {
+                label.textContent = doc.fullscreenElement
+                    ? "Exit Full Screen"
+                    : "Full Screen";
+            }
+
+            btn.addEventListener("click", async () => {
+                try {
+                    if (!doc.fullscreenElement) {
+                        await doc.documentElement.requestFullscreen();
+                    } else {
+                        await doc.exitFullscreen();
+                    }
+                } catch (e) {
+                    alert("Press F11 to enter or exit full screen.");
+                }
+            });
+
+            doc.addEventListener("fullscreenchange", updateLabel);
+            updateLabel();
+        })();
+        </script>
+        """,
+        height=30,
+    )
 
 # =====================================================
 # NAVIGATION
@@ -1901,14 +1969,20 @@ page = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 st.sidebar.markdown(
-"""
-<div class="sidebar-created-by">
-✦ Created by Muhammad Saad Asif ✦
-</div>
-""",
-unsafe_allow_html=True
+    """
+    <div class="sidebar-created-by"
+         style="
+            text-align:center;
+            color:#D4AF37;
+            font-weight:600;
+            font-size:12px;
+            padding:10px 2px;
+        ">
+        ✦ Created by Muhammad Saad Asif ✦
+    </div>
+    """,
+    unsafe_allow_html=True
 )
-
 # ==========================================
 # PAGE CHANGE DETECTION
 # ==========================================
