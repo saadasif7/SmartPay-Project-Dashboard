@@ -1132,6 +1132,181 @@ div[data-baseweb="select"] > div {
 
 </style>
 """, unsafe_allow_html=True)
+
+# =====================================================
+# SHARED RESPONSIVE LAYER
+# One consistent size for KPI cards / member cards on every page,
+# and phone-friendly cards + scrollable tables.
+#
+# Naming rule used by this layer:
+#   container key ending in  _kpis   -> big KPI cards (96px)
+#   container key ending in  _chips  -> small member/category cards
+#   team_overview_kpis (Dashboard / Projects) is treated as chips
+#   HTML table wrapper  *-table-wrapper  -> scrolls sideways on phones
+# =====================================================
+
+st.markdown("""
+<style>
+
+/* ---------- 1. KPI cards: identical size on every page ---------- */
+
+div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+div[data-testid="stButton"] button {
+    height:96px !important;
+    min-height:96px !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+}
+
+div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+div[data-testid="stButton"] button p {
+    overflow-wrap:break-word !important;
+    word-break:normal !important;
+}
+
+/* ---------- 2. Member / category cards: equal grid ---------- */
+
+div[class*="st-key-"][class*="team_overview_kpis"]
+div[data-testid="stHorizontalBlock"],
+div[class*="st-key-"][class*="_chips"]
+div[data-testid="stHorizontalBlock"] {
+    display:grid !important;
+    grid-template-columns:repeat(auto-fill, minmax(135px, 1fr)) !important;
+    gap:8px !important;
+    width:100% !important;
+}
+
+div[class*="st-key-"][class*="team_overview_kpis"]
+div[data-testid="stColumn"],
+div[class*="st-key-"][class*="team_overview_kpis"]
+div[data-testid="column"],
+div[class*="st-key-"][class*="_chips"]
+div[data-testid="stColumn"],
+div[class*="st-key-"][class*="_chips"]
+div[data-testid="column"] {
+    width:auto !important;
+    min-width:0 !important;
+    flex:none !important;
+}
+
+div[class*="st-key-"][class*="team_overview_kpis"]
+div[data-testid="stButton"] button,
+div[class*="st-key-"][class*="_chips"]
+div[data-testid="stButton"] button {
+    height:64px !important;
+    min-height:64px !important;
+    box-sizing:border-box !important;
+    padding:6px 6px !important;
+    overflow:hidden !important;
+}
+
+div[class*="st-key-"][class*="team_overview_kpis"]
+div[data-testid="stButton"] button p,
+div[class*="st-key-"][class*="_chips"]
+div[data-testid="stButton"] button p {
+    line-height:1.2 !important;
+    overflow-wrap:anywhere !important;
+}
+
+/* ---------- 3. Tables: never cut off, scroll sideways ---------- */
+
+[class*="table-wrapper"],
+.vip-summary-wrapper {
+    max-width:100% !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+}
+
+/* ---------- 4. Tablet + phone ---------- */
+
+@media (max-width:768px) {
+
+    div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap:wrap !important;
+        gap:8px !important;
+    }
+
+    div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+    div[data-testid="stColumn"],
+    div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+    div[data-testid="column"] {
+        flex:1 1 calc(50% - 8px) !important;
+        min-width:calc(50% - 8px) !important;
+        width:calc(50% - 8px) !important;
+    }
+
+    div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+    div[data-testid="stButton"] button {
+        height:82px !important;
+        min-height:82px !important;
+        padding:6px 4px !important;
+    }
+
+    div[class*="st-key-"][class*="_kpis"]:not([class*="team_overview"])
+    div[data-testid="stButton"] button p {
+        font-size:11.5px !important;
+    }
+
+    div[class*="st-key-"][class*="team_overview_kpis"]
+    div[data-testid="stHorizontalBlock"],
+    div[class*="st-key-"][class*="_chips"]
+    div[data-testid="stHorizontalBlock"] {
+        grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)) !important;
+        gap:6px !important;
+    }
+
+    div[class*="st-key-"][class*="team_overview_kpis"]
+    div[data-testid="stButton"] button,
+    div[class*="st-key-"][class*="_chips"]
+    div[data-testid="stButton"] button {
+        height:60px !important;
+        min-height:60px !important;
+    }
+
+    div[class*="st-key-"][class*="team_overview_kpis"]
+    div[data-testid="stButton"] button p,
+    div[class*="st-key-"][class*="_chips"]
+    div[data-testid="stButton"] button p {
+        font-size:10.5px !important;
+    }
+
+    [class*="table-wrapper"] table,
+    .vip-summary-wrapper table {
+        min-width:640px;
+        font-size:12px !important;
+    }
+
+    [class*="table-wrapper"] th,
+    [class*="table-wrapper"] td,
+    .vip-summary-wrapper th,
+    .vip-summary-wrapper td {
+        padding:9px 8px !important;
+    }
+
+    [data-testid="stMarkdownContainer"] h2 {
+        font-size:20px !important;
+    }
+}
+
+@media (max-width:480px) {
+
+    div[class*="st-key-"][class*="team_overview_kpis"]
+    div[data-testid="stHorizontalBlock"],
+    div[class*="st-key-"][class*="_chips"]
+    div[data-testid="stHorizontalBlock"] {
+        grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    [data-testid="stMarkdownContainer"] h2 {
+        font-size:18px !important;
+    }
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 # =====================================================
 # Load Data
 # =====================================================
@@ -6173,241 +6348,311 @@ margin-bottom:6px;">
 
 # =====================================================
 # ANALYTICS
+# Delivery-project insights (BAU charts now live on the BAU page)
 # =====================================================
 
 elif page == "Analytics":
 
+    import html as html_lib
+
     # ==========================================
-    # ANALYTICS DATA
+    # DATA
     # ==========================================
 
-    analytics_source_df = df[
+    status_upper = (
         df["Status"]
         .astype(str)
         .str.strip()
         .str.upper()
-        != "BAU"
-    ].copy()
-
-    bau_df = df[
-        df["Status"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        == "BAU"
-    ].copy()
-
-
-    # ==========================================
-    # COMPACT HEADER
-    # ==========================================
-
-    render_header('SMARTPAY ANALYTICS', '📊 Analytics Dashboard', 'SmartPay Project Insights & Team Performance', 'ANALYTICS & INSIGHTS')
-
-   # ==========================================
-    # KPI CARDS
-    # ==========================================
-
-    status = (
-        df["Status"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
     )
+
+    analytics_source_df = df[status_upper != "BAU"].copy()
+
+    bau_project_count = int((status_upper == "BAU").sum())
+
+    # ==========================================
+    # HEADER
+    # ==========================================
+
+    render_header(
+        "SMARTPAY ANALYTICS",
+        "📊 Analytics Dashboard",
+        "SmartPay Project Insights & Team Performance",
+        "ANALYTICS & INSIGHTS"
+    )
+
+    # ==========================================
+    # KPI NUMBERS
+    # ==========================================
 
     total_projects = len(df)
-
-    live_projects = len(
-        df[status == "LIVE"]
-    )
-
-    uat_projects = len(
-        df[status == "UAT"]
-    )
-
-    team_members = (
-        df["Allocation"]
-        .nunique()
-    )
+    live_projects = int((status_upper == "LIVE").sum())
+    uat_projects = int((status_upper == "UAT").sum())
+    team_members = int(df["Allocation"].nunique())
 
     live_percent = (
-        round(
-            (live_projects / total_projects) * 100,
-            1
-        )
-        if total_projects
-        else 0
+        round((live_projects / total_projects) * 100, 1)
+        if total_projects else 0
     )
 
     uat_percent = (
-        round(
-            (uat_projects / total_projects) * 100,
-            1
-        )
-        if total_projects
-        else 0
+        round((uat_projects / total_projects) * 100, 1)
+        if total_projects else 0
     )
 
-
     # ==========================================
-    # COMPACT ANALYTICS KPI CARD
+    # CSS
     # ==========================================
 
-    def analytics_card(title, value, color):
+    st.markdown("""
+    <style>
 
-        st.markdown(f"""
-    <div style="
-    background:#FFFFFF;
-    border-radius:14px;
-    padding:10px 8px;
-    text-align:center;
-    border-top:5px solid {color};
-    border-left:1px solid #E5E7EB;
-    border-right:1px solid #E5E7EB;
-    border-bottom:1px solid #E5E7EB;
-    box-shadow:0 5px 14px rgba(0,0,0,.06);
-    min-height:90px;
-    box-sizing:border-box;">
+    .an-title {
+        color:#006747;
+        font-size:21px;
+        font-weight:750;
+        margin:6px 0 2px;
+        overflow-wrap:anywhere;
+    }
 
-    <div style="
-    color:#6B7280;
-    font-size:12px;
-    font-weight:600;
-    line-height:1.2;">
-    {title}
-    </div>
+    .an-note {
+        color:#64748B;
+        font-size:12.5px;
+        margin-bottom:6px;
+    }
 
-    <div style="
-    color:{color};
-    font-size:30px;
-    font-weight:800;
-    line-height:1;
-    margin-top:7px;">
-    {value}
-    </div>
+    .an-kpi-grid {
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:12px;
+        margin-bottom:6px;
+    }
 
-    </div>
+    .an-kpi {
+        box-sizing:border-box;
+        min-height:104px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        text-align:center;
+        padding:12px 8px;
+        background:#FFFFFF;
+        border:1px solid #E5E7EB;
+        border-top:5px solid #006747;
+        border-radius:14px;
+        box-shadow:0 5px 14px rgba(0,0,0,.06);
+    }
+
+    .an-kpi-title {
+        color:#6B7280;
+        font-size:12px;
+        font-weight:700;
+        line-height:1.2;
+    }
+
+    .an-kpi-value {
+        color:#006747;
+        font-size:30px;
+        font-weight:800;
+        line-height:1.05;
+        margin-top:6px;
+    }
+
+    .an-kpi-sub {
+        color:#9CA3AF;
+        font-size:11px;
+        margin-top:4px;
+        line-height:1.2;
+    }
+
+    [class*="st-key-an_panel"] {
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:16px;
+        padding:12px 14px 6px;
+        box-shadow:0 5px 16px rgba(0,103,71,.06);
+        margin-bottom:6px;
+    }
+
+    .an-card-grid {
+        display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+        gap:10px;
+    }
+
+    .an-project-card {
+        box-sizing:border-box;
+        background:#FFFFFF;
+        border:1px solid #DDE5E1;
+        border-radius:14px;
+        padding:12px 14px;
+        box-shadow:0 4px 12px rgba(0,103,71,.06);
+    }
+
+    .an-project-head {
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:10px;
+        margin-bottom:9px;
+    }
+
+    .an-project-name {
+        color:#006747;
+        font-size:14px;
+        font-weight:750;
+        line-height:1.3;
+        flex:1;
+        min-width:0;
+        overflow-wrap:anywhere;
+    }
+
+    .an-pill {
+        padding:4px 9px;
+        border-radius:14px;
+        font-size:9px;
+        font-weight:800;
+        white-space:nowrap;
+        flex-shrink:0;
+    }
+
+    .an-progress-track {
+        width:100%;
+        height:6px;
+        background:#E5E7EB;
+        border-radius:10px;
+        overflow:hidden;
+    }
+
+    .an-progress-bar {
+        height:100%;
+        background:linear-gradient(90deg,#013D2B,#006747,#008A5A);
+        border-radius:10px;
+    }
+
+    .an-steps {
+        display:flex;
+        justify-content:space-between;
+        margin-top:9px;
+    }
+
+    .an-step {
+        flex:1;
+        text-align:center;
+        min-width:0;
+    }
+
+    .an-dot {
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        margin:auto;
+    }
+
+    .an-step-label {
+        margin-top:4px;
+        font-size:8px;
+        font-weight:700;
+        white-space:nowrap;
+    }
+
+    @media (max-width:700px) {
+        .an-kpi-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+        .an-kpi { min-height:92px; }
+        .an-kpi-value { font-size:26px; }
+        .an-title { font-size:18px; }
+        [class*="st-key-an_panel"] { padding:10px 8px 4px; }
+        .an-card-grid { grid-template-columns:1fr; }
+    }
+
+    </style>
     """, unsafe_allow_html=True)
 
+    # ==========================================
+    # KPI CARDS
+    # ==========================================
 
-    k1, k2, k3, k4 = st.columns(4)
+    def an_kpi(title, value, sub, color):
+        return (
+            f'<div class="an-kpi" style="border-top-color:{color};">'
+            f'<div class="an-kpi-title">{html_lib.escape(str(title))}</div>'
+            f'<div class="an-kpi-value" style="color:{color};">'
+            f'{html_lib.escape(str(value))}</div>'
+            f'<div class="an-kpi-sub">{html_lib.escape(str(sub))}</div>'
+            f'</div>'
+        )
 
-
-    with k1:
-
-        analytics_card(
+    st.html(
+        '<div class="an-kpi-grid">'
+        + an_kpi(
             "Total Projects",
             total_projects,
+            f"{total_projects - bau_project_count} delivery • "
+            f"{bau_project_count} BAU",
             "#006747"
         )
-
-
-    with k2:
-
-        analytics_card(
+        + an_kpi(
             "Live %",
             f"{live_percent}%",
+            f"{live_projects} live project(s)",
             "#008A5A"
         )
-
-
-    with k3:
-
-        analytics_card(
+        + an_kpi(
             "UAT %",
             f"{uat_percent}%",
+            f"{uat_projects} in UAT",
             "#20A464"
         )
-
-
-    with k4:
-
-        analytics_card(
+        + an_kpi(
             "Team Members",
             team_members,
+            "with allocated projects",
             "#4CAF7A"
         )
-
-
-    # ==========================================
-    # SMALL GAP BEFORE FILTERS
-    # ==========================================
-
-    st.markdown(
-        "<div style='height:6px;'></div>",
-        unsafe_allow_html=True
+        + '</div>'
     )
-
 
     # ==========================================
     # FILTERS
     # ==========================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:2px;
-    margin-bottom:7px;">
-    🎯 Analytics Filters
-    </h2>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="an-title">🎯 Analytics Filters</div>',
+        unsafe_allow_html=True
+    )
 
-
-    f1, f2 = st.columns([2, 2])
-
+    f1, f2 = st.columns(2)
 
     with f1:
-
         selected_allocation = st.selectbox(
             "👤 Team Member",
             ["All"] + sorted(
-                analytics_source_df[
-                    "Allocation"
-                ]
-                .dropna()
-                .unique()
-            )
+                analytics_source_df["Allocation"].dropna().unique()
+            ),
+            key="an_member_filter"
         )
 
-
     with f2:
-
         selected_status = st.selectbox(
             "📌 Status",
             ["All"] + sorted(
-                analytics_source_df[
-                    "Status"
-                ]
-                .dropna()
-                .unique()
-            )
+                analytics_source_df["Status"].dropna().unique()
+            ),
+            key="an_status_filter"
         )
-
-
-    # ==========================================
-    # ANALYTICS FILTER DATA
-    # ==========================================
 
     analytics_df = analytics_source_df.copy()
 
-
     if selected_allocation != "All":
-
         analytics_df = analytics_df[
-            analytics_df["Allocation"]
-            == selected_allocation
+            analytics_df["Allocation"] == selected_allocation
         ]
-
 
     if selected_status != "All":
-
         analytics_df = analytics_df[
-            analytics_df["Status"]
-            == selected_status
+            analytics_df["Status"] == selected_status
         ]
-
 
     analytics_df["Status"] = (
         analytics_df["Status"]
@@ -6416,9 +6661,8 @@ elif page == "Analytics":
         .str.strip()
     )
 
-
     # ==========================================
-    # STATUS ORDER
+    # THEME
     # ==========================================
 
     status_order = [
@@ -6429,11 +6673,6 @@ elif page == "Analytics":
         "UNDER SCOPING"
     ]
 
-
-    # ==========================================
-    # SMARTPAY GREEN THEME
-    # ==========================================
-
     color_map = {
         "LIVE": "#006747",
         "UAT": "#008A5A",
@@ -6441,265 +6680,332 @@ elif page == "Analytics":
         "CMC": "#4CAF7A",
         "UNDER SCOPING": "#8BC9A8"
     }
-    # ==========================================
-    # STATUS CHART - COMPACT
-    # ==========================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:6px;
-    margin-bottom:8px;">
-    📈 Project Status
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-    status_count = (
-        analytics_df["Status"]
-        .value_counts()
-        .reindex(status_order, fill_value=0)
-        .reset_index()
-    )
-
-    status_count.columns = [
-        "Status",
-        "Projects"
+    green_scale = [
+        "#D1FAE5", "#8BC9A8", "#4CAF7A",
+        "#20A464", "#008A5A", "#006747"
     ]
 
+    chart_config = {"displayModeBar": False}
+
+    def an_style(fig, height, legend=False):
+        fig.update_layout(
+            height=height,
+            template="plotly_white",
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            coloraxis_showscale=False,
+            showlegend=legend,
+            font=dict(color="#111827", size=11),
+            margin=dict(l=10, r=14, t=10, b=10)
+        )
+        return fig
 
     # ==========================================
-    # STATUS BAR CHART
+    # ROW 1: PROJECT STATUS + TEAM PERFORMANCE
     # ==========================================
 
-    fig1 = px.bar(
-        status_count,
-        x="Status",
-        y="Projects",
-        text="Projects",
-        color="Status",
-        color_discrete_map=color_map
-    )
+    row1_left, row1_right = st.columns(2)
 
+    with row1_left:
+        with st.container(key="an_panel_status"):
 
-    fig1.update_layout(
-        height=380,
-        template="plotly_white",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        title_text="",
-        coloraxis_showscale=False,
-
-        font=dict(
-            color="#111827",
-            size=12
-        ),
-
-        xaxis=dict(
-            title="Status",
-            title_font=dict(
-                color="#006747",
-                size=12
-            ),
-            tickfont=dict(
-                color="#374151",
-                size=11
-            ),
-            showgrid=False,
-            zeroline=False
-        ),
-
-        yaxis=dict(
-            title="Projects",
-            title_font=dict(
-                color="#006747",
-                size=12
-            ),
-            tickfont=dict(
-                color="#374151",
-                size=11
-            ),
-            gridcolor="#DDE5E1",
-            zeroline=False
-        ),
-
-        legend=dict(
-            font=dict(
-                color="#374151",
-                size=11
+            st.markdown(
+                '<div class="an-title">📈 Project Status</div>',
+                unsafe_allow_html=True
             )
-        ),
 
-        margin=dict(
-            l=35,
-            r=20,
-            t=10,
-            b=45
-        )
-    )
+            status_count = (
+                analytics_df["Status"]
+                .value_counts()
+                .reindex(status_order, fill_value=0)
+                .reset_index()
+            )
 
+            status_count.columns = ["Status", "Projects"]
 
-    fig1.update_traces(
-        textposition="inside",
-        textfont=dict(
-            color="white",
-            size=11
-        ),
-        marker_line_width=0
-    )
+            fig_status = px.bar(
+                status_count,
+                x="Status",
+                y="Projects",
+                text="Projects",
+                color="Status",
+                color_discrete_map=color_map
+            )
 
+            an_style(fig_status, 340)
 
-    st.plotly_chart(
-        fig1,
-        width="stretch"
-    )
+            fig_status.update_xaxes(
+                title="",
+                showgrid=False,
+                zeroline=False,
+                tickfont=dict(color="#374151", size=10)
+            )
 
+            fig_status.update_yaxes(
+                title="Projects",
+                title_font=dict(color="#006747", size=11),
+                gridcolor="#DDE5E1",
+                zeroline=False,
+                tickfont=dict(color="#374151", size=10)
+            )
 
-    # ==========================================
-    # TEAM PERFORMANCE - COMPACT
-    # ==========================================
+            fig_status.update_traces(
+                textposition="outside",
+                textfont=dict(color="#006747", size=11),
+                marker_line_width=0,
+                cliponaxis=False
+            )
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:6px;
-    margin-bottom:8px;">
-    👥 Team Performance
-    </h2>
-    """, unsafe_allow_html=True)
+            st.plotly_chart(
+                fig_status,
+                width="stretch",
+                config=chart_config
+            )
 
+    with row1_right:
+        with st.container(key="an_panel_team"):
 
-    allocation_count = (
-        analytics_df["Allocation"]
-        .value_counts()
-        .reset_index()
-    )
+            st.markdown(
+                '<div class="an-title">👥 Team Performance</div>',
+                unsafe_allow_html=True
+            )
 
-    allocation_count.columns = [
-        "Allocation",
-        "Projects"
-    ]
+            allocation_count = (
+                analytics_df["Allocation"]
+                .value_counts()
+                .reset_index()
+            )
 
+            allocation_count.columns = ["Allocation", "Projects"]
 
-    # ==========================================
-    # TEAM PERFORMANCE BAR CHART
-    # ==========================================
+            allocation_count = allocation_count.sort_values(
+                "Projects",
+                ascending=True
+            )
 
-    fig2 = px.bar(
-        allocation_count,
-        x="Allocation",
-        y="Projects",
-        text="Projects",
-        color="Projects",
-        color_continuous_scale=[
-            "#D1FAE5",
-            "#8BC9A8",
-            "#4CAF7A",
-            "#20A464",
-            "#008A5A",
-            "#006747"
-        ]
-    )
+            fig_team = px.bar(
+                allocation_count,
+                x="Projects",
+                y="Allocation",
+                orientation="h",
+                text="Projects",
+                color="Projects",
+                color_continuous_scale=green_scale
+            )
 
+            an_style(
+                fig_team,
+                max(340, 34 * len(allocation_count) + 70)
+            )
 
-    fig2.update_layout(
-        height=380,
-        template="plotly_white",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        coloraxis_showscale=False,
+            fig_team.update_xaxes(
+                title="Projects",
+                title_font=dict(color="#006747", size=11),
+                gridcolor="#DDE5E1",
+                zeroline=False,
+                tickfont=dict(color="#374151", size=10)
+            )
 
-        font=dict(
-            color="#111827",
-            size=12
-        ),
+            fig_team.update_yaxes(
+                title="",
+                showgrid=False,
+                tickfont=dict(color="#374151", size=10),
+                automargin=True
+            )
 
-        xaxis=dict(
-            title="",
-            tickfont=dict(
-                color="#374151",
-                size=11
-            ),
-            showgrid=False,
-            zeroline=False
-        ),
+            fig_team.update_traces(
+                textposition="outside",
+                textfont=dict(color="#006747", size=11),
+                marker_line_width=0,
+                cliponaxis=False
+            )
 
-        yaxis=dict(
-            title="Projects",
-            title_font=dict(
-                color="#006747",
-                size=12
-            ),
-            tickfont=dict(
-                color="#374151",
-                size=11
-            ),
-            gridcolor="#DDE5E1",
-            zeroline=False
-        ),
-
-        margin=dict(
-            l=35,
-            r=20,
-            t=10,
-            b=55
-        )
-    )
-
-
-    fig2.update_traces(
-        textposition="outside",
-        textfont=dict(
-            color="#006747",
-            size=11
-        ),
-        marker_line_width=0
-    )
-
-
-    st.plotly_chart(
-        fig2,
-        width="stretch"
-    )
-
+            st.plotly_chart(
+                fig_team,
+                width="stretch",
+                config=chart_config
+            )
 
     # ==========================================
-    # PERSON ANALYTICS - COMPACT
+    # ROW 2: STATUS BY MEMBER + CATEGORY MIX
+    # ==========================================
+
+    has_category_chart = (
+        "Category" in analytics_df.columns
+        and analytics_df["Category"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+        .ne("")
+        .any()
+    )
+
+    if has_category_chart:
+        row2_left, row2_right = st.columns([3, 2])
+    else:
+        row2_left = st.container()
+        row2_right = None
+
+    with row2_left:
+        with st.container(key="an_panel_stacked"):
+
+            st.markdown(
+                '<div class="an-title">🧩 Status by Team Member</div>',
+                unsafe_allow_html=True
+            )
+
+            stacked = (
+                analytics_df
+                .groupby(["Allocation", "Status"])
+                .size()
+                .reset_index(name="Projects")
+            )
+
+            if stacked.empty:
+                st.info("No projects match the selected filters.")
+
+            else:
+                member_order = (
+                    stacked.groupby("Allocation")["Projects"]
+                    .sum()
+                    .sort_values(ascending=True)
+                    .index
+                    .tolist()
+                )
+
+                fig_stacked = px.bar(
+                    stacked,
+                    x="Projects",
+                    y="Allocation",
+                    color="Status",
+                    orientation="h",
+                    text="Projects",
+                    color_discrete_map=color_map,
+                    category_orders={
+                        "Allocation": member_order,
+                        "Status": status_order
+                    }
+                )
+
+                an_style(
+                    fig_stacked,
+                    max(320, 34 * len(member_order) + 110),
+                    legend=True
+                )
+
+                fig_stacked.update_layout(
+                    barmode="stack",
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.0,
+                        xanchor="left",
+                        x=0,
+                        font=dict(color="#374151", size=10),
+                        title_text=""
+                    )
+                )
+
+                fig_stacked.update_xaxes(
+                    title="Projects",
+                    title_font=dict(color="#006747", size=11),
+                    gridcolor="#DDE5E1",
+                    zeroline=False,
+                    tickfont=dict(color="#374151", size=10)
+                )
+
+                fig_stacked.update_yaxes(
+                    title="",
+                    showgrid=False,
+                    tickfont=dict(color="#374151", size=10),
+                    automargin=True
+                )
+
+                fig_stacked.update_traces(
+                    textfont=dict(color="white", size=10),
+                    marker_line_width=0
+                )
+
+                st.plotly_chart(
+                    fig_stacked,
+                    width="stretch",
+                    config=chart_config
+                )
+
+    if row2_right is not None:
+        with row2_right:
+            with st.container(key="an_panel_category"):
+
+                st.markdown(
+                    '<div class="an-title">📂 Category Mix</div>',
+                    unsafe_allow_html=True
+                )
+
+                category_count = (
+                    analytics_df["Category"]
+                    .fillna("")
+                    .astype(str)
+                    .str.strip()
+                    .replace("", pd.NA)
+                    .dropna()
+                    .value_counts()
+                    .reset_index()
+                )
+
+                category_count.columns = ["Category", "Projects"]
+
+                if category_count.empty:
+                    st.info("No category data for these filters.")
+
+                else:
+                    fig_category = px.pie(
+                        category_count,
+                        names="Category",
+                        values="Projects",
+                        hole=0.55,
+                        color_discrete_sequence=[
+                            "#006747", "#20A464", "#4CAF7A",
+                            "#8BC9A8", "#F59E0B", "#8E24AA", "#DC2626"
+                        ]
+                    )
+
+                    an_style(fig_category, 340, legend=True)
+
+                    fig_category.update_layout(
+                        legend=dict(
+                            orientation="h",
+                            yanchor="top",
+                            y=-0.02,
+                            font=dict(color="#374151", size=10)
+                        )
+                    )
+
+                    fig_category.update_traces(
+                        textfont=dict(color="white", size=11),
+                        marker_line=dict(color="white", width=2)
+                    )
+
+                    st.plotly_chart(
+                        fig_category,
+                        width="stretch",
+                        config=chart_config
+                    )
+
+    # ==========================================
+    # PERSON ANALYTICS
     # ==========================================
 
     if selected_allocation != "All":
-
-        # ==========================================
-        # PERSON DATA
-        # ==========================================
 
         person_df = analytics_df[
             analytics_df["Allocation"] == selected_allocation
         ].copy()
 
-
-        # ==========================================
-        # PIE CHART
-        # ==========================================
-
         st.markdown(
-            f"""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:6px;
-    margin-bottom:5px;">
-    🥧 {selected_allocation}
-    </h2>
-    """,
+            f'<div class="an-title">🥧 {html_lib.escape(str(selected_allocation))}</div>',
             unsafe_allow_html=True
         )
-
 
         person_status = (
             person_df["Status"]
@@ -6708,271 +7014,136 @@ elif page == "Analytics":
             .reset_index()
         )
 
-        person_status.columns = [
-            "Status",
-            "Projects"
-        ]
+        person_status.columns = ["Status", "Projects"]
 
+        pie_col, progress_col = st.columns([1, 1.6])
 
-        # ==========================================
-        # PERSON STATUS PIE
-        # ==========================================
+        with pie_col:
+            with st.container(key="an_panel_person"):
 
-        fig3 = px.pie(
-            person_status,
-            names="Status",
-            values="Projects",
-            hole=.55,
-            color="Status",
-            color_discrete_map=color_map
-        )
-
-
-        fig3.update_layout(
-            height=360,
-            template="plotly_white",
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-
-            font=dict(
-                color="#111827",
-                size=12
-            ),
-
-            legend=dict(
-                font=dict(
-                    color="#374151",
-                    size=11
+                fig_person = px.pie(
+                    person_status,
+                    names="Status",
+                    values="Projects",
+                    hole=0.55,
+                    color="Status",
+                    color_discrete_map=color_map
                 )
-            ),
 
-            margin=dict(
-                l=10,
-                r=10,
-                t=5,
-                b=5
+                an_style(fig_person, 330, legend=True)
+
+                fig_person.update_layout(
+                    legend=dict(
+                        orientation="h",
+                        yanchor="top",
+                        y=-0.02,
+                        font=dict(color="#374151", size=10)
+                    )
+                )
+
+                fig_person.update_traces(
+                    textfont=dict(color="white", size=11),
+                    marker_line=dict(color="white", width=2)
+                )
+
+                st.plotly_chart(
+                    fig_person,
+                    width="stretch",
+                    config=chart_config
+                )
+
+        with progress_col:
+
+            st.markdown(
+                '<div class="an-title">📊 Project Status Progress</div>',
+                unsafe_allow_html=True
             )
-        )
 
+            status_stages = ["SCOPING", "UAT", "IS REVIEW", "CMC", "LIVE"]
 
-        fig3.update_traces(
-            textfont=dict(
-                color="white",
-                size=11
-            ),
-            marker_line=dict(
-                color="white",
-                width=2
-            )
-        )
+            status_progress = {
+                "SCOPING": 1,
+                "UNDER SCOPING": 1,
+                "UAT": 2,
+                "IS REVIEW": 3,
+                "CMC": 4,
+                "LIVE": 5
+            }
 
+            status_colors = {
+                "LIVE": ("#DCFCE7", "#166534"),
+                "UAT": ("#D1FAE5", "#006747"),
+                "CMC": ("#B7E4C7", "#087443"),
+                "IS REVIEW": ("#C6F6D5", "#15803D"),
+                "SCOPING": ("#E8F5E9", "#2E7D5B"),
+                "UNDER SCOPING": ("#E8F5E9", "#2E7D5B")
+            }
 
-        st.plotly_chart(
-            fig3,
-            width="stretch"
-        )
+            project_df = person_df[
+                person_df["Status"] != "BAU"
+            ].copy()
 
-        # ==========================================
-        # PROJECT STATUS PROGRESS - BELOW PIE
-        # ==========================================
+            if project_df.empty:
+                st.info("No delivery projects for this member.")
 
+            else:
+                cards_html = '<div class="an-card-grid">'
+
+                for _, row in project_df.iterrows():
+
+                    project_name = html_lib.escape(
+                        str(row["Mandate"]).strip()
+                    )
+
+                    current_status = str(row["Status"]).strip().upper()
+                    current_stage = status_progress.get(current_status, 1)
+                    progress_percent = int((current_stage / 5) * 100)
+
+                    pill_bg, pill_color = status_colors.get(
+                        current_status,
+                        ("#F3F4F6", "#374151")
+                    )
+
+                    steps_html = ""
+
+                    for number, stage in enumerate(status_stages, start=1):
+                        reached = number <= current_stage
+
+                        steps_html += (
+                            f'<div class="an-step">'
+                            f'<div class="an-dot" style="background:'
+                            f'{"#006747" if reached else "#D1D5DB"};"></div>'
+                            f'<div class="an-step-label" style="color:'
+                            f'{"#006747" if reached else "#9CA3AF"};">'
+                            f'{stage}</div></div>'
+                        )
+
+                    cards_html += (
+                        f'<div class="an-project-card">'
+                        f'<div class="an-project-head">'
+                        f'<div class="an-project-name">📁 {project_name}</div>'
+                        f'<div class="an-pill" style="background:{pill_bg};'
+                        f'color:{pill_color};">'
+                        f'{html_lib.escape(current_status)}</div>'
+                        f'</div>'
+                        f'<div class="an-progress-track">'
+                        f'<div class="an-progress-bar" '
+                        f'style="width:{progress_percent}%;"></div></div>'
+                        f'<div class="an-steps">{steps_html}</div>'
+                        f'</div>'
+                    )
+
+                cards_html += '</div>'
+
+                st.html(cards_html)
+
+        # ---- project details table -------------------------
         st.markdown(
-            """
-        <h2 style="
-        color:#006747;
-        font-size:24px;
-        font-weight:700;
-        margin-top:8px;
-        margin-bottom:12px;">
-        📊 Project Status Progress
-        </h2>
-        """,
+            '<div class="an-title">📋 Project Details</div>',
             unsafe_allow_html=True
         )
 
-
-        status_stages = [
-            "SCOPING",
-            "UAT",
-            "IS REVIEW",
-            "CMC",
-            "LIVE"
-        ]
-
-
-        status_progress = {
-            "SCOPING": 1,
-            "UNDER SCOPING": 1,
-            "UAT": 2,
-            "IS REVIEW": 3,
-            "CMC": 4,
-            "LIVE": 5
-        }
-
-
-        # ==========================================
-        # REMOVE BAU PROJECTS
-        # ==========================================
-
-        project_df = person_df[
-            person_df["Status"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            != "BAU"
-        ].copy()
-
-
-        # ==========================================
-        # INDIVIDUAL PROJECT CARDS
-        # ==========================================
-
-        for _, row in project_df.iterrows():
-
-            project_name = str(
-                row["Mandate"]
-            ).strip()
-
-            current_status = str(
-                row["Status"]
-            ).strip().upper()
-
-            current_stage = status_progress.get(
-                current_status,
-                1
-            )
-
-            progress_percent = int(
-                (current_stage / 5) * 100
-            )
-
-
-            # ======================================
-            # SMARTPAY GREEN STATUS COLORS
-            # ======================================
-
-            if current_status == "LIVE":
-
-                status_bg = "#DCFCE7"
-                status_color = "#166534"
-
-            elif current_status == "UAT":
-
-                status_bg = "#D1FAE5"
-                status_color = "#006747"
-
-            elif current_status == "CMC":
-
-                status_bg = "#B7E4C7"
-                status_color = "#087443"
-
-            elif current_status == "IS REVIEW":
-
-                status_bg = "#C6F6D5"
-                status_color = "#15803D"
-
-            elif current_status in [
-                "SCOPING",
-                "UNDER SCOPING"
-            ]:
-
-                status_bg = "#E8F5E9"
-                status_color = "#2E7D5B"
-
-            else:
-
-                status_bg = "#F3F4F6"
-                status_color = "#374151"
-
-
-            # ======================================
-            # PROJECT CARD
-            # ======================================
-
-            card_html = f"""
-        <div style="background:#FFFFFF;border:1px solid #DDE5E1;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,103,71,.06);box-sizing:border-box;">
-
-        <!-- PROJECT HEADER -->
-
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px;">
-
-        <div style="color:#006747;font-size:14px;font-weight:750;line-height:1.3;flex:1;word-break:break-word;">
-        📁 {project_name}
-        </div>
-
-        <div style="background:{status_bg};color:{status_color};padding:4px 9px;border-radius:14px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;">
-        {current_status}
-        </div>
-
-        </div>
-
-
-        <!-- PROGRESS LINE -->
-
-        <div style="width:100%;height:6px;background:#E5E7EB;border-radius:10px;overflow:hidden;">
-
-        <div style="width:{progress_percent}%;height:100%;background:linear-gradient(90deg,#013D2B,#006747,#008A5A);border-radius:10px;">
-        </div>
-
-        </div>
-
-
-        <!-- STATUS STEPS -->
-
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:9px;">
-        """
-
-
-            for i, stage in enumerate(
-                status_stages,
-                start=1
-            ):
-
-                if i <= current_stage:
-
-                    dot_color = "#006747"
-                    text_color = "#006747"
-
-                else:
-
-                    dot_color = "#D1D5DB"
-                    text_color = "#9CA3AF"
-
-
-                card_html += f"""
-        <div style="flex:1;text-align:center;">
-
-        <div style="width:8px;height:8px;background:{dot_color};border-radius:50%;margin:auto;">
-        </div>
-
-        <div style="margin-top:4px;color:{text_color};font-size:8px;font-weight:700;white-space:nowrap;">
-        {stage}
-        </div>
-
-        </div>
-        """
-
-
-            card_html += """
-        </div>
-
-        </div>
-        """
-
-
-            st.html(card_html)
-
-
-        # ==========================================
-        # PROJECT DETAILS
-        # ==========================================
-
         display_person_df = person_df.copy()
-
-
-        # ==========================================
-        # DATE FORMAT
-        # ==========================================
 
         for col in ["Date", "Live Date"]:
 
@@ -6980,34 +7151,21 @@ elif page == "Analytics":
 
                 original = display_person_df[col].copy()
 
-                parsed = pd.to_datetime(
-                    original,
-                    errors="coerce"
-                )
+                parsed = pd.to_datetime(original, errors="coerce")
 
-                formatted = parsed.dt.strftime(
-                    "%Y-%m-%d"
-                )
+                formatted = parsed.dt.strftime("%Y-%m-%d")
 
-                # Keep text values like BAU
+                # Keep text values such as BAU
                 display_person_df[col] = formatted.where(
                     parsed.notna(),
                     original.astype(str)
                 )
 
-                # Blank values
                 display_person_df[col] = (
                     display_person_df[col]
-                    .replace(
-                        ["nan", "NaT", "", "None"],
-                        "TBD"
-                    )
+                    .replace(["nan", "NaT", "", "None"], "TBD")
+                    .fillna("TBD")
                 )
-
-
-        # ==========================================
-        # PROJECT DETAILS TABLE
-        # ==========================================
 
         st.dataframe(
             display_person_df,
@@ -7015,213 +7173,7 @@ elif page == "Analytics":
             hide_index=True
         )
 
-# =====================================================
-        # =====================================================
-    # BAU MONITORING ANALYTICS - COMPACT
-    # =====================================================
 
-    st.markdown(
-        "<div style='height:6px;'></div>",
-        unsafe_allow_html=True
-    )
-
-
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:8px;
-    margin-bottom:5px;">
-    🏦 BAU Monitoring
-    </h2>
-
-    <p style="
-    color:#6B7280;
-    font-size:13px;
-    margin-top:0;
-    margin-bottom:12px;">
-    Business as Usual projects are monitored separately from delivery projects.
-    </p>
-    """, unsafe_allow_html=True)
-
-
-    # =====================================================
-    # BAU DATA
-    # =====================================================
-
-    bau_df = df[
-        df["Status"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        == "BAU"
-    ].copy()
-
-
-    # =====================================================
-    # BAU KPI
-    # =====================================================
-
-    bau_total = len(bau_df)
-
-    bau_owners = (
-        bau_df["Allocation"]
-        .dropna()
-        .astype(str)
-        .nunique()
-    )
-
-    bau_updates = (
-        bau_df["Update"]
-        .notna()
-        .sum()
-        if "Update" in bau_df.columns
-        else 0
-    )
-
-
-    b1, b2, b3 = st.columns(3)
-
-
-    with b1:
-
-        analytics_card(
-            "BAU Projects",
-            bau_total,
-            "#006747"
-        )
-
-
-    with b2:
-
-        analytics_card(
-            "BAU Owners",
-            bau_owners,
-            "#008A5A"
-        )
-
-
-    with b3:
-
-        analytics_card(
-            "BAU Updates",
-            bau_updates,
-            "#20A464"
-        )
-
-
-    # =====================================================
-    # BAU PROJECTS BY OWNER
-    # =====================================================
-
-    if not bau_df.empty:
-
-        st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:22px;
-    font-weight:700;
-    margin-top:8px;
-    margin-bottom:8px;">
-    👥 BAU Projects by Owner
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-        bau_owner_count = (
-            bau_df["Allocation"]
-            .astype(str)
-            .value_counts()
-            .reset_index()
-        )
-
-        bau_owner_count.columns = [
-            "Allocation",
-            "Projects"
-        ]
-
-
-        # =================================================
-        # BAU OWNER BAR CHART
-        # =================================================
-
-        fig_bau = px.bar(
-            bau_owner_count,
-            x="Allocation",
-            y="Projects",
-            text="Projects",
-            color="Projects",
-            color_continuous_scale=[
-                "#D1FAE5",
-                "#8BC9A8",
-                "#4CAF7A",
-                "#20A464",
-                "#008A5A",
-                "#006747"
-            ]
-        )
-
-
-        fig_bau.update_traces(
-            textposition="outside",
-            marker_line_width=0,
-            textfont=dict(
-                color="#006747",
-                size=11
-            )
-        )
-
-
-        fig_bau.update_layout(
-            height=370,
-            template="plotly_white",
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-            coloraxis_showscale=False,
-
-            font=dict(
-                color="#111827",
-                size=11
-            ),
-
-            xaxis=dict(
-                title="",
-                showgrid=False,
-                zeroline=False,
-                tickfont=dict(
-                    color="#374151",
-                    size=11
-                )
-            ),
-
-            yaxis=dict(
-                title="BAU Projects",
-                title_font=dict(
-                    color="#006747",
-                    size=11
-                ),
-                gridcolor="#DDE5E1",
-                zeroline=False,
-                tickfont=dict(
-                    color="#374151",
-                    size=10
-                )
-            ),
-
-            margin=dict(
-                l=35,
-                r=20,
-                t=8,
-                b=45
-            )
-        )
-
-
-        st.plotly_chart(
-            fig_bau,
-            width="stretch"
-        )
 ## =====================================================
 # PROJECT TIMELINE
 # =====================================================
@@ -8674,9 +8626,14 @@ elif page == "Project Timeline":
 
 # =====================================================
 # SMARTPAY DATA
+# Multi-image upload (GitHub storage) + gallery + zoom viewer
 # =====================================================
 
 elif page == "SmartPay Data":
+
+    import re
+    import html as html_lib
+    from PIL import Image as PILImage, ImageOps
 
     render_header(
         "SMARTPAY",
@@ -8687,16 +8644,19 @@ elif page == "SmartPay Data":
 
     # -------------------------------------------------
     # GITHUB CONFIGURATION
+    # Images are stored in data/smartpay_data/ (many files).
+    # The old single file data/smartpay_data.jpg is still shown
+    # in the gallery, so nothing already saved is lost.
     # -------------------------------------------------
     GITHUB_REPO = "saadasif7/SmartPay-Project-Dashboard"
     GITHUB_BRANCH = "main"
-    GITHUB_IMAGE_PATH = "data/smartpay_data.jpg"
+    GITHUB_IMAGE_DIR = "data/smartpay_data"
+    GITHUB_LEGACY_PATH = "data/smartpay_data.jpg"
 
     GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "")
 
-    GITHUB_API_URL = (
-        f"https://api.github.com/repos/{GITHUB_REPO}"
-        f"/contents/{GITHUB_IMAGE_PATH}"
+    GITHUB_CONTENTS_URL = (
+        f"https://api.github.com/repos/{GITHUB_REPO}/contents"
     )
 
     GITHUB_HEADERS = {
@@ -8705,134 +8665,451 @@ elif page == "SmartPay Data":
         "X-GitHub-Api-Version": "2022-11-28"
     }
 
+    MAX_FILES_PER_SAVE = 10
+    MAX_IMAGE_BYTES = 900_000
+
+    # -------------------------------------------------
+    # SESSION STATE
+    # -------------------------------------------------
+    if "smartpay_uploader_n" not in st.session_state:
+        st.session_state["smartpay_uploader_n"] = 0
+
+    if "smartpay_flash" not in st.session_state:
+        st.session_state["smartpay_flash"] = None
+
     # -------------------------------------------------
     # STYLING
     # -------------------------------------------------
     st.markdown("""
     <style>
-    .smartpay-upload-note {
-        color: #64748b;
-        font-size: 13px;
-        margin-bottom: 10px;
+
+    .sp-section-title {
+        color: #006747;
+        font-size: 22px;
+        font-weight: 750;
+        margin: 4px 0 2px;
     }
 
-    div[data-testid="stFileUploader"] {
-        border-radius: 10px;
+    .sp-section-note {
+        color: #64748B;
+        font-size: 13px;
+        margin-bottom: 10px;
+        line-height: 1.4;
     }
+
+    .st-key-sp_upload_panel,
+    .st-key-sp_viewer_panel {
+        background: #FFFFFF;
+        border: 1px solid #DDE5E1;
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 6px 20px rgba(0,103,71,.07);
+    }
+
+    .st-key-sp_upload_panel div[data-testid="stFileUploader"] section {
+        border: 2px dashed #8BC9A8;
+        background: #F3FAF6;
+        border-radius: 12px;
+    }
+
+    .st-key-sp_upload_panel div[data-testid="stFileUploader"] section:hover {
+        border-color: #006747;
+        background: #EAF5F0;
+    }
+
+    .sp-thumb-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-top: 2px;
+        overflow-wrap: anywhere;
+    }
+
+    .sp-thumb-meta {
+        font-size: 11px;
+        color: #64748B;
+        margin-bottom: 8px;
+    }
+
+    .sp-current-title {
+        color: #006747;
+        font-weight: 750;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+        margin: 2px 0 8px;
+    }
+
+    .sp-current-meta {
+        color: #64748B;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .st-key-sp_viewer_panel div[data-testid="stButton"] button {
+        min-height: 40px !important;
+    }
+
+    @media (max-width: 700px) {
+        .st-key-sp_upload_panel,
+        .st-key-sp_viewer_panel {
+            padding: 12px 10px;
+            border-radius: 13px;
+        }
+        .sp-section-title { font-size: 19px; }
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
     # -------------------------------------------------
-    # LOAD SAVED IMAGE FROM GITHUB
+    # GITHUB HELPERS
     # -------------------------------------------------
-    @st.cache_data(ttl=60, show_spinner=False)
-    def load_smartpay_github_image(api_url, token, branch):
+    def sp_parse_name(name):
+        """
+        Saved names look like  20261018123500_01__Process-Flow.jpg
+        Returns (batch, index, title, uploaded_at_text).
+        """
+        stem = os.path.splitext(name)[0]
+        match = re.match(r"^(\d{14})_(\d{2})__(.+)$", stem)
+
+        if not match:
+            title = stem.replace("-", " ").replace("_", " ").strip()
+            return 0, 0, title or name, ""
+
+        batch, index, slug = match.groups()
+        title = slug.replace("-", " ").replace("_", " ").strip()
+
+        try:
+            uploaded_at = datetime.strptime(
+                batch, "%Y%m%d%H%M%S"
+            ).strftime("%d %b %Y, %I:%M %p")
+        except ValueError:
+            uploaded_at = ""
+
+        return int(batch), int(index), title or name, uploaded_at
+
+    @st.cache_data(ttl=45, show_spinner=False)
+    def sp_list_images(token, branch):
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json"
         }
 
+        items = []
+
         response = requests.get(
-            api_url,
+            f"{GITHUB_CONTENTS_URL}/{GITHUB_IMAGE_DIR}",
             headers=headers,
             params={"ref": branch},
             timeout=30
         )
 
+        if response.status_code == 200:
+            for entry in response.json():
+                name = str(entry.get("name", ""))
+
+                if (
+                    entry.get("type") == "file"
+                    and name.lower().endswith((".jpg", ".jpeg", ".png"))
+                ):
+                    batch, index, title, uploaded_at = sp_parse_name(name)
+
+                    items.append({
+                        "path": entry["path"],
+                        "sha": entry["sha"],
+                        "size": int(entry.get("size", 0)),
+                        "title": title,
+                        "uploaded_at": uploaded_at,
+                        "sort": (-batch, index)
+                    })
+
+        elif response.status_code != 404:
+            response.raise_for_status()
+
+        items.sort(key=lambda item: item["sort"])
+
+        legacy = requests.get(
+            f"{GITHUB_CONTENTS_URL}/{GITHUB_LEGACY_PATH}",
+            headers=headers,
+            params={"ref": branch},
+            timeout=30
+        )
+
+        if legacy.status_code == 200:
+            info = legacy.json()
+
+            items.append({
+                "path": info["path"],
+                "sha": info["sha"],
+                "size": int(info.get("size", 0)),
+                "title": "SmartPay Dashboard (previous image)",
+                "uploaded_at": "",
+                "sort": (0, 0)
+            })
+
+        elif legacy.status_code != 404:
+            legacy.raise_for_status()
+
+        return items
+
+    @st.cache_data(ttl=3600, max_entries=24, show_spinner=False)
+    def sp_download_image(path, sha, token, branch):
+        # `sha` is part of the cache key: a changed image = a new key.
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github.raw+json"
+        }
+
+        response = requests.get(
+            f"{GITHUB_CONTENTS_URL}/{path}",
+            headers=headers,
+            params={"ref": branch},
+            timeout=60
+        )
+
+        response.raise_for_status()
+        return response.content
+
+    def sp_current_sha(path):
+        response = requests.get(
+            f"{GITHUB_CONTENTS_URL}/{path}",
+            headers=GITHUB_HEADERS,
+            params={"ref": GITHUB_BRANCH},
+            timeout=30
+        )
+
+        if response.status_code == 200:
+            return response.json().get("sha")
+
         if response.status_code == 404:
             return None
 
-        response.raise_for_status()
+        raise RuntimeError(
+            f"GitHub {response.status_code}: {response.text[:200]}"
+        )
 
-        file_info = response.json()
-        content = file_info.get("content", "")
+    def sp_put(path, content, message, sha=None):
+        payload = {
+            "message": message,
+            "content": base64.b64encode(content).decode("utf-8"),
+            "branch": GITHUB_BRANCH
+        }
 
-        if not content.strip():
-            raise ValueError(
-                "GitHub image content is empty or unavailable."
+        if sha:
+            payload["sha"] = sha
+
+        response = requests.put(
+            f"{GITHUB_CONTENTS_URL}/{path}",
+            headers=GITHUB_HEADERS,
+            json=payload,
+            timeout=90
+        )
+
+        if response.status_code not in (200, 201):
+            raise RuntimeError(
+                f"GitHub {response.status_code}: {response.text[:200]}"
             )
 
-        return base64.b64decode(content)
+    def sp_delete(path, sha):
+        response = requests.delete(
+            f"{GITHUB_CONTENTS_URL}/{path}",
+            headers=GITHUB_HEADERS,
+            json={
+                "message": "Delete SmartPay dashboard screenshot",
+                "sha": sha,
+                "branch": GITHUB_BRANCH
+            },
+            timeout=60
+        )
+
+        if response.status_code != 200:
+            raise RuntimeError(
+                f"GitHub {response.status_code}: {response.text[:200]}"
+            )
+
+    # -------------------------------------------------
+    # IMAGE HELPERS
+    # -------------------------------------------------
+    def sp_prepare_image(raw_bytes):
+        """Fix rotation, flatten transparency, compress to JPEG."""
+        image = PILImage.open(io.BytesIO(raw_bytes))
+        image = ImageOps.exif_transpose(image)
+
+        if image.mode in ("RGBA", "LA", "P"):
+            image = image.convert("RGBA")
+            background = PILImage.new("RGB", image.size, (255, 255, 255))
+            background.paste(image, mask=image.split()[-1])
+            image = background
+        else:
+            image = image.convert("RGB")
+
+        for max_side in (2400, 2000, 1600, 1280):
+            work = image.copy()
+            work.thumbnail((max_side, max_side))
+
+            for quality in (90, 85, 80, 75, 70, 62):
+                buffer = io.BytesIO()
+
+                work.save(
+                    buffer,
+                    format="JPEG",
+                    quality=quality,
+                    optimize=True
+                )
+
+                data = buffer.getvalue()
+
+                if len(data) < MAX_IMAGE_BYTES:
+                    return data
+
+        return None
+
+    def sp_slug(filename):
+        stem = os.path.splitext(filename)[0]
+        slug = re.sub(r"[^A-Za-z0-9]+", "-", stem).strip("-")
+        return (slug[:40] or "image")
+
+    def sp_kb(size):
+        return f"{size / 1024:.0f} KB" if size < 1_048_576 else f"{size / 1_048_576:.1f} MB"
+
+    # -------------------------------------------------
+    # CALLBACKS
+    # -------------------------------------------------
+    def sp_step(delta, paths):
+        current = st.session_state.get("smartpay_selected_path")
+
+        if current not in paths:
+            return
+
+        new_index = max(0, min(len(paths) - 1, paths.index(current) + delta))
+        st.session_state["smartpay_selected_path"] = paths[new_index]
+
+    def sp_select(path):
+        st.session_state["smartpay_selected_path"] = path
+
+    def sp_clear_uploader():
+        st.session_state["smartpay_uploader_n"] += 1
 
     # -------------------------------------------------
     # INTERACTIVE IMAGE VIEWER
-    # Zoom with mouse wheel
-    # Drag image to move
-    # Full-screen support
+    # wheel / pinch zoom, drag, double-click, fit, full screen
     # -------------------------------------------------
-    def render_smartpay_image_viewer(image_bytes):
+    def render_smartpay_image_viewer(image_bytes, title):
 
-        encoded_image = base64.b64encode(
-            image_bytes
-        ).decode("utf-8")
+        encoded_image = base64.b64encode(image_bytes).decode("utf-8")
+
+        file_name = sp_slug(title) + ".jpg"
 
         viewer_html = r"""
         <!DOCTYPE html>
         <html>
         <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <style>
-            * {
-                box-sizing: border-box;
-            }
+            * { box-sizing: border-box; }
 
-            body {
+            html, body {
                 margin: 0;
                 padding: 0;
-                font-family: Arial, sans-serif;
-                background: #f1f5f3;
+                height: 100%;
+                font-family: "Segoe UI", Arial, sans-serif;
+                background: transparent;
+            }
+
+            #app {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                border-radius: 14px;
+                overflow: hidden;
+                border: 1px solid #cbd5d0;
+                background: #e7ece9;
             }
 
             #toolbar {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                gap: 6px;
+                padding: 8px 10px;
+                background: linear-gradient(135deg, #013D2B, #006747, #008A5A);
                 flex-wrap: wrap;
-                gap: 8px;
-                padding: 10px;
-                background: #004B34;
-                border-radius: 9px 9px 0 0;
             }
 
-            #toolbar button {
+            #title {
+                flex: 1 1 140px;
+                min-width: 0;
+                color: #ffffff;
+                font-size: 13px;
+                font-weight: 700;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .group {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                background: rgba(255,255,255,.12);
+                border-radius: 10px;
+                padding: 3px;
+            }
+
+            button.tool, a.tool {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                min-width: 34px;
+                height: 32px;
+                padding: 0 10px;
                 border: none;
-                border-radius: 5px;
-                padding: 8px 12px;
+                border-radius: 8px;
                 background: #ffffff;
                 color: #004B34;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: 12.5px;
+                font-weight: 700;
+                cursor: pointer;
+                text-decoration: none;
+                font-family: inherit;
+                white-space: nowrap;
+            }
+
+            button.tool:hover, a.tool:hover { background: #dcefe6; }
+            button.tool:active, a.tool:active { transform: scale(.96); }
+
+            #zoomRange {
+                width: 110px;
+                accent-color: #FFD700;
                 cursor: pointer;
             }
 
-            #toolbar button:hover {
-                background: #dcefe6;
-            }
-
             #zoomLabel {
-                color: white;
-                min-width: 54px;
+                min-width: 48px;
                 text-align: center;
-                font-size: 13px;
+                color: #ffffff;
+                font-size: 12.5px;
+                font-weight: 700;
             }
 
             #viewer {
-                width: 100%;
-                height: 72vh;
-                min-height: 400px;
                 position: relative;
+                flex: 1 1 auto;
+                min-height: 260px;
                 overflow: hidden;
-                background: #e7ece9;
-                border: 1px solid #cbd5d0;
+                background:
+                    linear-gradient(45deg, #dfe6e2 25%, transparent 25%) 0 0 / 22px 22px,
+                    linear-gradient(-45deg, #dfe6e2 25%, transparent 25%) 0 0 / 22px 22px,
+                    #e9eeeb;
                 cursor: grab;
-                touch-action: none;
+                touch-action: pan-y;
                 user-select: none;
             }
 
-            #viewer.dragging {
-                cursor: grabbing;
-            }
+            #viewer.zoomed { touch-action: none; }
+            #viewer.dragging { cursor: grabbing; }
 
             #picture {
                 position: absolute;
@@ -8847,126 +9124,174 @@ elif page == "SmartPay Data":
                 pointer-events: none;
                 user-select: none;
                 -webkit-user-drag: none;
+                box-shadow: 0 8px 28px rgba(0,0,0,.25);
+                background: #ffffff;
             }
 
-            #viewer:fullscreen {
-                width: 100vw;
-                height: 100vh;
-                min-height: 0;
-                border: none;
-                background: #e7ece9;
+            #hint {
+                position: absolute;
+                left: 50%;
+                bottom: 12px;
+                transform: translateX(-50%);
+                max-width: 92%;
+                padding: 6px 12px;
+                border-radius: 20px;
+                background: rgba(0,0,0,.62);
+                color: #ffffff;
+                font-size: 12px;
+                pointer-events: none;
+                transition: opacity .5s;
+                text-align: center;
             }
 
-            #viewer:fullscreen #picture {
-                /* Actual image position and scale remain controlled by JS */
-            }
+            #app:fullscreen { border-radius: 0; border: none; }
 
-            #viewer:fullscreen::backdrop {
-                background: #e7ece9;
-            }
-
-            @media (max-width: 600px) {
-                #viewer {
-                    height: 65vh;
-                    min-height: 300px;
-                }
-
-                #toolbar button {
-                    padding: 7px 9px;
-                    font-size: 12px;
-                }
+            @media (max-width: 640px) {
+                #toolbar { padding: 6px; gap: 5px; }
+                .lbl { display: none; }
+                button.tool, a.tool { min-width: 34px; padding: 0 8px; }
+                #zoomRange { width: 80px; }
+                #title { flex-basis: 100%; }
             }
         </style>
         </head>
 
         <body>
 
-        <div id="toolbar">
-            <button onclick="zoomBy(1.25)">＋ Zoom In</button>
-            <button onclick="zoomBy(0.8)">－ Zoom Out</button>
-            <button onclick="fitToScreen()">Fit to Screen</button>
-            <button onclick="resetView()">Reset</button>
-            <button onclick="toggleFullscreen()">⛶ Full Screen</button>
-            <span id="zoomLabel">100%</span>
-        </div>
+        <div id="app">
 
-        <div id="viewer">
-            <img
-                id="picture"
-                src="data:image/jpeg;base64,IMAGE_BASE64"
-                draggable="false"
-                alt="SmartPay Transaction Dashboard"
-            >
+            <div id="toolbar">
+
+                <div id="title">IMAGE_TITLE</div>
+
+                <div class="group">
+                    <button class="tool" onclick="zoomBy(0.8)" title="Zoom out">−</button>
+                    <input id="zoomRange" type="range" min="0" max="1000" value="500"
+                           oninput="sliderZoom(this.value)" title="Zoom">
+                    <button class="tool" onclick="zoomBy(1.25)" title="Zoom in">+</button>
+                    <span id="zoomLabel">100%</span>
+                </div>
+
+                <div class="group">
+                    <button class="tool" onclick="fitToScreen()" title="Fit whole image">⤢<span class="lbl">Fit</span></button>
+                    <button class="tool" onclick="fitWidth()" title="Fit to width">↔<span class="lbl">Width</span></button>
+                    <button class="tool" onclick="actualSize()" title="Actual size (100%)">1:1</button>
+                </div>
+
+                <div class="group">
+                    <a class="tool" href="data:image/jpeg;base64,IMAGE_BASE64"
+                       download="DOWNLOAD_NAME" title="Download image">⬇<span class="lbl">Save</span></a>
+                    <button class="tool" onclick="toggleFullscreen()" title="Full screen">⛶<span class="lbl">Full</span></button>
+                </div>
+
+            </div>
+
+            <div id="viewer">
+                <img id="picture"
+                     src="data:image/jpeg;base64,IMAGE_BASE64"
+                     draggable="false" alt="IMAGE_TITLE">
+                <div id="hint">Scroll or pinch to zoom • Drag to move • Double-click to zoom in</div>
+            </div>
+
         </div>
 
         <script>
+            const app = document.getElementById("app");
             const viewer = document.getElementById("viewer");
             const picture = document.getElementById("picture");
             const zoomLabel = document.getElementById("zoomLabel");
+            const zoomRange = document.getElementById("zoomRange");
+            const hint = document.getElementById("hint");
+
+            const MIN_SCALE = 0.05;
+            const MAX_SCALE = 8;
 
             let scale = 1;
+            let fitScale = 1;
             let offsetX = 0;
             let offsetY = 0;
 
-            let isDragging = false;
+            const pointers = new Map();
             let dragStartX = 0;
             let dragStartY = 0;
+            let pinchStartDistance = 0;
+            let pinchStartScale = 1;
 
-            function drawImage() {
+            setTimeout(function () { hint.style.opacity = "0"; }, 4500);
+
+            function clampScale(value) {
+                return Math.max(MIN_SCALE, Math.min(MAX_SCALE, value));
+            }
+
+            function clampOffsets() {
+                if (!picture.naturalWidth) return;
+
+                const w = picture.naturalWidth * scale;
+                const h = picture.naturalHeight * scale;
+                const keep = 80;
+
+                const limitX = w / 2 + viewer.clientWidth / 2 - keep;
+                const limitY = h / 2 + viewer.clientHeight / 2 - keep;
+
+                offsetX = Math.max(-limitX, Math.min(limitX, offsetX));
+                offsetY = Math.max(-limitY, Math.min(limitY, offsetY));
+            }
+
+            function draw() {
+                clampOffsets();
+
                 picture.style.transform =
-                    "translate(calc(-50% + " + offsetX + "px), " +
-                    "calc(-50% + " + offsetY + "px)) scale(" +
-                    scale + ")";
+                    "translate(calc(-50% + " + offsetX + "px), calc(-50% + " +
+                    offsetY + "px)) scale(" + scale + ")";
 
-                zoomLabel.textContent =
-                    Math.round(scale * 100) + "%";
+                zoomLabel.textContent = Math.round(scale * 100) + "%";
+
+                const ratio = Math.log(scale / MIN_SCALE) / Math.log(MAX_SCALE / MIN_SCALE);
+                zoomRange.value = Math.round(ratio * 1000);
+
+                viewer.classList.toggle("zoomed", scale > fitScale * 1.02);
+            }
+
+            function computeFit() {
+                if (!picture.naturalWidth) return;
+
+                fitScale = clampScale(Math.min(
+                    (viewer.clientWidth * 0.96) / picture.naturalWidth,
+                    (viewer.clientHeight * 0.96) / picture.naturalHeight
+                ));
             }
 
             function fitToScreen() {
-                if (!picture.naturalWidth || !picture.naturalHeight) {
-                    return;
-                }
-
-                const availableWidth = viewer.clientWidth * 0.96;
-                const availableHeight = viewer.clientHeight * 0.96;
-
-                scale = Math.min(
-                    availableWidth / picture.naturalWidth,
-                    availableHeight / picture.naturalHeight
-                );
-
-                scale = Math.max(0.05, Math.min(8, scale));
-
+                computeFit();
+                scale = fitScale;
                 offsetX = 0;
                 offsetY = 0;
-
-                drawImage();
+                draw();
             }
 
-            function resetView() {
-                fitToScreen();
+            function fitWidth() {
+                if (!picture.naturalWidth) return;
+
+                computeFit();
+                scale = clampScale((viewer.clientWidth * 0.98) / picture.naturalWidth);
+
+                offsetX = 0;
+                offsetY = (picture.naturalHeight * scale - viewer.clientHeight) / 2;
+                draw();
             }
 
-            function zoomBy(factor) {
-                const rect = viewer.getBoundingClientRect();
-
-                zoomAtPoint(
-                    rect.width / 2,
-                    rect.height / 2,
-                    factor
-                );
+            function actualSize() {
+                computeFit();
+                scale = 1;
+                offsetX = 0;
+                offsetY = 0;
+                draw();
             }
 
-            function zoomAtPoint(localX, localY, factor) {
-                const oldScale = scale;
+            function zoomAtPoint(localX, localY, newScale) {
+                newScale = clampScale(newScale);
 
-                const newScale = Math.max(
-                    0.05,
-                    Math.min(8, oldScale * factor)
-                );
-
-                const ratio = newScale / oldScale;
-
+                const ratio = newScale / scale;
                 const pointX = localX - viewer.clientWidth / 2;
                 const pointY = localY - viewer.clientHeight / 2;
 
@@ -8974,76 +9299,158 @@ elif page == "SmartPay Data":
                 offsetY = pointY - (pointY - offsetY) * ratio;
 
                 scale = newScale;
-                drawImage();
+                draw();
             }
 
-            viewer.addEventListener("wheel", function(event) {
+            function zoomBy(factor) {
+                zoomAtPoint(viewer.clientWidth / 2, viewer.clientHeight / 2, scale * factor);
+            }
+
+            function sliderZoom(value) {
+                const ratio = Number(value) / 1000;
+                const target = MIN_SCALE * Math.pow(MAX_SCALE / MIN_SCALE, ratio);
+
+                zoomAtPoint(viewer.clientWidth / 2, viewer.clientHeight / 2, target);
+            }
+
+            viewer.addEventListener("wheel", function (event) {
                 event.preventDefault();
 
                 const rect = viewer.getBoundingClientRect();
 
-                const localX = event.clientX - rect.left;
-                const localY = event.clientY - rect.top;
-
                 zoomAtPoint(
-                    localX,
-                    localY,
-                    event.deltaY < 0 ? 1.12 : 0.89
+                    event.clientX - rect.left,
+                    event.clientY - rect.top,
+                    scale * (event.deltaY < 0 ? 1.12 : 0.89)
                 );
             }, { passive: false });
 
-            viewer.addEventListener("pointerdown", function(event) {
-                isDragging = true;
+            viewer.addEventListener("dblclick", function (event) {
+                const rect = viewer.getBoundingClientRect();
 
-                dragStartX = event.clientX - offsetX;
-                dragStartY = event.clientY - offsetY;
-
-                viewer.classList.add("dragging");
-
-                try {
-                    viewer.setPointerCapture(event.pointerId);
-                } catch (error) {}
+                if (scale > fitScale * 1.5) {
+                    fitToScreen();
+                } else {
+                    zoomAtPoint(
+                        event.clientX - rect.left,
+                        event.clientY - rect.top,
+                        Math.max(scale * 2.2, 1)
+                    );
+                }
             });
 
-            viewer.addEventListener("pointermove", function(event) {
-                if (!isDragging) return;
-
-                offsetX = event.clientX - dragStartX;
-                offsetY = event.clientY - dragStartY;
-
-                drawImage();
-            });
-
-            function stopDragging() {
-                isDragging = false;
-                viewer.classList.remove("dragging");
+            function pointerDistance() {
+                const list = Array.from(pointers.values());
+                return Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y);
             }
 
-            viewer.addEventListener("pointerup", stopDragging);
-            viewer.addEventListener("pointercancel", stopDragging);
-            viewer.addEventListener("lostpointercapture", stopDragging);
+            function pointerCenter() {
+                const list = Array.from(pointers.values());
+                const rect = viewer.getBoundingClientRect();
+
+                return {
+                    x: (list[0].x + list[1].x) / 2 - rect.left,
+                    y: (list[0].y + list[1].y) / 2 - rect.top
+                };
+            }
+
+            viewer.addEventListener("pointerdown", function (event) {
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+                if (pointers.size === 1) {
+                    dragStartX = event.clientX - offsetX;
+                    dragStartY = event.clientY - offsetY;
+                    viewer.classList.add("dragging");
+                } else if (pointers.size === 2) {
+                    pinchStartDistance = pointerDistance();
+                    pinchStartScale = scale;
+                }
+
+                try { viewer.setPointerCapture(event.pointerId); } catch (error) {}
+            });
+
+            viewer.addEventListener("pointermove", function (event) {
+                if (!pointers.has(event.pointerId)) return;
+
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+                if (pointers.size === 2) {
+                    const center = pointerCenter();
+
+                    zoomAtPoint(
+                        center.x,
+                        center.y,
+                        pinchStartScale * (pointerDistance() / pinchStartDistance)
+                    );
+                } else if (pointers.size === 1) {
+                    // A finger on a not-zoomed image scrolls the page instead
+                    if (event.pointerType === "touch" && scale <= fitScale * 1.02) return;
+
+                    offsetX = event.clientX - dragStartX;
+                    offsetY = event.clientY - dragStartY;
+                    draw();
+                }
+            });
+
+            function endPointer(event) {
+                pointers.delete(event.pointerId);
+
+                if (pointers.size === 1) {
+                    const remaining = Array.from(pointers.values())[0];
+                    dragStartX = remaining.x - offsetX;
+                    dragStartY = remaining.y - offsetY;
+                }
+
+                if (pointers.size === 0) {
+                    viewer.classList.remove("dragging");
+                }
+            }
+
+            viewer.addEventListener("pointerup", endPointer);
+            viewer.addEventListener("pointercancel", endPointer);
 
             async function toggleFullscreen() {
                 try {
                     if (!document.fullscreenElement) {
-                        await viewer.requestFullscreen();
+                        await app.requestFullscreen();
                     } else {
                         await document.exitFullscreen();
                     }
                 } catch (error) {
-                    alert("Full Screen is not supported in this view.");
+                    hint.textContent = "Full screen is not supported on this device.";
+                    hint.style.opacity = "1";
+                    setTimeout(function () { hint.style.opacity = "0"; }, 3000);
                 }
             }
 
-            picture.addEventListener("load", fitToScreen);
-
-            document.addEventListener("fullscreenchange", function() {
+            document.addEventListener("fullscreenchange", function () {
                 setTimeout(fitToScreen, 150);
             });
 
-            window.addEventListener("resize", function() {
-                fitToScreen();
+            window.addEventListener("resize", function () {
+                const wasFit = Math.abs(scale - fitScale) < 0.001;
+                computeFit();
+
+                if (wasFit) {
+                    scale = fitScale;
+                    offsetX = 0;
+                    offsetY = 0;
+                }
+
+                draw();
             });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "+" || event.key === "=") zoomBy(1.25);
+                else if (event.key === "-") zoomBy(0.8);
+                else if (event.key === "0") fitToScreen();
+                else if (event.key === "ArrowLeft") { offsetX += 60; draw(); }
+                else if (event.key === "ArrowRight") { offsetX -= 60; draw(); }
+                else if (event.key === "ArrowUp") { offsetY += 60; draw(); }
+                else if (event.key === "ArrowDown") { offsetY -= 60; draw(); }
+            });
+
+            picture.addEventListener("load", fitToScreen);
 
             if (picture.complete && picture.naturalWidth) {
                 fitToScreen();
@@ -9054,47 +9461,34 @@ elif page == "SmartPay Data":
         </html>
         """
 
-        viewer_html = viewer_html.replace(
-            "IMAGE_BASE64",
-            encoded_image
+        viewer_html = (
+            viewer_html
+            .replace("IMAGE_BASE64", encoded_image)
+            .replace("IMAGE_TITLE", html_lib.escape(title))
+            .replace("DOWNLOAD_NAME", html_lib.escape(file_name))
         )
 
         components.html(
             viewer_html,
-            height=790,
+            height=720,
             scrolling=False
         )
 
     # -------------------------------------------------
-    # UPLOAD / REPLACE IMAGE
+    # FLASH MESSAGE (survives the rerun after saving)
     # -------------------------------------------------
-    st.markdown("### Upload / Replace Power BI Screenshot")
+    flash = st.session_state.get("smartpay_flash")
 
-    st.caption(
-        "Upload the latest screenshot. After saving, the updated "
-        "image will be available to users who can access this app."
-    )
+    if flash:
+        st.session_state["smartpay_flash"] = None
+        kind, message = flash
 
-    uploaded_image = st.file_uploader(
-        "Choose dashboard image",
-        type=["png", "jpg", "jpeg"],
-        key="smartpay_data_uploader"
-    )
-
-    if uploaded_image is not None:
-        try:
-            preview_image = Image.open(
-                io.BytesIO(uploaded_image.getvalue())
-            )
-
-            st.image(
-                preview_image,
-                caption="Selected screenshot preview",
-                use_container_width=True
-            )
-
-        except Exception as error:
-            st.error(f"Unable to preview image: {error}")
+        if kind == "success":
+            st.success(message)
+        elif kind == "warning":
+            st.warning(message)
+        else:
+            st.error(message)
 
     if not GITHUB_TOKEN:
         st.warning(
@@ -9102,150 +9496,408 @@ elif page == "SmartPay Data":
             "GitHub upload and loading are unavailable."
         )
 
-    save_disabled = (
-        uploaded_image is None or not bool(GITHUB_TOKEN)
-    )
-
-    if st.button(
-        "💾 Save / Replace Image on GitHub",
-        type="primary",
-        use_container_width=True,
-        key="smartpay_save_github",
-        disabled=save_disabled
-    ):
-        try:
-            # Normalize and compress the screenshot.
-            source_image = Image.open(
-                io.BytesIO(uploaded_image.getvalue())
-            ).convert("RGB")
-
-            source_image.thumbnail((2400, 2400))
-
-            image_content = None
-
-            for quality in (90, 85, 80, 75, 70, 65, 60):
-                buffer = io.BytesIO()
-
-                source_image.save(
-                    buffer,
-                    format="JPEG",
-                    quality=quality,
-                    optimize=True
-                )
-
-                image_content = buffer.getvalue()
-
-                if len(image_content) < 900_000:
-                    break
-
-            if not image_content or len(image_content) >= 900_000:
-                st.error(
-                    "Image is too large after compression. "
-                    "Please upload a smaller screenshot."
-                )
-                st.stop()
-
-            # Retrieve current file SHA for replacement.
-            current_response = requests.get(
-                GITHUB_API_URL,
-                headers=GITHUB_HEADERS,
-                params={"ref": GITHUB_BRANCH},
-                timeout=30
-            )
-
-            if current_response.status_code == 200:
-                file_sha = current_response.json().get("sha")
-
-            elif current_response.status_code == 404:
-                file_sha = None
-
-            else:
-                st.error(
-                    f"Unable to check existing GitHub image: "
-                    f"{current_response.status_code} "
-                    f"{current_response.text[:300]}"
-                )
-                st.stop()
-
-            payload = {
-                "message": "Update SmartPay dashboard screenshot",
-                "content": base64.b64encode(
-                    image_content
-                ).decode("utf-8"),
-                "branch": GITHUB_BRANCH
-            }
-
-            if file_sha:
-                payload["sha"] = file_sha
-
-            save_response = requests.put(
-                GITHUB_API_URL,
-                headers=GITHUB_HEADERS,
-                json=payload,
-                timeout=60
-            )
-
-            if save_response.status_code in (200, 201):
-                load_smartpay_github_image.clear()
-
-                st.success(
-                    "Screenshot successfully saved to GitHub."
-                )
-
-                st.rerun()
-
-            else:
-                st.error(
-                    f"GitHub save failed: "
-                    f"{save_response.status_code} "
-                    f"{save_response.text[:500]}"
-                )
-
-        except Exception as error:
-            st.error(f"Unable to save screenshot: {error}")
-
-    st.divider()
-
     # -------------------------------------------------
-    # LOAD AND DISPLAY CURRENT SAVED IMAGE
+    # LOAD SAVED IMAGE LIST
     # -------------------------------------------------
-    st.markdown("### SmartPay Transaction Dashboard")
+    saved_images = []
 
     if GITHUB_TOKEN:
         try:
-            with st.spinner("Loading saved dashboard image..."):
-                saved_image = load_smartpay_github_image(
-                    GITHUB_API_URL,
-                    GITHUB_TOKEN,
-                    GITHUB_BRANCH
-                )
-
-            if saved_image:
-                render_smartpay_image_viewer(saved_image)
-            else:
-                st.info(
-                    "No screenshot has been saved yet. "
-                    "Upload a screenshot above and save it to GitHub."
-                )
-
+            saved_images = sp_list_images(GITHUB_TOKEN, GITHUB_BRANCH)
         except Exception as error:
-            st.error(
-                f"Unable to load the saved GitHub image: {error}"
-            )
-    else:
-        st.info(
-            "Configure GITHUB_TOKEN in Streamlit Secrets to "
-            "load the saved dashboard image."
+            st.error(f"Unable to load the saved images: {error}")
+
+    saved_paths = [item["path"] for item in saved_images]
+    saved_lookup = {item["path"]: item for item in saved_images}
+
+    # -------------------------------------------------
+    # UPLOAD SECTION
+    # -------------------------------------------------
+    with st.container(key="sp_upload_panel"):
+
+        st.markdown(
+            '<div class="sp-section-title">📤 Upload Power BI Screenshots</div>'
+            '<div class="sp-section-note">'
+            'Select one or many images. They are previewed here first, '
+            'compressed automatically and saved to GitHub. After saving, '
+            'the selection clears itself and the images appear in the '
+            'viewer below.'
+            '</div>',
+            unsafe_allow_html=True
         )
 
+        uploaded_files = st.file_uploader(
+            "Choose dashboard images",
+            type=["png", "jpg", "jpeg"],
+            accept_multiple_files=True,
+            key=f"smartpay_uploader_{st.session_state['smartpay_uploader_n']}"
+        )
 
+        valid_files = []
+
+        if uploaded_files:
+
+            if len(uploaded_files) > MAX_FILES_PER_SAVE:
+                st.error(
+                    f"Please select at most {MAX_FILES_PER_SAVE} images "
+                    f"at a time ({len(uploaded_files)} selected)."
+                )
+
+            st.markdown(
+                f'<div class="sp-section-note">'
+                f'<b>{len(uploaded_files)}</b> image(s) selected — preview:'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+            preview_cols = st.columns(4)
+
+            for number, uploaded in enumerate(uploaded_files):
+
+                with preview_cols[number % 4]:
+
+                    try:
+                        raw = uploaded.getvalue()
+                        preview = PILImage.open(io.BytesIO(raw))
+                        preview = ImageOps.exif_transpose(preview)
+                        preview.thumbnail((420, 420))
+
+                        st.image(preview, use_container_width=True)
+
+                        st.markdown(
+                            f'<div class="sp-thumb-name">'
+                            f'{html_lib.escape(uploaded.name)}</div>'
+                            f'<div class="sp-thumb-meta">'
+                            f'{sp_kb(len(raw))}</div>',
+                            unsafe_allow_html=True
+                        )
+
+                        valid_files.append(uploaded)
+
+                    except Exception:
+                        st.error(f"Cannot read {uploaded.name}")
+
+        replace_selected = False
+
+        if (
+            len(valid_files) == 1
+            and saved_paths
+            and st.session_state.get("smartpay_selected_path") in saved_lookup
+        ):
+            target = saved_lookup[st.session_state["smartpay_selected_path"]]
+
+            replace_selected = st.checkbox(
+                f"Replace the image currently shown in the viewer "
+                f"({target['title']}) instead of adding a new one",
+                key="smartpay_replace_selected"
+            )
+
+        too_many = len(valid_files) > MAX_FILES_PER_SAVE
+
+        save_col, clear_col = st.columns([3, 1])
+
+        with save_col:
+            save_clicked = st.button(
+                (
+                    f"💾 Save {len(valid_files)} image(s) to GitHub"
+                    if valid_files else
+                    "💾 Save to GitHub"
+                ),
+                type="primary",
+                use_container_width=True,
+                key="smartpay_save_github",
+                disabled=(
+                    not valid_files
+                    or too_many
+                    or not bool(GITHUB_TOKEN)
+                )
+            )
+
+        with clear_col:
+            st.button(
+                "✖ Clear",
+                use_container_width=True,
+                key="smartpay_clear_selection",
+                disabled=not uploaded_files,
+                on_click=sp_clear_uploader
+            )
+
+        if save_clicked:
+
+            progress = st.progress(0.0, text="Saving images to GitHub...")
+
+            saved_ok = []
+            failed = []
+
+            batch_stamp = datetime.now(
+                ZoneInfo("Asia/Karachi")
+            ).strftime("%Y%m%d%H%M%S")
+
+            for number, uploaded in enumerate(valid_files, start=1):
+
+                try:
+                    content = sp_prepare_image(uploaded.getvalue())
+
+                    if content is None:
+                        raise RuntimeError(
+                            "still too large after compression"
+                        )
+
+                    if replace_selected:
+                        path = target["path"]
+                        sha = sp_current_sha(path)
+                        message = "Replace SmartPay dashboard screenshot"
+                    else:
+                        path = (
+                            f"{GITHUB_IMAGE_DIR}/{batch_stamp}_"
+                            f"{number:02d}__{sp_slug(uploaded.name)}.jpg"
+                        )
+                        sha = None
+                        message = "Add SmartPay dashboard screenshot"
+
+                    sp_put(path, content, message, sha)
+                    saved_ok.append(path)
+
+                except Exception as error:
+                    failed.append(f"{uploaded.name} ({error})")
+
+                progress.progress(
+                    number / len(valid_files),
+                    text=f"Saved {number} of {len(valid_files)}..."
+                )
+
+            progress.empty()
+
+            if saved_ok:
+                sp_list_images.clear()
+                sp_download_image.clear()
+
+                st.session_state["smartpay_selected_path"] = saved_ok[0]
+                st.session_state["smartpay_uploader_n"] += 1
+                st.session_state.pop("smartpay_replace_selected", None)
+
+            if saved_ok and not failed:
+                st.session_state["smartpay_flash"] = (
+                    "success",
+                    f"{len(saved_ok)} image(s) saved to GitHub."
+                )
+
+            elif saved_ok and failed:
+                st.session_state["smartpay_flash"] = (
+                    "warning",
+                    f"{len(saved_ok)} saved, {len(failed)} failed — "
+                    "please upload these again: " + "; ".join(failed)
+                )
+
+            else:
+                st.session_state["smartpay_flash"] = (
+                    "error",
+                    "Nothing was saved: " + "; ".join(failed)
+                )
+
+            st.rerun()
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # -------------------------------------------------
+    # VIEWER SECTION
+    # -------------------------------------------------
+    with st.container(key="sp_viewer_panel"):
+
+        st.markdown(
+            '<div class="sp-section-title">'
+            '📊 SmartPay Transaction Dashboard</div>',
+            unsafe_allow_html=True
+        )
+
+        if not GITHUB_TOKEN:
+            st.info(
+                "Configure GITHUB_TOKEN in Streamlit Secrets to "
+                "load the saved dashboard images."
+            )
+
+        elif not saved_images:
+            st.info(
+                "No screenshot has been saved yet. "
+                "Upload one or more screenshots above and save them."
+            )
+
+        else:
+            # Keep the selection valid (newest image by default)
+            if st.session_state.get("smartpay_selected_path") not in saved_paths:
+                st.session_state["smartpay_selected_path"] = saved_paths[0]
+
+            nav_prev, nav_select, nav_next = st.columns([1, 6, 1])
+
+            with nav_prev:
+                st.button(
+                    "◀",
+                    key="smartpay_prev",
+                    use_container_width=True,
+                    help="Previous image",
+                    on_click=sp_step,
+                    args=(-1, saved_paths),
+                    disabled=len(saved_paths) < 2
+                )
+
+            with nav_select:
+                selected_path = st.selectbox(
+                    "Select screenshot",
+                    saved_paths,
+                    format_func=lambda p: (
+                        f"{saved_paths.index(p) + 1}. {saved_lookup[p]['title']}"
+                        + (
+                            f"  —  {saved_lookup[p]['uploaded_at']}"
+                            if saved_lookup[p]["uploaded_at"] else ""
+                        )
+                    ),
+                    key="smartpay_selected_path",
+                    label_visibility="collapsed"
+                )
+
+            with nav_next:
+                st.button(
+                    "▶",
+                    key="smartpay_next",
+                    use_container_width=True,
+                    help="Next image",
+                    on_click=sp_step,
+                    args=(1, saved_paths),
+                    disabled=len(saved_paths) < 2
+                )
+
+            current = saved_lookup[selected_path]
+
+            st.markdown(
+                f'<div class="sp-current-title">'
+                f'{html_lib.escape(current["title"])} '
+                f'<span class="sp-current-meta">'
+                f'&nbsp;•&nbsp; image {saved_paths.index(selected_path) + 1} '
+                f'of {len(saved_paths)} '
+                f'&nbsp;•&nbsp; {sp_kb(current["size"])}'
+                + (
+                    f' &nbsp;•&nbsp; {html_lib.escape(current["uploaded_at"])}'
+                    if current["uploaded_at"] else ""
+                )
+                + '</span></div>',
+                unsafe_allow_html=True
+            )
+
+            try:
+                with st.spinner("Loading image..."):
+                    image_bytes = sp_download_image(
+                        current["path"],
+                        current["sha"],
+                        GITHUB_TOKEN,
+                        GITHUB_BRANCH
+                    )
+
+                render_smartpay_image_viewer(image_bytes, current["title"])
+
+            except Exception as error:
+                st.error(f"Unable to load the saved GitHub image: {error}")
+
+            # ---- gallery of all images -------------------------
+            if len(saved_paths) > 1:
+
+                show_gallery = st.toggle(
+                    "Show all screenshots as gallery",
+                    key="smartpay_show_gallery"
+                )
+
+                if show_gallery:
+
+                    gallery_cols = st.columns(3)
+
+                    for number, path in enumerate(saved_paths):
+                        item = saved_lookup[path]
+
+                        with gallery_cols[number % 3]:
+                            try:
+                                thumb_bytes = sp_download_image(
+                                    item["path"],
+                                    item["sha"],
+                                    GITHUB_TOKEN,
+                                    GITHUB_BRANCH
+                                )
+
+                                st.image(
+                                    thumb_bytes,
+                                    use_container_width=True
+                                )
+
+                            except Exception:
+                                st.caption("Preview unavailable")
+
+                            st.markdown(
+                                f'<div class="sp-thumb-name">'
+                                f'{html_lib.escape(item["title"])}</div>',
+                                unsafe_allow_html=True
+                            )
+
+                            st.button(
+                                "👁 View",
+                                key=f"smartpay_view_{number}",
+                                use_container_width=True,
+                                on_click=sp_select,
+                                args=(path,)
+                            )
+
+            # ---- delete ----------------------------------------
+            with st.expander("🗑 Delete this image"):
+
+                st.caption(
+                    f"This removes “{current['title']}” from GitHub "
+                    "for every user. It cannot be undone from here."
+                )
+
+                confirm_delete = st.checkbox(
+                    "Yes, delete this image",
+                    key=f"smartpay_confirm_delete_{current['sha'][:10]}"
+                )
+
+                if st.button(
+                    "Delete image",
+                    key="smartpay_delete_button",
+                    disabled=not confirm_delete,
+                    use_container_width=True
+                ):
+                    try:
+                        sp_delete(
+                            current["path"],
+                            sp_current_sha(current["path"])
+                        )
+
+                        sp_list_images.clear()
+                        sp_download_image.clear()
+
+                        st.session_state.pop("smartpay_selected_path", None)
+
+                        st.session_state["smartpay_flash"] = (
+                            "success",
+                            f"“{current['title']}” deleted."
+                        )
+
+                        st.rerun()
+
+                    except Exception as error:
+                        st.error(f"Unable to delete the image: {error}")
 
 
 # =====================================================
 # BAU MONITORING
+# Clickable KPI / member / category cards + table + charts + edit
 # =====================================================
 
 elif page == "BAU Monitoring":
+
+    import html as html_lib
+
+    project_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "projects.xlsx"
+    )
 
     # =================================================
     # BAU DATA
@@ -9259,315 +9911,232 @@ elif page == "BAU Monitoring":
         == "BAU"
     ].copy()
 
+    for _column in ["Mandate", "Allocation", "Category", "Update"]:
+        if _column not in bau_df.columns:
+            bau_df[_column] = ""
 
-    # =================================================
-    # COMPACT HEADER
-    # =================================================
-
-    render_header('SMARTPAY BUSINESS AS USUAL', '🏦 BAU Monitoring', 'Live Business Operations Monitoring, ownership and ongoing updates.', 'BUSINESS AS USUAL')
-
-    # =================================================
-    # KPI VALUES
-    # =================================================
-
-    total_bau = len(bau_df)
-
-    bau_members = (
-        bau_df["Allocation"]
-        .dropna()
-        .astype(str)
-        .nunique()
-    )
-
-    bau_updates = (
-        bau_df["Update"]
-        .notna()
-        .sum()
-        if "Update" in bau_df.columns
-        else 0
-    )
-
-    bau_categories = (
-        bau_df["Category"]
-        .dropna()
-        .astype(str)
-        .nunique()
-        if "Category" in bau_df.columns
-        else 0
-    )
-
-
-    # =================================================
-    # COMPACT KPI CARDS
-    # =================================================
-
-    k1, k2, k3, k4 = st.columns(4)
-
-
-    def bau_card(title, value, color):
-
-        st.html(
-    f"""
-    <div style="background:#FFFFFF;border-radius:14px;padding:10px 8px;height:88px;border-top:5px solid {color};border-left:1px solid #DDE5E1;border-right:1px solid #DDE5E1;border-bottom:1px solid #DDE5E1;box-shadow:0 4px 12px rgba(0,103,71,.06);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-family:Segoe UI,Arial,sans-serif;">
-
-    <div style="color:#6B7280;font-size:11px;font-weight:700;margin-bottom:5px;">
-    {title}
-    </div>
-
-    <div style="color:{color};font-size:28px;font-weight:800;line-height:1;">
-    {value}
-    </div>
-
-    </div>
-    """
-        )
-
-
-    with k1:
-
-        bau_card(
-            "Total BAU Projects",
-            total_bau,
-            "#006747"
-        )
-
-
-    with k2:
-
-        bau_card(
-            "Team Members",
-            bau_members,
-            "#008A5A"
-        )
-
-
-    with k3:
-
-        bau_card(
-            "Updated Projects",
-            bau_updates,
-            "#20A464"
-        )
-
-
-    with k4:
-
-        bau_card(
-            "Categories",
-            bau_categories,
-            "#4CAF7A"
-        )
-
-
-    st.markdown(
-        "<div style='height:8px;'></div>",
-        unsafe_allow_html=True
-    )
-
-
-    # =================================================
-    # FILTERS
-    # =================================================
-
-    st.html("""
-    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;">
-    🎯 BAU Filters
-    </div>
-    """)
-
-
-    f1, f2 = st.columns(2)
-
-
-    with f1:
-
-        if "Allocation" in bau_df.columns:
-
-            selected_bau_member = st.selectbox(
-                "👤 Team Member",
-                ["All"] +
-                sorted(
-                    bau_df["Allocation"]
-                    .dropna()
-                    .astype(str)
-                    .unique()
-                ),
-                key="bau_member_filter"
-            )
-
-        else:
-
-            selected_bau_member = "All"
-
-
-    with f2:
-
-        if "Category" in bau_df.columns:
-
-            selected_bau_category = st.selectbox(
-                "📂 Category",
-                ["All"] +
-                sorted(
-                    bau_df["Category"]
-                    .dropna()
-                    .astype(str)
-                    .unique()
-                ),
-                key="bau_category_filter"
-            )
-
-        else:
-
-            selected_bau_category = "All"
-
-
-    # =================================================
-    # APPLY FILTERS
-    # =================================================
-
-    filtered_bau_df = bau_df.copy()
-
-
-    if selected_bau_member != "All":
-
-        filtered_bau_df = filtered_bau_df[
-            filtered_bau_df["Allocation"].astype(str)
-            == selected_bau_member
-        ]
-
-
-    if selected_bau_category != "All":
-
-        filtered_bau_df = filtered_bau_df[
-            filtered_bau_df["Category"].astype(str)
-            == selected_bau_category
-        ]
-
-
-    # =================================================
-    # SEARCH
-    # =================================================
-
-    bau_search = st.text_input(
-        "",
-        placeholder="🔍 Search BAU Project...",
-        label_visibility="collapsed",
-        key="bau_project_search"
-    )
-
-
-    if bau_search:
-
-        filtered_bau_df = filtered_bau_df[
-            filtered_bau_df["Mandate"]
+    def bau_clean(series):
+        return (
+            series
+            .fillna("")
             .astype(str)
-            .str.contains(
-                bau_search,
-                case=False,
-                na=False
-            )
-        ]
-
-
-    st.markdown(
-        "<div style='height:8px;'></div>",
-        unsafe_allow_html=True
-    )
-
-
-    # =================================================
-    # OWNER SUMMARY
-    # =================================================
-
-    st.html("""
-    <div style="color:#006747;font-size:24px;font-weight:700;margin-top:2px;margin-bottom:7px;font-family:Segoe UI,Arial,sans-serif;">
-    👥 BAU Owner Summary
-    </div>
-    """)
-
-
-    owner_summary = (
-        filtered_bau_df
-        .groupby("Allocation")
-        .size()
-        .reset_index(name="Projects")
-        .sort_values(
-            "Projects",
-            ascending=False
-        )
-    )
-
-
-    if owner_summary.empty:
-
-        st.info("No BAU projects found.")
-
-    else:
-
-        owner_cols = st.columns(
-            min(4, len(owner_summary))
+            .str.strip()
+            .replace({"nan": "", "None": "", "NaT": ""})
         )
 
+    bau_df["Allocation"] = bau_clean(bau_df["Allocation"])
+    bau_df["Category"] = bau_clean(bau_df["Category"])
+    bau_df["Update"] = bau_clean(bau_df["Update"])
+    bau_df["Mandate"] = bau_clean(bau_df["Mandate"])
 
-        for i, (_, owner) in enumerate(
-            owner_summary.iterrows()
-        ):
+    has_category = bool(
+        (bau_df["Category"] != "").any()
+    )
 
-            with owner_cols[
-                i % len(owner_cols)
-            ]:
-
-                st.html(
-    f"""
-    <div style="background:linear-gradient(135deg,#013D2B,#006747,#008A5A);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px 8px;text-align:center;box-shadow:0 4px 12px rgba(0,103,71,.12);margin-bottom:8px;font-family:Segoe UI,Arial,sans-serif;">
-
-    <div style="font-size:20px;line-height:1;color:white;">
-    👤
-    </div>
-
-    <div style="color:#D1FAE5;font-size:13px;font-weight:700;margin-top:5px;">
-    {owner["Allocation"]}
-    </div>
-
-    <div style="color:white;font-size:25px;font-weight:800;margin-top:4px;line-height:1;">
-    {owner["Projects"]}
-    </div>
-
-    <div style="color:#D1FAE5;font-size:10px;margin-top:3px;">
-    BAU Projects
-    </div>
-
-    </div>
-    """
-                )
+    bau_df["_has_update"] = bau_df["Update"] != ""
 
     # =================================================
-    # BAU PROJECT TABLE
+    # HEADER
     # =================================================
 
-    st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:26px;
-    font-weight:700;
-    margin-top:18px;
-    margin-bottom:10px;">
-    📋 BAU Project Portfolio
-    </h2>
-    """, unsafe_allow_html=True)
-
-
-    display_bau = filtered_bau_df.copy()
-
+    render_header(
+        "SMARTPAY BUSINESS AS USUAL",
+        "🏦 BAU Monitoring",
+        "Live Business Operations Monitoring, ownership and ongoing updates.",
+        "BUSINESS AS USUAL"
+    )
 
     # =================================================
-    # VIP TABLE CSS
+    # FILTER OPTIONS + SESSION STATE
+    # (cards and dropdowns share the SAME keys, so they always agree)
+    # =================================================
+
+    member_options = ["All"] + sorted(
+        [m for m in bau_df["Allocation"].unique() if m],
+        key=str.casefold
+    )
+
+    category_options = ["All"] + sorted(
+        [c for c in bau_df["Category"].unique() if c],
+        key=str.casefold
+    )
+
+    update_options = ["All", "With Update", "No Update"]
+
+    bau_defaults = {
+        "bau_member_filter": "All",
+        "bau_category_filter": "All",
+        "bau_update_filter": "All",
+        "bau_project_search": "",
+        "bau_edit_mode": False
+    }
+
+    for _key, _value in bau_defaults.items():
+        if _key not in st.session_state:
+            st.session_state[_key] = _value
+
+    if st.session_state["bau_member_filter"] not in member_options:
+        st.session_state["bau_member_filter"] = "All"
+
+    if st.session_state["bau_category_filter"] not in category_options:
+        st.session_state["bau_category_filter"] = "All"
+
+    if st.session_state["bau_update_filter"] not in update_options:
+        st.session_state["bau_update_filter"] = "All"
+
+    # =================================================
+    # CALLBACKS  (clicking the same card again clears it)
+    # =================================================
+
+    def bau_toggle(key, value):
+        st.session_state[key] = (
+            "All" if st.session_state.get(key) == value else value
+        )
+
+    def bau_reset_filters():
+        st.session_state["bau_member_filter"] = "All"
+        st.session_state["bau_category_filter"] = "All"
+        st.session_state["bau_update_filter"] = "All"
+        st.session_state["bau_project_search"] = ""
+
+    # =================================================
+    # CSS
     # =================================================
 
     st.markdown("""
     <style>
 
+    .bau-heading {
+        color:#006747;
+        font-size:22px;
+        font-weight:750;
+        margin:16px 0 4px;
+    }
+
+    .bau-subtitle {
+        color:#64748B;
+        font-size:13px;
+        margin-bottom:10px;
+        line-height:1.4;
+    }
+
+    /* ---------- KPI cards ---------- */
+
+    .st-key-bau_kpis div[data-testid="stHorizontalBlock"] {
+        gap:10px !important;
+        align-items:stretch !important;
+    }
+
+    .st-key-bau_kpis div[data-testid="stColumn"],
+    .st-key-bau_kpis div[data-testid="column"] {
+        min-width:0 !important;
+    }
+
+    .st-key-bau_kpis div[data-testid="stButton"] {
+        width:100% !important;
+    }
+
+    .st-key-bau_kpis div[data-testid="stButton"] button {
+        box-sizing:border-box !important;
+        width:100% !important;
+        height:96px !important;
+        min-height:96px !important;
+        padding:9px 6px !important;
+        border:1px solid #E5E7EB !important;
+        border-top:5px solid #006747 !important;
+        border-radius:14px !important;
+        background:#FFFFFF !important;
+        color:#111827 !important;
+        box-shadow:0 5px 14px rgba(0,0,0,.07) !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        text-align:center !important;
+        font-family:"Segoe UI",Arial,sans-serif !important;
+    }
+
+    .st-key-bau_kpis div[data-testid="stButton"] button p {
+        margin:0 !important;
+        width:100% !important;
+        white-space:pre-line !important;
+        text-align:center !important;
+        font-size:12px !important;
+        font-weight:700 !important;
+        line-height:1.3 !important;
+        color:inherit !important;
+    }
+
+    .st-key-bau_kpis div[data-testid="stButton"] button:hover {
+        background:#F0F8F4 !important;
+        transform:translateY(-2px);
+        box-shadow:0 8px 18px rgba(0,103,71,.13) !important;
+    }
+
+    /* ---------- member / category chips ---------- */
+
+    .st-key-bau_member_chips div[data-testid="stButton"],
+    .st-key-bau_category_chips div[data-testid="stButton"] {
+        width:100% !important;
+    }
+
+    .st-key-bau_member_chips div[data-testid="stButton"] button,
+    .st-key-bau_category_chips div[data-testid="stButton"] button {
+        box-sizing:border-box !important;
+        width:100% !important;
+        border-radius:12px !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        text-align:center !important;
+        font-family:"Segoe UI",Arial,sans-serif !important;
+        transition:all .18s ease !important;
+    }
+
+    .st-key-bau_member_chips div[data-testid="stButton"] button p,
+    .st-key-bau_category_chips div[data-testid="stButton"] button p {
+        margin:0 !important;
+        width:100% !important;
+        white-space:pre-line !important;
+        text-align:center !important;
+        font-size:12px !important;
+        font-weight:700 !important;
+        line-height:1.25 !important;
+        overflow-wrap:anywhere;
+    }
+
+    .st-key-bau_member_chips div[data-testid="stButton"] button {
+        background:linear-gradient(135deg,#013D2B,#006747,#008A5A) !important;
+        border:2px solid transparent !important;
+        color:#FFFFFF !important;
+        box-shadow:0 3px 8px rgba(0,103,71,.18) !important;
+    }
+
+    .st-key-bau_member_chips div[data-testid="stButton"] button p {
+        color:#FFFFFF !important;
+    }
+
+    .st-key-bau_category_chips div[data-testid="stButton"] button {
+        background:#FFFFFF !important;
+        border:1.5px solid #BFD9CC !important;
+        color:#006747 !important;
+        box-shadow:0 3px 8px rgba(0,103,71,.07) !important;
+    }
+
+    .st-key-bau_category_chips div[data-testid="stButton"] button p {
+        color:#006747 !important;
+    }
+
+    .st-key-bau_member_chips div[data-testid="stButton"] button:hover,
+    .st-key-bau_category_chips div[data-testid="stButton"] button:hover {
+        transform:translateY(-2px);
+        box-shadow:0 7px 15px rgba(0,103,71,.2) !important;
+    }
+
+    /* ---------- table ---------- */
+
     .bau-table-wrapper {
+        width:100%;
+        box-sizing:border-box;
         background:#FFFFFF;
         border:1px solid #DDE5E1;
         border-radius:16px;
@@ -9580,220 +10149,733 @@ elif page == "BAU Monitoring":
         width:100%;
         border-collapse:separate;
         border-spacing:0;
-        font-size:14px;
+        font-size:13.5px;
     }
 
     .bau-table thead th {
         background:linear-gradient(135deg,#013D2B,#006747,#008A5A);
         color:#FFFFFF;
-        padding:14px 12px;
+        padding:13px 12px;
         font-weight:700;
         text-align:left;
         border:none;
+        white-space:nowrap;
     }
 
-    .bau-table thead th:first-child {
-        border-top-left-radius:11px;
-    }
-
-    .bau-table thead th:last-child {
-        border-top-right-radius:11px;
-    }
+    .bau-table thead th:first-child { border-top-left-radius:11px; }
+    .bau-table thead th:last-child  { border-top-right-radius:11px; }
 
     .bau-table tbody td {
-        padding:13px 12px;
+        padding:12px;
         color:#1F2937;
         border-bottom:1px solid #E5E7EB;
         background:#FFFFFF;
+        vertical-align:top;
+        line-height:1.5;
+        overflow-wrap:anywhere;
     }
 
-    .bau-table tbody tr:nth-child(even) td {
-        background:#F8FAFC;
+    .bau-table tbody tr:nth-child(even) td { background:#F8FAFC; }
+    .bau-table tbody tr:hover td { background:#ECFDF5; }
+
+    .bau-project-name { color:#006747; font-weight:700; }
+
+    .bau-owner {
+        display:inline-block;
+        padding:4px 10px;
+        border-radius:20px;
+        background:#E6F4EC;
+        color:#006747;
+        font-size:12px;
+        font-weight:700;
+        white-space:nowrap;
     }
 
-    .bau-table tbody tr:hover td {
-        background:#ECFDF5;
-    }
-
-    .bau-project-name {
-        color:#006747 !important;
+    .bau-category {
+        display:inline-block;
+        padding:4px 10px;
+        border-radius:20px;
+        background:#EEF2FF;
+        color:#3730A3;
+        font-size:12px;
         font-weight:700;
     }
 
-    .bau-status {
-        display:inline-block;
-        padding:5px 12px;
-        border-radius:20px;
-        background:#DCFCE7;
-        color:#166534;
-        font-size:11px;
-        font-weight:800;
+    .bau-muted { color:#9CA3AF; font-style:italic; }
+
+    .bau-result-bar {
+        background:#EAF5F0;
+        padding:10px 12px;
+        border-radius:9px;
+        color:#006747;
+        font-size:13px;
+        font-weight:700;
+        overflow-wrap:anywhere;
+    }
+
+    @media (max-width:700px) {
+        .bau-heading { font-size:19px; }
+        .bau-table { font-size:12.5px; }
     }
 
     </style>
     """, unsafe_allow_html=True)
 
-
     # =================================================
-    # TABLE FORMATTING
-    # =================================================
-
-    if "Mandate" in display_bau.columns:
-
-        display_bau["Mandate"] = (
-            display_bau["Mandate"]
-            .apply(
-                lambda x:
-                f'<span class="bau-project-name">📁 {x}</span>'
-            )
-        )
-
-
-    if "Status" in display_bau.columns:
-
-        display_bau["Status"] = (
-            display_bau["Status"]
-            .apply(
-                lambda x:
-                '<span class="bau-status">🟢 BAU</span>'
-            )
-        )
-
-
-    # =================================================
-    # SELECT USEFUL COLUMNS
+    # KPI NUMBERS (static: counted on ALL BAU projects)
     # =================================================
 
-    preferred_columns = [
-        "Mandate",
-        "Allocation",
-        "Status",
-        "Category",
-        "Update"
-    ]
+    total_bau = len(bau_df)
+    updated_bau = int(bau_df["_has_update"].sum())
+    pending_bau = total_bau - updated_bau
 
+    # =================================================
+    # APPLY FILTERS
+    # =================================================
 
-    table_columns = [
-        col
-        for col in preferred_columns
-        if col in display_bau.columns
-    ]
+    selected_member = st.session_state["bau_member_filter"]
+    selected_category = st.session_state["bau_category_filter"]
+    selected_update = st.session_state["bau_update_filter"]
+    search_text = st.session_state["bau_project_search"]
 
+    filtered_bau_df = bau_df.copy()
 
-    if table_columns:
-
-        display_bau = display_bau[
-            table_columns
+    if selected_member != "All":
+        filtered_bau_df = filtered_bau_df[
+            filtered_bau_df["Allocation"] == selected_member
         ]
 
+    if selected_category != "All":
+        filtered_bau_df = filtered_bau_df[
+            filtered_bau_df["Category"] == selected_category
+        ]
 
-    # =================================================
-    # CREATE TABLE
-    # =================================================
+    if selected_update == "With Update":
+        filtered_bau_df = filtered_bau_df[filtered_bau_df["_has_update"]]
 
-    bau_table_html = display_bau.to_html(
-        index=False,
-        escape=False,
-        classes="bau-table"
+    elif selected_update == "No Update":
+        filtered_bau_df = filtered_bau_df[~filtered_bau_df["_has_update"]]
+
+    if search_text:
+        search_mask = pd.Series(False, index=filtered_bau_df.index)
+
+        for _column in ["Mandate", "Allocation", "Category", "Update"]:
+            search_mask |= filtered_bau_df[_column].str.contains(
+                search_text,
+                case=False,
+                na=False,
+                regex=False
+            )
+
+        filtered_bau_df = filtered_bau_df[search_mask]
+
+    no_filters = (
+        selected_member == "All"
+        and selected_category == "All"
+        and selected_update == "All"
+        and not search_text
     )
 
+    # =================================================
+    # KPI CARDS  (all clickable)
+    # =================================================
+
+    kpi_cards = [
+        ("TOTAL BAU\nPROJECTS", total_bau, "total", "#006747",
+         bau_reset_filters, (), no_filters),
+        ("UPDATED\nPROJECTS", updated_bau, "updated", "#16A34A",
+         bau_toggle, ("bau_update_filter", "With Update"),
+         selected_update == "With Update"),
+        ("PENDING\nUPDATE", pending_bau, "pending", "#F59E0B",
+         bau_toggle, ("bau_update_filter", "No Update"),
+         selected_update == "No Update"),
+        ("SHOWING\nNOW", len(filtered_bau_df), "showing",
+         "#8E24AA", bau_reset_filters, (), False),
+    ]
+
+    kpi_css = []
+
+    for label, count, suffix, accent, callback, args, selected in kpi_cards:
+        selector = (
+            f'.st-key-bau_kpis .st-key-bau_card_{suffix} '
+            f'div[data-testid="stButton"] button'
+        )
+
+        rule = f"border-top-color:{accent} !important;"
+
+        if selected:
+            rule += (
+                "background:#E3F3EA !important;"
+                "border-left-color:#006747 !important;"
+                "border-right-color:#006747 !important;"
+                "border-bottom-color:#006747 !important;"
+                "box-shadow:0 0 0 2px rgba(0,103,71,.30),"
+                "0 7px 16px rgba(0,103,71,.16) !important;"
+            )
+
+        kpi_css.append(f"{selector}{{{rule}}}")
 
     st.markdown(
-        f"""
-    <div class="bau-table-wrapper">
-    {bau_table_html}
-    </div>
-    """,
+        "<style>" + "".join(kpi_css) + "</style>",
         unsafe_allow_html=True
     )
 
+    with st.container(key="bau_kpis"):
+        kpi_cols = st.columns(len(kpi_cards))
 
-    st.markdown(
-        "<div style='height:4px;'></div>",
-        unsafe_allow_html=True
+        for col, (label, count, suffix, accent, callback, args, selected) in zip(
+            kpi_cols, kpi_cards
+        ):
+            with col:
+                st.button(
+                    f"{label}\n{count}",
+                    key=f"bau_card_{suffix}",
+                    use_container_width=True,
+                    on_click=callback,
+                    args=args
+                )
+
+    # =================================================
+    # MEMBER CARDS  (click = filter, click again = clear)
+    # =================================================
+
+    member_counts = (
+        bau_df[bau_df["Allocation"] != ""]
+        .groupby("Allocation")
+        .size()
+        .sort_values(ascending=False)
     )
 
+    if not member_counts.empty:
 
-    # =================================================
-    # RECENT / ONGOING UPDATES
-    # =================================================
+        st.markdown(
+            '<div class="bau-heading">👥 Team Members</div>'
+            '<div class="bau-subtitle">Click a member to filter the table. '
+            'Click again to clear.</div>',
+            unsafe_allow_html=True
+        )
 
-    if "Update" in filtered_bau_df.columns:
+        chip_css = []
 
-        st.markdown("""
-    <h2 style="
-    color:#006747;
-    font-size:24px;
-    font-weight:700;
-    margin-top:14px;
-    margin-bottom:9px;">
-    🔄 BAU Monitoring Updates
-    </h2>
-    """, unsafe_allow_html=True)
+        with st.container(key="bau_member_chips"):
+            chip_cols = st.columns(len(member_counts))
 
+            for index, (member, count) in enumerate(member_counts.items()):
 
-        updates_df = filtered_bau_df[
-            [
-                col
-                for col in [
-                    "Mandate",
-                    "Allocation",
-                    "Update"
-                ]
-                if col in filtered_bau_df.columns
-            ]
-        ].copy()
-
-
-        if not updates_df.empty:
-
-            for _, row in updates_df.iterrows():
-
-                project_name = str(
-                    row.get("Mandate", "")
-                )
-
-                owner_name = str(
-                    row.get("Allocation", "")
-                )
-
-                update_text = str(
-                    row.get(
-                        "Update",
-                        "Business as usual."
+                if selected_member == member:
+                    chip_css.append(
+                        f'.st-key-bau_member_chips .st-key-bau_member_{index} '
+                        f'div[data-testid="stButton"] button'
+                        f'{{border-color:#FFD700 !important;'
+                        f'box-shadow:0 0 0 3px rgba(255,215,0,.40),'
+                        f'0 6px 14px rgba(0,103,71,.28) !important;}}'
                     )
-                )
 
+                with chip_cols[index]:
+                    st.button(
+                        f"👤 {member}\n{count} Projects",
+                        key=f"bau_member_{index}",
+                        use_container_width=True,
+                        on_click=bau_toggle,
+                        args=("bau_member_filter", member)
+                    )
 
-                st.html(
-    f"""
-    <div style="background:#FFFFFF;border:1px solid #DDE5E1;border-left:5px solid #006747;border-radius:12px;padding:12px 15px;margin-bottom:8px;box-shadow:0 4px 12px rgba(0,103,71,.06);font-family:Segoe UI,Arial,sans-serif;">
+        if chip_css:
+            st.markdown(
+                "<style>" + "".join(chip_css) + "</style>",
+                unsafe_allow_html=True
+            )
 
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;">
+    # =================================================
+    # CATEGORY CARDS
+    # =================================================
 
-    <div style="color:#006747;font-size:14px;font-weight:700;">
-    📁 {project_name}
-    </div>
+    if has_category:
 
-    <div style="color:#008A5A;font-size:11px;font-weight:700;">
-    👤 {owner_name}
-    </div>
+        category_counts = (
+            bau_df[bau_df["Category"] != ""]
+            .groupby("Category")
+            .size()
+            .sort_values(ascending=False)
+        )
 
-    </div>
+        st.markdown(
+            '<div class="bau-heading">📂 Categories</div>',
+            unsafe_allow_html=True
+        )
 
-    <div style="color:#374151;font-size:13px;margin-top:7px;line-height:1.45;">
-    {update_text}
-    </div>
+        category_css = []
 
-    </div>
-    """
-                )
+        with st.container(key="bau_category_chips"):
+            category_cols = st.columns(len(category_counts))
+
+            for index, (category, count) in enumerate(category_counts.items()):
+
+                if selected_category == category:
+                    category_css.append(
+                        f'.st-key-bau_category_chips .st-key-bau_category_{index} '
+                        f'div[data-testid="stButton"] button'
+                        f'{{background:#006747 !important;'
+                        f'border-color:#006747 !important;'
+                        f'box-shadow:0 0 0 3px rgba(0,103,71,.25) !important;}}'
+                        f'.st-key-bau_category_chips .st-key-bau_category_{index} '
+                        f'div[data-testid="stButton"] button p'
+                        f'{{color:#FFFFFF !important;}}'
+                    )
+
+                with category_cols[index]:
+                    st.button(
+                        f"📂 {category}\n{count} Projects",
+                        key=f"bau_category_{index}",
+                        use_container_width=True,
+                        on_click=bau_toggle,
+                        args=("bau_category_filter", category)
+                    )
+
+        if category_css:
+            st.markdown(
+                "<style>" + "".join(category_css) + "</style>",
+                unsafe_allow_html=True
+            )
+
+    # =================================================
+    # FILTER CONTROLS  (same keys the cards write to)
+    # =================================================
+
+    st.markdown(
+        '<div class="bau-heading">🎯 Filters</div>',
+        unsafe_allow_html=True
+    )
+
+    f1, f2, f3, f4 = st.columns([1, 1, 1, 1.4])
+
+    with f1:
+        st.selectbox(
+            "👤 Team Member",
+            member_options,
+            key="bau_member_filter"
+        )
+
+    with f2:
+        st.selectbox(
+            "📂 Category",
+            category_options,
+            key="bau_category_filter"
+        )
+
+    with f3:
+        st.selectbox(
+            "🔄 Update",
+            update_options,
+            key="bau_update_filter"
+        )
+
+    with f4:
+        st.text_input(
+            "🔍 Search",
+            placeholder="Search project, owner, category, update...",
+            key="bau_project_search"
+        )
+
+    # =================================================
+    # RESULT BAR + CSV
+    # =================================================
+
+    st.markdown(
+        '<div class="bau-heading">📋 BAU Project Portfolio</div>',
+        unsafe_allow_html=True
+    )
+
+    table_columns = [
+        c for c in ["Mandate", "Allocation", "Category", "Update"]
+        if c in filtered_bau_df.columns
+        and (c != "Category" or has_category)
+    ]
+
+    left, right = st.columns([5, 1])
+
+    with left:
+        st.markdown(
+            f'<div class="bau-result-bar">'
+            f'Showing {len(filtered_bau_df)} of {total_bau} BAU project(s)'
+            f' &nbsp;|&nbsp; Member: {html_lib.escape(selected_member)}'
+            f' &nbsp;|&nbsp; Category: {html_lib.escape(selected_category)}'
+            f' &nbsp;|&nbsp; Update: {html_lib.escape(selected_update)}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+    with right:
+        st.download_button(
+            "⬇ CSV",
+            data=filtered_bau_df[table_columns]
+            .to_csv(index=False)
+            .encode("utf-8-sig"),
+            file_name="BAU_Projects.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+
+    # =================================================
+    # TABLE
+    # =================================================
+
+    if filtered_bau_df.empty:
+
+        st.info("No BAU projects match the selected filters.")
 
     else:
 
-        st.info(
-            "No BAU update field is available in the Excel data."
+        display_bau = filtered_bau_df[table_columns].copy()
+
+        def bau_text(value):
+            return html_lib.escape(str(value)).replace("\n", "<br>")
+
+        display_bau["Mandate"] = display_bau["Mandate"].apply(
+            lambda x: f'<span class="bau-project-name">📁 {bau_text(x)}</span>'
         )
+
+        display_bau["Allocation"] = display_bau["Allocation"].apply(
+            lambda x: (
+                f'<span class="bau-owner">👤 {bau_text(x)}</span>'
+                if x else '<span class="bau-muted">Unassigned</span>'
+            )
+        )
+
+        if "Category" in display_bau.columns:
+            display_bau["Category"] = display_bau["Category"].apply(
+                lambda x: (
+                    f'<span class="bau-category">{bau_text(x)}</span>'
+                    if x else '<span class="bau-muted">—</span>'
+                )
+            )
+
+        display_bau["Update"] = display_bau["Update"].apply(
+            lambda x: (
+                bau_text(x) if x
+                else '<span class="bau-muted">No update yet</span>'
+            )
+        )
+
+        bau_table_html = display_bau.to_html(
+            index=False,
+            escape=False,
+            classes="bau-table"
+        )
+
+        st.markdown(
+            f'<div class="bau-table-wrapper">{bau_table_html}</div>',
+            unsafe_allow_html=True
+        )
+
+    # =================================================
+    # BAU CHARTS  (moved here from the Analytics page)
+    # =================================================
+
+    if not bau_df.empty:
+
+        st.markdown(
+            '<div class="bau-heading">📊 BAU Insights</div>'
+            '<div class="bau-subtitle">Charts show all BAU projects '
+            '(they do not change with the filters).</div>',
+            unsafe_allow_html=True
+        )
+
+        green_scale = [
+            "#D1FAE5", "#8BC9A8", "#4CAF7A",
+            "#20A464", "#008A5A", "#006747"
+        ]
+
+        chart_left, chart_right = st.columns(2)
+
+        # ---- BAU projects by owner -------------------------
+        with chart_left:
+
+            owner_chart_df = (
+                bau_df[bau_df["Allocation"] != ""]
+                .groupby("Allocation")
+                .size()
+                .reset_index(name="Projects")
+                .sort_values("Projects", ascending=False)
+            )
+
+            if not owner_chart_df.empty:
+
+                st.markdown(
+                    '<div class="bau-subtitle" style="font-weight:700;'
+                    'color:#006747;margin-bottom:2px;">'
+                    '👥 BAU Projects by Owner</div>',
+                    unsafe_allow_html=True
+                )
+
+                fig_owner = px.bar(
+                    owner_chart_df,
+                    x="Allocation",
+                    y="Projects",
+                    text="Projects",
+                    color="Projects",
+                    color_continuous_scale=green_scale
+                )
+
+                fig_owner.update_traces(
+                    textposition="outside",
+                    marker_line_width=0,
+                    textfont=dict(color="#006747", size=11)
+                )
+
+                fig_owner.update_layout(
+                    height=340,
+                    template="plotly_white",
+                    plot_bgcolor="white",
+                    paper_bgcolor="white",
+                    coloraxis_showscale=False,
+                    font=dict(color="#111827", size=11),
+                    xaxis=dict(
+                        title="",
+                        showgrid=False,
+                        zeroline=False,
+                        tickfont=dict(color="#374151", size=10),
+                        automargin=True
+                    ),
+                    yaxis=dict(
+                        title="BAU Projects",
+                        title_font=dict(color="#006747", size=11),
+                        gridcolor="#DDE5E1",
+                        zeroline=False,
+                        tickfont=dict(color="#374151", size=10)
+                    ),
+                    margin=dict(l=35, r=10, t=18, b=40)
+                )
+
+                st.plotly_chart(
+                    fig_owner,
+                    width="stretch",
+                    config={"displayModeBar": False}
+                )
+
+        # ---- BAU projects by category ----------------------
+        with chart_right:
+
+            if has_category:
+
+                category_chart_df = (
+                    bau_df[bau_df["Category"] != ""]
+                    .groupby("Category")
+                    .size()
+                    .reset_index(name="Projects")
+                    .sort_values("Projects", ascending=False)
+                )
+
+                st.markdown(
+                    '<div class="bau-subtitle" style="font-weight:700;'
+                    'color:#006747;margin-bottom:2px;">'
+                    '📂 BAU Projects by Category</div>',
+                    unsafe_allow_html=True
+                )
+
+                fig_category = px.pie(
+                    category_chart_df,
+                    names="Category",
+                    values="Projects",
+                    hole=0.55,
+                    color_discrete_sequence=[
+                        "#006747", "#20A464", "#4CAF7A",
+                        "#8BC9A8", "#F59E0B", "#8E24AA", "#DC2626"
+                    ]
+                )
+
+                fig_category.update_traces(
+                    textfont=dict(color="white", size=11),
+                    marker_line=dict(color="white", width=2)
+                )
+
+                fig_category.update_layout(
+                    height=340,
+                    template="plotly_white",
+                    paper_bgcolor="white",
+                    font=dict(color="#111827", size=11),
+                    legend=dict(
+                        font=dict(color="#374151", size=10),
+                        orientation="h",
+                        yanchor="top",
+                        y=-0.02
+                    ),
+                    margin=dict(l=10, r=10, t=18, b=10)
+                )
+
+                st.plotly_chart(
+                    fig_category,
+                    width="stretch",
+                    config={"displayModeBar": False}
+                )
+
+            else:
+
+                # No categories: show update coverage instead
+                coverage_df = pd.DataFrame({
+                    "State": ["With Update", "No Update"],
+                    "Projects": [updated_bau, pending_bau]
+                })
+
+                st.markdown(
+                    '<div class="bau-subtitle" style="font-weight:700;'
+                    'color:#006747;margin-bottom:2px;">'
+                    '🔄 Update Coverage</div>',
+                    unsafe_allow_html=True
+                )
+
+                fig_cov = px.pie(
+                    coverage_df,
+                    names="State",
+                    values="Projects",
+                    hole=0.55,
+                    color="State",
+                    color_discrete_map={
+                        "With Update": "#006747",
+                        "No Update": "#F59E0B"
+                    }
+                )
+
+                fig_cov.update_layout(
+                    height=340,
+                    template="plotly_white",
+                    paper_bgcolor="white",
+                    margin=dict(l=10, r=10, t=18, b=10)
+                )
+
+                st.plotly_chart(
+                    fig_cov,
+                    width="stretch",
+                    config={"displayModeBar": False}
+                )
+
+    # =================================================
+    # EDIT / SAVE  (same behaviour as the Projects page)
+    # Only BAU rows are shown. Saving merges them back into the
+    # full projects.xlsx, so other projects are never touched.
+    # =================================================
+
+    def bau_merge_edits(base_df, bau_source, edited_df):
+        """Merge edited BAU rows back into the complete project table."""
+        edited = edited_df.copy()
+
+        rid = pd.to_numeric(edited["_rid"], errors="coerce")
+        edited = edited.drop(columns=["_rid"])
+
+        is_existing = rid.notna()
+        existing = edited[is_existing]
+        existing_ids = rid[is_existing].astype(int).tolist()
+
+        new_rows = edited[~is_existing].copy().astype(object)
+
+        # drop completely empty new rows
+        if not new_rows.empty:
+            has_content = (
+                new_rows.fillna("")
+                .astype(str)
+                .apply(lambda column: column.str.strip() != "")
+                .any(axis=1)
+            )
+            new_rows = new_rows[has_content]
+
+        kept = set(existing_ids)
+        deleted_ids = [i for i in bau_source["_rid"].tolist() if i not in kept]
+
+        result = base_df.drop(index=deleted_ids).astype(object)
+        columns = list(edited.columns)
+
+        if existing_ids:
+            result.loc[existing_ids, columns] = (
+                existing[columns].astype(object).values
+            )
+
+        if not new_rows.empty:
+            if "Status" in new_rows.columns:
+                blank = new_rows["Status"].fillna("").astype(str).str.strip() == ""
+                new_rows.loc[blank, "Status"] = "BAU"
+
+            result = pd.concat(
+                [result, new_rows[columns].astype(object)],
+                ignore_index=True
+            )
+
+        return result[list(base_df.columns)]
+
+    st.markdown("---")
+
+    if not st.session_state["bau_edit_mode"]:
+
+        if st.button(
+            "✏️ Edit BAU Projects",
+            key="bau_edit_button",
+            use_container_width=True
+        ):
+            st.session_state["bau_edit_mode"] = True
+            st.rerun()
+
+    if st.session_state["bau_edit_mode"]:
+
+        st.markdown(
+            '<div class="bau-heading">✏️ Edit BAU Projects</div>',
+            unsafe_allow_html=True
+        )
+
+        st.info(
+            "Edit BAU rows, add new ones at the bottom or delete rows. "
+            "Other projects are not changed."
+        )
+
+        base_df = df.reset_index(drop=True)
+
+        bau_source = base_df[
+            base_df["Status"].astype(str).str.strip().str.upper() == "BAU"
+        ].copy()
+
+        bau_source.insert(0, "_rid", bau_source.index)
+
+        edited_df = st.data_editor(
+            bau_source,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="dynamic",
+            height=520,
+            disabled=["_rid"],
+            column_config={"_rid": None},
+            key="bau_editor"
+        )
+
+        save_col, close_col = st.columns(2)
+
+        with save_col:
+            if st.button(
+                "💾 Save Changes",
+                type="primary",
+                key="bau_save",
+                use_container_width=True
+            ):
+                try:
+                    merged = bau_merge_edits(base_df, bau_source, edited_df)
+                    merged = merged.fillna("")
+
+                    merged.to_excel(project_file, index=False)
+
+                    st.session_state["bau_edit_mode"] = False
+                    st.session_state.pop("bau_editor", None)
+
+                    st.rerun()
+
+                except Exception as error:
+                    st.error(f"Save error: {error}")
+
+        with close_col:
+            if st.button(
+                "❌ Close Editor",
+                key="bau_close_editor",
+                use_container_width=True
+            ):
+                st.session_state["bau_edit_mode"] = False
+                st.session_state.pop("bau_editor", None)
+                st.rerun()
 
 
 # =====================================================
@@ -9919,21 +11001,101 @@ elif page == "IS Issues":
 
     # =====================================================
     # SESSION STATE
+    #
+    # Filters live in ONE place only:
+    #   is_issue_status_filter    -> All / Fixed / Under Revalidation /
+    #                                Fixation in Progress
+    #   is_issue_severity_filter  -> All / CRITICAL / HIGH / MEDIUM / LOW
+    #
+    # The KPI cards and the two dropdowns both read and write these
+    # keys, so they can never disagree with each other.
     # =====================================================
+
+    STATUS_OPTIONS = [
+        "All",
+        "Fixed",
+        "Under Revalidation",
+        "Fixation in Progress"
+    ]
+
+    SEVERITY_OPTIONS = ["All", "CRITICAL", "HIGH", "MEDIUM", "LOW"]
+
+    # status name -> (card label, css suffix, key used by get_issue_counts)
+    STATUS_META = {
+        "Fixed": ("FIXED", "fixed", "FIXED"),
+        "Under Revalidation": (
+            "UNDER\nREVALIDATION",
+            "revalidation",
+            "UNDER REVALIDATION"
+        ),
+        "Fixation in Progress": (
+            "FIXATION\nIN PROGRESS",
+            "progress",
+            "FIXATION IN PROGRESS"
+        ),
+    }
+
+    CARD_ACCENT = {
+        "all": "#006747",
+        "fixed": "#16A34A",
+        "revalidation": "#8E24AA",
+        "progress": "#F9A825",
+        "critical": "#7F1D1D",
+        "high": "#DC2626",
+        "medium": "#F59E0B",
+        "low": "#059669",
+    }
 
     defaults = {
         "is_issue_view": "summary",
         "is_issue_application": "All",
-        "is_issue_stage": "All",
         "is_issue_search": "",
         "is_issue_severity_filter": "All",
         "is_issue_status_filter": "All",
+        "is_issue_scroll_top": False,
         "is_issues_edit_mode": False
     }
 
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+    # =====================================================
+    # CALLBACKS
+    # (callbacks run BEFORE the rerun, so no st.rerun() is needed
+    #  and widget keys can be changed safely)
+    # =====================================================
+
+    def is_go_to_details(application="All", status="All"):
+        st.session_state["is_issue_view"] = "details"
+        st.session_state["is_issue_application"] = application
+        st.session_state["is_issue_status_filter"] = status
+        st.session_state["is_issue_severity_filter"] = "All"
+        st.session_state["is_issue_search"] = ""
+        st.session_state["is_issue_scroll_top"] = True
+
+    def is_go_to_summary():
+        st.session_state["is_issue_view"] = "summary"
+        st.session_state["is_issue_application"] = "All"
+        st.session_state["is_issue_status_filter"] = "All"
+        st.session_state["is_issue_severity_filter"] = "All"
+        st.session_state["is_issue_search"] = ""
+        st.session_state["is_issue_scroll_top"] = True
+
+    def is_toggle_status(status):
+        current = st.session_state.get("is_issue_status_filter", "All")
+        st.session_state["is_issue_status_filter"] = (
+            "All" if current == status else status
+        )
+
+    def is_toggle_severity(severity):
+        current = st.session_state.get("is_issue_severity_filter", "All")
+        st.session_state["is_issue_severity_filter"] = (
+            "All" if current == severity else severity
+        )
+
+    def is_clear_severity():
+        st.session_state["is_issue_severity_filter"] = "All"
 
     # =====================================================
     # COUNTS
@@ -9965,44 +11127,37 @@ elif page == "IS Issues":
             "LOW": int((severity == "LOW").sum())
         }
 
-    
     # =====================================================
-    # CSS - EQUAL KPI SIZES + TEXT WRAPPING + MOBILE
+    # CSS
     # =====================================================
 
     st.markdown("""
     <style>
-    .st-key-dashboard_kpis,
+
+    /* ---------- KPI cards (main page + detail page) ---------- */
+
+    .st-key-is_main_kpis,
     .st-key-is_detail_kpis {
         width: 100%;
     }
-    
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
+
+    .st-key-is_main_kpis div[data-testid="stHorizontalBlock"],
     .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
         gap: 10px !important;
         align-items: stretch !important;
     }
 
-    .st-key-dashboard_kpis div[data-testid="stColumn"],
+    .st-key-is_main_kpis div[data-testid="stColumn"],
     .st-key-is_detail_kpis div[data-testid="stColumn"] {
         min-width: 0 !important;
     }
-    
-    .st-key-dashboard_kpis div[data-testid="stButton"] button p,
-    .st-key-is_detail_kpis div[data-testid="stButton"] button p {
-        white-space: pre-line !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-        text-align: center !important;
-        line-height: 1.3 !important;
-    }
 
-    .st-key-dashboard_kpis div[data-testid="stButton"],
+    .st-key-is_main_kpis div[data-testid="stButton"],
     .st-key-is_detail_kpis div[data-testid="stButton"] {
         width: 100% !important;
     }
 
-    .st-key-dashboard_kpis div[data-testid="stButton"] button,
+    .st-key-is_main_kpis div[data-testid="stButton"] button,
     .st-key-is_detail_kpis div[data-testid="stButton"] button {
         box-sizing: border-box !important;
         width: 100% !important;
@@ -10018,23 +11173,19 @@ elif page == "IS Issues":
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
         text-align: center !important;
-        line-height: 1.3 !important;
         font-family: "Segoe UI", Arial, sans-serif !important;
         font-size: 12px !important;
         font-weight: 700 !important;
     }
-    
-    .st-key-dashboard_kpis div[data-testid="stButton"] button p,
+
+    .st-key-is_main_kpis div[data-testid="stButton"] button p,
     .st-key-is_detail_kpis div[data-testid="stButton"] button p {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
+        white-space: pre-line !important;
+        overflow-wrap: break-word !important;
         word-break: normal !important;
         text-align: center !important;
         line-height: 1.3 !important;
@@ -10043,48 +11194,14 @@ elif page == "IS Issues":
         color: inherit !important;
     }
 
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:hover,
+    .st-key-is_main_kpis div[data-testid="stButton"] button:hover,
     .st-key-is_detail_kpis div[data-testid="stButton"] button:hover {
         background: #F0F8F4 !important;
         transform: translateY(-2px);
         box-shadow: 0 7px 16px rgba(0,103,71,.12) !important;
     }
 
-    .st-key-dashboard_kpis div[data-testid="stButton"] button:focus,
-    .st-key-is_detail_kpis div[data-testid="stButton"] button:focus {
-        outline: 2px solid #006747 !important;
-        outline-offset: 1px !important;
-        background: #EAF5F0 !important;
-    }
-
-    /* KPI accent colours by position */
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1) button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(1) button {
-        border-top-color: #006747 !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2) button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(2) button {
-        border-top-color: #16A34A !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3) button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(3) button {
-        border-top-color: #8E24AA !important;
-    }
-
-    .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4) button,
-    .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"]:nth-child(1)
-    div[data-testid="stColumn"]:nth-child(4) button {
-        border-top-color: #F9A825 !important;
-    }
+    /* ---------- headings ---------- */
 
     .is-summary-heading {
         color: #006747;
@@ -10101,24 +11218,55 @@ elif page == "IS Issues":
         overflow-wrap: anywhere;
     }
 
+    /* ---------- SUMMARY TABLE ----------
+       Header row and every application row use exactly the same
+       box model (1px border + 8px padding + 6px gap), and every
+       count column has the same width, so all boxes are equal. */
+
+    .st-key-is_summary_head div[data-testid="stHorizontalBlock"],
+    [class*="st-key-is_summary_row_"] div[data-testid="stHorizontalBlock"] {
+        box-sizing: border-box !important;
+        width: 100% !important;
+        gap: 6px !important;
+        align-items: center !important;
+        padding: 8px !important;
+        border: 1px solid transparent !important;
+        border-radius: 12px !important;
+    }
+
+    .st-key-is_summary_head div[data-testid="stHorizontalBlock"] {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    [class*="st-key-is_summary_row_"] div[data-testid="stHorizontalBlock"] {
+        background: #FFFFFF;
+        border-color: #DDE5E1 !important;
+        box-shadow: 0 3px 9px rgba(0,103,71,.05);
+    }
+
+    .st-key-is_summary_head div[data-testid="stColumn"],
+    [class*="st-key-is_summary_row_"] div[data-testid="stColumn"] {
+        min-width: 0 !important;
+    }
+
     .is-summary-header {
         box-sizing: border-box;
         width: 100%;
-        min-height: 44px;
-        height: 100%;
+        height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg,#013D2B,#006747,#008A5A);
         color: #FFFFFF;
         border-radius: 8px;
-        padding: 6px 3px;
+        padding: 4px 2px;
         text-align: center;
-        font-size: 10px;
-        line-height: 1.25;
+        font-size: 9px;
+        line-height: 1.2;
         font-weight: 800;
         white-space: normal;
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word;
         word-break: normal;
     }
 
@@ -10126,7 +11274,6 @@ elif page == "IS Issues":
         box-sizing: border-box;
         width: 100%;
         height: 64px;
-        min-height: 64px;
         padding: 5px 2px;
         text-align: center;
         border: 1px solid #E2E8F0;
@@ -10137,7 +11284,7 @@ elif page == "IS Issues":
         justify-content: center;
         gap: 3px;
         overflow: hidden;
-        overflow-wrap: anywhere;
+        background: #F8FAFC;
     }
 
     .is-count-number {
@@ -10148,118 +11295,76 @@ elif page == "IS Issues":
     }
 
     .is-count-label {
-        font-size: 9px;
+        font-size: 8.5px;
         line-height: 1.2;
         font-weight: 800;
-        letter-spacing: .1px;
         color: #64748B;
         white-space: normal;
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word;
         word-break: normal;
     }
 
-    .is-count-critical {
-        color: #991B1B;
-        background: #FEF2F2;
-    }
+    .is-count-critical   { color:#991B1B; background:#FEF2F2; }
+    .is-count-high       { color:#B91C1C; background:#FFF1F2; }
+    .is-count-medium     { color:#92400E; background:#FFFBEB; }
+    .is-count-low        { color:#047857; background:#ECFDF5; }
+    .is-count-fixed      { color:#166534; background:#DCFCE7; }
+    .is-count-revalidation { color:#5B21B6; background:#EDE9FE; }
+    .is-count-progress   { color:#92400E; background:#FEF3C7; }
 
-    .is-count-high {
-        color: #B91C1C;
-        background: #FFF1F2;
-    }
+    /* application name button: same height as the count boxes,
+       full name visible (up to 3 lines, full text in tooltip) */
 
-    .is-count-medium {
-        color: #92400E;
-        background: #FFFBEB;
-    }
-
-    .is-count-low {
-        color: #047857;
-        background: #ECFDF5;
-    }
-
-    .is-count-fixed {
-        color: #166534;
-        background: #DCFCE7;
-    }
-
-    .is-count-revalidation {
-        color: #5B21B6;
-        background: #EDE9FE;
-    }
-
-    .is-count-progress {
-        color: #92400E;
-        background: #FEF3C7;
-    }
-
-    .is-summary-row {
-        background: #FFFFFF;
-        border: 1px solid #DDE5E1;
-        border-radius: 12px;
-        padding: 8px 5px;
-        margin: 5px 0;
-        box-shadow: 0 3px 9px rgba(0,103,71,.05);
-    }
-
-    .is-summary-row div[data-testid="stHorizontalBlock"] {
-        align-items: stretch !important;
-        gap: 6px !important;
-    }
-
-    .is-summary-row div[data-testid="stColumn"] {
-        min-width: 0 !important;
-    }
-
-    .is-summary-row div[data-testid="stButton"] {
+    [class*="st-key-is_summary_row_"] div[data-testid="stButton"] {
         width: 100% !important;
-        height: 100% !important;
     }
 
-    .is-summary-row div[data-testid="stButton"] button {
+    [class*="st-key-is_summary_row_"] div[data-testid="stButton"] button {
         box-sizing: border-box !important;
         width: 100% !important;
+        height: 64px !important;
         min-height: 64px !important;
-        height: 100% !important;
-        padding: 7px !important;
+        padding: 6px 10px !important;
         background: #F0F8F4 !important;
         color: #006747 !important;
         border: 1px solid #C8DED3 !important;
         border-radius: 8px !important;
-        font-weight: 700 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
         text-align: left !important;
-        white-space: normal !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-        line-height: 1.35 !important;
     }
 
-    .is-summary-row div[data-testid="stButton"] button p {
+    [class*="st-key-is_summary_row_"] div[data-testid="stButton"] button div {
+        width: 100% !important;
         white-space: normal !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-        line-height: 1.35 !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
     }
 
-    /* ADDED: wrap summary status labels into multiple lines */
-    .is-summary-row,
-    .is-summary-row *,
-    .is-summary-header,
-    .is-count-label {
-        white-space: normal !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
+    [class*="st-key-is_summary_row_"] div[data-testid="stButton"] button p {
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: left !important;
+        font-size: 12.5px !important;
+        font-weight: 700 !important;
         line-height: 1.25 !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 3 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
-    .is-summary-row div[data-testid="stButton"] button p {
-        text-align: center !important;
-    }
-
-    .is-summary-row div[data-testid="stButton"] button:hover {
+    [class*="st-key-is_summary_row_"] div[data-testid="stButton"] button:hover {
         background: #E0F0E8 !important;
         border-color: #006747 !important;
     }
+
+    /* ---------- issue table ---------- */
 
     .is-issues-table-wrapper {
         width: 100%;
@@ -10300,13 +11405,8 @@ elif page == "IS Issues":
         line-height: 1.55;
     }
 
-    .is-issues-table tbody tr:nth-child(even) td {
-        background: #F8FAFC;
-    }
-
-    .is-issues-table tbody tr:hover td {
-        background: #ECFDF5;
-    }
+    .is-issues-table tbody tr:nth-child(even) td { background: #F8FAFC; }
+    .is-issues-table tbody tr:hover td { background: #ECFDF5; }
 
     .severity-badge,
     .issue-status {
@@ -10318,213 +11418,229 @@ elif page == "IS Issues":
         overflow-wrap: anywhere;
     }
 
-    .severity-critical {
-        background: #7F1D1D;
-        color: white !important;
+    .severity-critical { background:#7F1D1D; color:white !important; }
+    .severity-high     { background:#FEE2E2; color:#B91C1C !important; }
+    .severity-medium   { background:#FEF3C7; color:#92400E !important; }
+    .severity-low      { background:#D1FAE5; color:#087443 !important; }
+
+    .issue-fixed        { background:#DCFCE7; color:#166534 !important; }
+    .issue-revalidation { background:#EDE9FE; color:#5B21B6 !important; }
+    .issue-progress     { background:#FEF3C7; color:#92400E !important; }
+
+    /* ---------- responsive ---------- */
+
+    @media (max-width: 1200px) {
+        .is-count-label  { font-size: 7.5px; }
+        .is-summary-header { font-size: 8px; }
     }
 
-    .severity-high {
-        background: #FEE2E2;
-        color: #B91C1C !important;
-    }
+    @media (max-width: 700px) {
 
-    .severity-medium {
-        background: #FEF3C7;
-        color: #92400E !important;
-    }
-
-    .severity-low {
-        background: #D1FAE5;
-        color: #087443 !important;
-    }
-
-    .issue-fixed {
-        background: #DCFCE7;
-        color: #166534 !important;
-    }
-
-    .issue-revalidation {
-        background: #EDE9FE;
-        color: #5B21B6 !important;
-    }
-
-    .issue-progress {
-        background: #FEF3C7;
-        color: #92400E !important;
-    }
-
-    @media (max-width: 900px) {
-        .is-count-box {
-            height: 62px;
-            min-height: 62px;
-        }
-
-        .is-count-number {
-            font-size: 15px;
-        }
-
-        .is-count-label {
-            font-size: 8px;
-        }
-    }
-    
-    @media (max-width: 600px) {
-        .st-key-dashboard_kpis div[data-testid="stHorizontalBlock"],
+        .st-key-is_main_kpis div[data-testid="stHorizontalBlock"],
         .st-key-is_detail_kpis div[data-testid="stHorizontalBlock"] {
             flex-wrap: wrap !important;
         }
 
-        .st-key-dashboard_kpis div[data-testid="stColumn"],
+        .st-key-is_main_kpis div[data-testid="stColumn"],
         .st-key-is_detail_kpis div[data-testid="stColumn"] {
             min-width: calc(50% - 8px) !important;
             flex: 1 1 calc(50% - 8px) !important;
         }
 
-        .st-key-dashboard_kpis div[data-testid="stButton"] button,
+        .st-key-is_main_kpis div[data-testid="stButton"] button,
         .st-key-is_detail_kpis div[data-testid="stButton"] button {
             height: 82px !important;
             min-height: 82px !important;
             font-size: 11px !important;
         }
 
-        .is-summary-row div[data-testid="stHorizontalBlock"] {
+        /* header is redundant on phones: every box carries its label */
+        .st-key-is_summary_head {
+            display: none !important;
+        }
+
+        [class*="st-key-is_summary_row_"] div[data-testid="stHorizontalBlock"] {
             flex-wrap: wrap !important;
         }
 
-        .is-summary-row div[data-testid="stColumn"] {
+        [class*="st-key-is_summary_row_"] div[data-testid="stColumn"] {
             min-width: calc(25% - 6px) !important;
             flex: 1 1 calc(25% - 6px) !important;
         }
 
-        .is-summary-row div[data-testid="stColumn"]:first-child {
+        [class*="st-key-is_summary_row_"] div[data-testid="stColumn"]:first-child {
             min-width: 100% !important;
             flex: 1 1 100% !important;
         }
 
-        .is-summary-header {
-            min-height: 38px;
-            font-size: 9px;
-        }
-
-        .is-summary-heading {
-            font-size: 19px;
-        }
+        .is-count-label { font-size: 7px; }
+        .is-summary-heading { font-size: 19px; }
     }
-    
+
     </style>
     """, unsafe_allow_html=True)
 
-
-    
-   
     # =====================================================
     # KPI CARDS
+    #
+    # Main page   : 4 status cards (ALL / FIXED / UNDER REVALIDATION /
+    #               FIXATION IN PROGRESS) -> open the detail page.
+    #
+    # Detail page : status = All  -> 8 cards
+    #               status = X    -> ALL + X + 4 severity cards
+    #
+    #   * Status card   -> selects that status (click again = back to All)
+    #   * Severity card -> selects that severity inside the status
+    #                      (click again = back to All)
+    #   * ALL card      -> shows everything inside the current status
+    #
+    # Card numbers are always counted inside the selected application
+    # and selected status, so they NEVER drop to zero just because you
+    # picked a severity.
     # =====================================================
 
     def render_issue_kpis(data, container_key, key_prefix, main_page=False):
 
-        all_specs = [
-            ("ALL", "All", "all"),
-            ("FIXED", "FIXED", "fixed"),
-            ("UNDER\nREVALIDATION", "UNDER REVALIDATION", "revalidation"),
-            ("FIXATION\nIN PROGRESS", "FIXATION IN PROGRESS", "progress"),
-            ("CRITICAL", "CRITICAL", "critical"),
-            ("HIGH", "HIGH", "high"),
-            ("MEDIUM", "MEDIUM", "medium"),
-            ("LOW", "LOW", "low"),
-        ]
+        base_counts = get_issue_counts(data)
 
-        selected_stage = st.session_state.get("is_issue_stage", "All")
-        counts = get_issue_counts(data)
-
-        # Main page: 4 status cards
         if main_page:
-            specs = all_specs[:4]
+            status = "All"
+            severity = "All"
+        else:
+            status = st.session_state.get("is_issue_status_filter", "All")
+            severity = st.session_state.get("is_issue_severity_filter", "All")
 
-        # Detail page: FIXED selected ho to ALL + FIXED + 4 severity cards
-        elif selected_stage == "FIXED":
-            specs = [
-                all_specs[0],
-                all_specs[1],
-                all_specs[4],
-                all_specs[5],
-                all_specs[6],
-                all_specs[7],
+            if status not in STATUS_META:
+                status = "All"
+
+            if severity not in SEVERITY_OPTIONS:
+                severity = "All"
+
+        # Data inside the selected status (used for severity counts)
+        if status == "All":
+            scope = data
+        else:
+            scope = data[
+                data["Status of Issue"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                == STATUS_META[status][2]
             ]
 
-            status_values = (
-                data["Status of Issue"].astype(str).str.strip().str.upper()
-            )
-            fixed_data = data[status_values == "FIXED"]
-            fixed_total = len(fixed_data)
+        scope_counts = get_issue_counts(scope)
 
-            counts = get_issue_counts(data)
+        def status_card(name, count):
+            label, suffix, _ = STATUS_META[name]
+            return (label, "status", name, count, suffix)
 
-            counts["All"] = fixed_total
-            counts["FIXED"] = fixed_total
+        severity_cards = [
+            ("CRITICAL", "severity", "CRITICAL", scope_counts["CRITICAL"], "critical"),
+            ("HIGH", "severity", "HIGH", scope_counts["HIGH"], "high"),
+            ("MEDIUM", "severity", "MEDIUM", scope_counts["MEDIUM"], "medium"),
+            ("LOW", "severity", "LOW", scope_counts["LOW"], "low"),
+        ]
 
-            # Baqi status aur severity cards ke actual counts bhi show hon
-            fixed_severity = fixed_data["Severity"].astype(str).str.strip().str.upper()
+        all_status_cards = [
+            status_card(name, base_counts[meta[2]])
+            for name, meta in STATUS_META.items()
+        ]
 
-            counts["CRITICAL"] = int((fixed_severity == "CRITICAL").sum())
-            counts["HIGH"] = int((fixed_severity == "HIGH").sum())
-            counts["MEDIUM"] = int((fixed_severity == "MEDIUM").sum())
-            counts["LOW"] = int((fixed_severity == "LOW").sum())
+        if main_page:
+            cards = [
+                ("ALL", "status", "All", base_counts["All"], "all")
+            ] + all_status_cards
+
+        elif status == "All":
+            cards = [
+                ("ALL", "all", "All", scope_counts["All"], "all")
+            ] + all_status_cards + severity_cards
 
         else:
-            specs = all_specs
+            cards = [
+                ("ALL", "all", "All", scope_counts["All"], "all"),
+                status_card(status, scope_counts["All"])
+            ] + severity_cards
 
-            if selected_stage != "All":
-                status_values = (
-                    data["Status of Issue"].astype(str).str.strip().str.upper()
+        def is_selected(kind, value):
+            if main_page:
+                return False
+            if kind == "all":
+                return severity == "All"
+            if kind == "status":
+                return status == value
+            return severity == value
+
+        # Per-card accent colour + highlight for the selected cards
+        css_rules = []
+
+        for label, kind, value, count, suffix in cards:
+            selector = (
+                f'.st-key-{container_key} .st-key-{key_prefix}_{suffix} '
+                f'div[data-testid="stButton"] button'
+            )
+
+            rule = f"border-top-color:{CARD_ACCENT[suffix]} !important;"
+
+            if is_selected(kind, value):
+                rule += (
+                    "background:#E3F3EA !important;"
+                    "border-left-color:#006747 !important;"
+                    "border-right-color:#006747 !important;"
+                    "border-bottom-color:#006747 !important;"
+                    "box-shadow:0 0 0 2px rgba(0,103,71,.30),"
+                    "0 7px 16px rgba(0,103,71,.16) !important;"
                 )
-                severity_values = (
-                    data["Severity"].astype(str).str.strip().str.upper()
-                )
 
-                if selected_stage == "UNDER REVALIDATION":
-                    filtered_data = data[
-                        status_values == "UNDER REVALIDATION"
-                    ]
-                elif selected_stage == "FIXATION IN PROGRESS":
-                    filtered_data = data[
-                        status_values == "FIXATION IN PROGRESS"
-                    ]
-                elif selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
-                    filtered_data = data[
-                        severity_values == selected_stage
-                    ]
-                else:
-                    filtered_data = data
+            css_rules.append(f"{selector}{{{rule}}}")
 
-                total = len(filtered_data)
-                counts = {key: 0 for key in counts}
-                counts["All"] = total
-                counts[selected_stage] = total
+        st.markdown(
+            "<style>" + "".join(css_rules) + "</style>",
+            unsafe_allow_html=True
+        )
 
         with st.container(key=container_key):
-            cols = st.columns(len(specs))
+            cols = st.columns(len(cards))
 
-            for col, (label, stage, suffix) in zip(cols, specs):
+            for col, (label, kind, value, count, suffix) in zip(cols, cards):
                 with col:
-                    if st.button(
-                        f"{label}\n{counts.get(stage, 0)}",
-                        key=f"{key_prefix}_{suffix}",
-                        use_container_width=True
-                    ):
-                        st.session_state["is_issue_stage"] = stage
+                    button_label = f"{label}\n{count}"
+                    button_key = f"{key_prefix}_{suffix}"
 
-                        if main_page:
-                            st.session_state["is_issue_application"] = "All"
-                            st.session_state["is_issue_view"] = "details"
-                            st.session_state["is_issue_search"] = ""
-                            st.session_state["is_issue_severity_filter"] = "All"
-                            st.session_state["is_issue_status_filter"] = "All"
+                    if main_page:
+                        st.button(
+                            button_label,
+                            key=button_key,
+                            use_container_width=True,
+                            on_click=is_go_to_details,
+                            kwargs={"application": "All", "status": value}
+                        )
 
-                        st.rerun()
+                    elif kind == "all":
+                        st.button(
+                            button_label,
+                            key=button_key,
+                            use_container_width=True,
+                            on_click=is_clear_severity
+                        )
 
+                    elif kind == "status":
+                        st.button(
+                            button_label,
+                            key=button_key,
+                            use_container_width=True,
+                            on_click=is_toggle_status,
+                            args=(value,)
+                        )
 
-
+                    else:
+                        st.button(
+                            button_label,
+                            key=button_key,
+                            use_container_width=True,
+                            on_click=is_toggle_severity,
+                            args=(value,)
+                        )
 
     # =====================================================
     # SUMMARY VIEW
@@ -10534,7 +11650,7 @@ elif page == "IS Issues":
 
         render_issue_kpis(
             df.copy(),
-            "dashboard_kpis",
+            "is_main_kpis",
             "is_main",
             main_page=True
         )
@@ -10552,26 +11668,22 @@ elif page == "IS Issues":
             unsafe_allow_html=True
         )
 
-        if st.button(
+        st.button(
             "📋 All Issues — View Every Category",
             key="is_open_all_issues",
             type="primary",
-            use_container_width=True
-        ):
-            st.session_state["is_issue_application"] = "All"
-            st.session_state["is_issue_stage"] = "All"
-            st.session_state["is_issue_view"] = "details"
-            st.session_state["is_issue_search"] = ""
-            st.session_state["is_issue_severity_filter"] = "All"
-            st.session_state["is_issue_status_filter"] = "All"
-            st.rerun()
+            use_container_width=True,
+            on_click=is_go_to_details,
+            kwargs={"application": "All", "status": "All"}
+        )
 
         group_names = sorted(
             df["Application Name"].dropna().unique().tolist(),
             key=str.casefold
         )
 
-        widths = [3.0, 0.9, 1.0, 1.4, 1.5, 0.9, 0.8, 0.8, 0.8]
+        # One wide name column + 8 EQUAL count columns
+        widths = [2.6, 1, 1, 1, 1, 1, 1, 1, 1]
 
         headers = [
             "ISSUE NAME",
@@ -10585,14 +11697,26 @@ elif page == "IS Issues":
             "LOW"
         ]
 
-        header_cols = st.columns(widths)
+        with st.container(key="is_summary_head", border=False):
+            header_cols = st.columns(widths)
 
-        for col, label in zip(header_cols, headers):
-            with col:
-                st.markdown(
-                    f'<div class="is-summary-header">{label}</div>',
-                    unsafe_allow_html=True
-                )
+            for col, label in zip(header_cols, headers):
+                with col:
+                    st.markdown(
+                        f'<div class="is-summary-header">{label}</div>',
+                        unsafe_allow_html=True
+                    )
+
+        summary_specs = [
+            ("All", ""),
+            ("FIXED", "is-count-fixed"),
+            ("UNDER REVALIDATION", "is-count-revalidation"),
+            ("FIXATION IN PROGRESS", "is-count-progress"),
+            ("CRITICAL", "is-count-critical"),
+            ("HIGH", "is-count-high"),
+            ("MEDIUM", "is-count-medium"),
+            ("LOW", "is-count-low")
+        ]
 
         for index, app_name in enumerate(group_names):
 
@@ -10604,36 +11728,19 @@ elif page == "IS Issues":
 
             with st.container(
                 key=f"is_summary_row_{index}",
-                border=True
+                border=False
             ):
                 row = st.columns(widths)
 
                 with row[0]:
-                    if st.button(
+                    st.button(
                         f"📂 {app_name}",
                         key=f"is_group_{index}",
-                        use_container_width=True
-                    ):
-                        st.session_state["is_issue_application"] = app_name
-                        st.session_state["is_issue_stage"] = "All"
-                        st.session_state["is_issue_view"] = "details"
-                        st.session_state["is_issue_search"] = ""
-                        st.session_state["is_issue_severity_filter"] = "All"
-                        st.session_state["is_issue_status_filter"] = "All"
-                        st.rerun()
-
-                
-                summary_specs = [
-                        ("All", ""),
-                        ("FIXED", "is-count-fixed"),
-                        ("UNDER REVALIDATION", "is-count-revalidation"),
-                        ("FIXATION IN PROGRESS", "is-count-progress"),
-                        ("CRITICAL", "is-count-critical"),
-                        ("HIGH", "is-count-high"),
-                        ("MEDIUM", "is-count-medium"),
-                        ("LOW", "is-count-low")
-                    ]
-
+                        use_container_width=True,
+                        help=app_name,
+                        on_click=is_go_to_details,
+                        kwargs={"application": app_name, "status": "All"}
+                    )
 
                 for j, (count_key, css_class) in enumerate(summary_specs):
                     with row[j + 1]:
@@ -10656,18 +11763,12 @@ elif page == "IS Issues":
         back_col, title_col = st.columns([1.5, 4])
 
         with back_col:
-            if st.button(
+            st.button(
                 "← Back to Summary",
                 key="is_issue_back",
-                use_container_width=True
-            ):
-                st.session_state["is_issue_view"] = "summary"
-                st.session_state["is_issue_application"] = "All"
-                st.session_state["is_issue_stage"] = "All"
-                st.session_state["is_issue_search"] = ""
-                st.session_state["is_issue_severity_filter"] = "All"
-                st.session_state["is_issue_status_filter"] = "All"
-                st.rerun()
+                use_container_width=True,
+                on_click=is_go_to_summary
+            )
 
         with title_col:
             title_text = "All Issues" if selected_app == "All" else selected_app
@@ -10686,8 +11787,9 @@ elif page == "IS Issues":
 
         st.markdown(
             '<div class="is-summary-subtitle">'
-            'Click a KPI card to filter the table. Counts are based on '
-            'the selected application.'
+            'Click a status card, then a severity card, to narrow the table. '
+            'ALL shows everything inside the selected status. '
+            'Counts are based on the selected application.'
             '</div>',
             unsafe_allow_html=True
         )
@@ -10699,10 +11801,8 @@ elif page == "IS Issues":
             main_page=False
         )
 
-        selected_stage = st.session_state["is_issue_stage"]
-
         # =================================================
-        # FILTER CONTROLS
+        # FILTER CONTROLS  (same keys the KPI cards write to)
         # =================================================
 
         f1, f2, f3 = st.columns(3)
@@ -10717,19 +11817,14 @@ elif page == "IS Issues":
         with f2:
             severity_filter = st.selectbox(
                 "Severity Filter",
-                ["All", "CRITICAL", "HIGH", "MEDIUM", "LOW"],
+                SEVERITY_OPTIONS,
                 key="is_issue_severity_filter"
             )
 
         with f3:
             status_filter = st.selectbox(
                 "Status Filter",
-                [
-                    "All",
-                    "Fixed",
-                    "Under Revalidation",
-                    "Fixation in Progress"
-                ],
+                STATUS_OPTIONS,
                 key="is_issue_status_filter"
             )
 
@@ -10739,26 +11834,15 @@ elif page == "IS Issues":
 
         filtered_df = detail_base_df.copy()
 
-        if selected_stage == "FIXED":
-            filtered_df = filtered_df[
-                filtered_df["Status of Issue"].str.upper() == "FIXED"
-            ]
-
-        elif selected_stage == "UNDER REVALIDATION":
+        if status_filter != "All":
             filtered_df = filtered_df[
                 filtered_df["Status of Issue"].str.upper()
-                == "UNDER REVALIDATION"
+                == status_filter.upper()
             ]
 
-        elif selected_stage == "FIXATION IN PROGRESS":
+        if severity_filter != "All":
             filtered_df = filtered_df[
-                filtered_df["Status of Issue"].str.upper()
-                == "FIXATION IN PROGRESS"
-            ]
-
-        elif selected_stage in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
-            filtered_df = filtered_df[
-                filtered_df["Severity"].str.upper() == selected_stage
+                filtered_df["Severity"].str.upper() == severity_filter
             ]
 
         if search:
@@ -10773,17 +11857,6 @@ elif page == "IS Issues":
                 )
 
             filtered_df = filtered_df[search_mask]
-
-        if severity_filter != "All":
-            filtered_df = filtered_df[
-                filtered_df["Severity"].str.upper() == severity_filter
-            ]
-
-        if status_filter != "All":
-            filtered_df = filtered_df[
-                filtered_df["Status of Issue"].str.upper()
-                == status_filter.upper()
-            ]
 
         # =================================================
         # RESULT COUNT + CSV
@@ -10803,7 +11876,8 @@ elif page == "IS Issues":
                     font-weight:700;
                     overflow-wrap:anywhere;">
                     Showing {len(filtered_df)} issue(s)
-                    &nbsp; | &nbsp; KPI: {html.escape(selected_stage)}
+                    &nbsp; | &nbsp; Status: {html.escape(status_filter)}
+                    &nbsp; | &nbsp; Severity: {html.escape(severity_filter)}
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -11010,6 +12084,21 @@ elif page == "IS Issues":
                 st.session_state["is_issues_edit_mode"] = False
                 st.session_state.pop("is_issues_editor", None)
                 st.rerun()
+
+    # =====================================================
+    # SCROLL TO TOP
+    # Runs only when the view changed (summary <-> details),
+    # exactly like the other pages open from the top.
+    # =====================================================
+
+    if st.session_state.get("is_issue_scroll_top", False):
+        st.session_state["is_issue_scroll_top"] = False
+        st.session_state["is_issue_scroll_nonce"] = (
+            st.session_state.get("is_issue_scroll_nonce", 0) + 1
+        )
+        scroll_main_to_top(
+            f"is-issues-{st.session_state['is_issue_scroll_nonce']}"
+        )
 
 # =====================================================
 # CRPL
