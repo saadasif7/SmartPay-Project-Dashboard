@@ -75,5 +75,19 @@
     "End / Pending With": "At 1 Link End",
     "Team Member": "Adnan Younis",
     "Status": "Closed"
+  },
+  {
+    "Issue": "BT Payments UBCS Bulk",
+    "Update": "Response awaited from CRPL",
+    "End / Pending With": "At CRPL End",
+    "Team Member": "Saad Asif",
+    "Status": "Active"
+  },
+  {
+    "Issue": "PTCL Bill fetch issue",
+    "Update": "At 1 Link End",
+    "End / Pending With": "At 1 Link end",
+    "Team Member": "Afzal",
+    "Status": "Active"
   }
 ]
