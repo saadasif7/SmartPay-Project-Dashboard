@@ -4,7 +4,7 @@
     "Update": "Response Pending from 1 Link",
     "End / Pending With": "At 1 Link End",
     "Team Member": "Saad Asif ",
-    "Status": "Active"
+    "Status": "Closed"
   },
   {
     "Issue": "UAT Issues",
@@ -81,13 +81,13 @@
     "Update": "Response awaited from CRPL",
     "End / Pending With": "At CRPL End",
     "Team Member": "Saad Asif",
-    "Status": "Active"
+    "Status": "Closed"
   },
   {
     "Issue": "PTCL Bill fetch issue",
     "Update": "At 1 Link End",
     "End / Pending With": "At 1 Link end",
     "Team Member": "Afzal",
-    "Status": "Active"
+    "Status": "Closed"
   }
 ]
