@@ -1,0 +1,16 @@
+{
+  "users": {
+    "saad.asif": {
+      "active": true,
+      "created": "2026-11-18 22:03",
+      "full_name": "Administrator",
+      "hash": "7c8a48a0b7ee36fcc6a209ed850fdc40fcf9a2a1d8d96d54b3b218f84565a2a9",
+      "iters": 390000,
+      "must_change": false,
+      "role": "admin",
+      "salt": "adcd54cb2f63ecdbbf1f283fb91834d6",
+      "updated": "2026-11-18 22:03"
+    }
+  },
+  "version": 1
+}
