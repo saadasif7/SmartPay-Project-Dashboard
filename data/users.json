@@ -65,6 +65,17 @@
       "role": "admin",
       "salt": "adcd54cb2f63ecdbbf1f283fb91834d6",
       "updated": "2026-11-18 22:03"
+    },
+    "sania.malik": {
+      "active": true,
+      "created": "2026-11-22 18:39",
+      "full_name": "Sania Malik",
+      "hash": "c55fd118d30cad6614963cca0692075e475355d682742aed446ce16034acc73d",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "f33558719165e7051c1fe49d3bef955e",
+      "updated": "2026-11-22 18:39"
     }
   },
   "version": 1
