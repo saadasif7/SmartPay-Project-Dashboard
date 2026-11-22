@@ -81,12 +81,12 @@
       "active": true,
       "created": "2026-11-22 18:42",
       "full_name": "Muneeb ul Hassan",
-      "hash": "524acd1fafb3934cb820bd712ea489848c78c9c0f035c128ffa37178ddd3a8ef",
+      "hash": "0d4bda55d8086144556fe876e12f0cce6d9a71b6f304265eb18e804bcd6ac73f",
       "iters": 390000,
-      "must_change": true,
+      "must_change": false,
       "role": "user",
-      "salt": "857a23cef9153976c019f294094f8364",
-      "updated": "2026-11-22 18:42"
+      "salt": "f61c670415942b940a937a219b358164",
+      "updated": "2026-11-22 18:55"
     },
     "saad.asif": {
       "active": true,
