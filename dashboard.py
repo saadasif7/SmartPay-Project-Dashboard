@@ -1307,6 +1307,3369 @@ div[data-testid="stButton"] button p {
 """, unsafe_allow_html=True)
 
 
+# =====================================================================
+# ★★★  NEW MODULES (added)  ★★★
+#   1. Secure login & user management
+#   2. Deadlines & Project Calendar
+#   3. AI Assistant (free, runs on your own dashboard data)
+#
+# Everything below is self-contained. Names are prefixed "sp_" / "SP_"
+# so nothing clashes with the existing dashboard code.
+# =====================================================================
+
+import hashlib as _hashlib
+import hmac as _hmac
+import secrets as _pysecrets
+import threading as _threading
+import time as _time
+import re as _re
+import html as _html
+import calendar as _pycal
+import urllib.parse as _urlq
+
+
+# =====================================================
+# CONFIGURATION
+# =====================================================
+
+SP_USERS_PATH = "data/users.json"          # path inside the GitHub repo
+SP_USERS_LOCAL = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "data",
+    "users.json"
+)                                          # used only when no GITHUB_TOKEN
+SP_PBKDF2_ITERS = 390_000                  # password hashing cost
+SP_MAX_FAILS = 5                           # failed logins before lock-out
+SP_LOCK_SECONDS = 300                      # lock-out length (5 minutes)
+SP_USERNAME_RE = _re.compile(r"^[a-z0-9._-]{3,32}$")
+
+
+class SPStoreError(Exception):
+    """User store could not be read / written."""
+
+
+class SPSetupError(Exception):
+    """Required secrets are missing."""
+
+
+# =====================================================
+# SMALL HELPERS
+# =====================================================
+
+def sp_secret(name, default=""):
+
+    try:
+        value = st.secrets.get(name, default)
+    except Exception:
+        value = default
+
+    if value is None:
+        return default
+
+    return str(value).strip()
+
+
+def sp_now_iso():
+
+    return pd.Timestamp.now(
+        tz="Asia/Karachi"
+    ).strftime("%Y-%m-%d %H:%M")
+
+
+def sp_today():
+
+    return pd.Timestamp.now(
+        tz="Asia/Karachi"
+    ).tz_localize(None).normalize()
+
+
+def sp_idle_minutes():
+
+    try:
+        return max(5, int(sp_secret("SESSION_TIMEOUT_MIN", "30")))
+    except Exception:
+        return 30
+
+
+# =====================================================
+# USER STORE  (GitHub file when GITHUB_TOKEN exists,
+#              otherwise a local JSON file)
+# =====================================================
+
+def sp_users_url():
+
+    return (
+        f"https://api.github.com/repos/"
+        f"{DAILY_ISSUES_REPO}/contents/{SP_USERS_PATH}"
+    )
+
+
+def sp_store_read():
+    """Return (users_dict_or_None, sha_or_None). None = file missing."""
+
+    token = get_github_token()
+
+    if token:
+
+        try:
+            response = requests.get(
+                sp_users_url(),
+                headers=github_headers(),
+                params={"ref": DAILY_ISSUES_BRANCH},
+                timeout=15
+            )
+        except Exception as e:
+            raise SPStoreError(f"Cannot reach GitHub: {e}")
+
+        if response.status_code == 404:
+            return None, None
+
+        if response.status_code != 200:
+            raise SPStoreError(
+                f"GitHub returned status {response.status_code}"
+            )
+
+        try:
+            result = response.json()
+            raw = base64.b64decode(
+                result.get("content", "").replace("\n", "")
+            ).decode("utf-8")
+            data = json.loads(raw)
+        except Exception as e:
+            raise SPStoreError(f"User file is unreadable: {e}")
+
+        return data.get("users", {}), result.get("sha")
+
+    # ---------------- local file ----------------
+
+    if not os.path.exists(SP_USERS_LOCAL):
+        return None, None
+
+    try:
+        with open(SP_USERS_LOCAL, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        raise SPStoreError(f"User file is unreadable: {e}")
+
+    return data.get("users", {}), None
+
+
+def sp_store_write(users, sha):
+
+    text = json.dumps(
+        {"version": 1, "users": users},
+        indent=2,
+        sort_keys=True
+    )
+
+    token = get_github_token()
+
+    if token:
+
+        body = {
+            "message": "Update dashboard users",
+            "content": base64.b64encode(
+                text.encode("utf-8")
+            ).decode("ascii"),
+            "branch": DAILY_ISSUES_BRANCH
+        }
+
+        if sha:
+            body["sha"] = sha
+
+        try:
+            response = requests.put(
+                sp_users_url(),
+                headers=github_headers(),
+                json=body,
+                timeout=20
+            )
+        except Exception as e:
+            raise SPStoreError(f"Cannot reach GitHub: {e}")
+
+        if response.status_code not in (200, 201):
+            raise SPStoreError(
+                f"GitHub refused the save (status {response.status_code}). "
+                "Please try again."
+            )
+
+        return
+
+    # ---------------- local file ----------------
+
+    os.makedirs(os.path.dirname(SP_USERS_LOCAL), exist_ok=True)
+    tmp = SP_USERS_LOCAL + ".tmp"
+
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+
+    try:
+        os.chmod(tmp, 0o600)
+    except Exception:
+        pass
+
+    os.replace(tmp, SP_USERS_LOCAL)
+
+
+@st.cache_data(ttl=30, show_spinner=False)
+def sp_users_cached():
+
+    users, _sha = sp_store_read()
+
+    return users
+
+
+def sp_mutate_users(change_fn):
+    """Read fresh -> apply change_fn(users) -> save. Raises ValueError."""
+
+    users, sha = sp_store_read()
+    users = users or {}
+
+    change_fn(users)
+
+    sp_store_write(users, sha)
+    sp_users_cached.clear()
+
+
+# =====================================================
+# PASSWORDS
+# =====================================================
+
+def sp_hash_password(password, salt=None, iters=SP_PBKDF2_ITERS):
+
+    salt = salt or os.urandom(16)
+
+    digest = _hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt,
+        iters
+    )
+
+    return {
+        "salt": salt.hex(),
+        "hash": digest.hex(),
+        "iters": iters
+    }
+
+
+def sp_verify_password(password, record):
+
+    try:
+        digest = _hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode("utf-8"),
+            bytes.fromhex(record["salt"]),
+            int(record["iters"])
+        )
+        return _hmac.compare_digest(
+            digest.hex(),
+            str(record["hash"])
+        )
+    except Exception:
+        return False
+
+
+def sp_password_problem(password, username=""):
+    """Return a message if the password is weak, else ''."""
+
+    if len(password) < 10:
+        return "Password must be at least 10 characters."
+
+    if len(password) > 128:
+        return "Password is too long (max 128 characters)."
+
+    if not _re.search(r"[A-Za-z]", password) \
+            or not _re.search(r"\d", password):
+        return "Password must contain letters and numbers."
+
+    if username and username.lower() in password.lower():
+        return "Password must not contain the username."
+
+    return ""
+
+
+def sp_generate_password():
+
+    alphabet = (
+        "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        "abcdefghijkmnpqrstuvwxyz"
+        "23456789"
+    )
+
+    while True:
+        pw = "".join(
+            _pysecrets.choice(alphabet) for _ in range(12)
+        )
+        if sp_password_problem(pw) == "":
+            return pw
+
+
+def sp_make_user(full_name, password, role, must_change):
+
+    record = {
+        "full_name": full_name.strip()[:60],
+        "role": role,
+        "active": True,
+        "must_change": bool(must_change),
+        "created": sp_now_iso(),
+        "updated": sp_now_iso()
+    }
+
+    record.update(sp_hash_password(password))
+
+    return record
+
+
+# =====================================================
+# FIRST-RUN ADMIN (from Streamlit secrets)
+# =====================================================
+
+def sp_ensure_admin():
+    """Make sure at least one ACTIVE admin exists. Returns users dict."""
+
+    users = sp_users_cached()
+
+    def has_admin(u):
+        return any(
+            rec.get("role") == "admin" and rec.get("active")
+            for rec in (u or {}).values()
+        )
+
+    if has_admin(users):
+        return users
+
+    admin_user = sp_secret("ADMIN_USERNAME", "admin").lower()
+    admin_pass = sp_secret("ADMIN_PASSWORD")
+
+    if not SP_USERNAME_RE.match(admin_user) or not admin_pass:
+        raise SPSetupError(
+            "ADMIN_USERNAME / ADMIN_PASSWORD are missing in secrets."
+        )
+
+    problem = sp_password_problem(admin_pass, admin_user)
+
+    if problem:
+        raise SPSetupError(f"ADMIN_PASSWORD is too weak: {problem}")
+
+    fresh, sha = sp_store_read()
+    fresh = fresh or {}
+
+    if not has_admin(fresh):
+
+        fresh[admin_user] = sp_make_user(
+            "Administrator",
+            admin_pass,
+            "admin",
+            False
+        )
+
+        sp_store_write(fresh, sha)
+
+    sp_users_cached.clear()
+
+    return sp_users_cached()
+
+
+# =====================================================
+# BRUTE-FORCE PROTECTION (in server memory)
+# =====================================================
+
+@st.cache_resource
+def sp_attempt_registry():
+
+    return {"lock": _threading.Lock(), "data": {}}
+
+
+def sp_lock_remaining(username):
+
+    reg = sp_attempt_registry()
+
+    with reg["lock"]:
+        entry = reg["data"].get(username[:64])
+
+        if not entry:
+            return 0
+
+        left = int(entry["until"] - _time.time())
+
+        return left if left > 0 else 0
+
+
+def sp_register_failure(username):
+
+    reg = sp_attempt_registry()
+    key = username[:64]
+    now = _time.time()
+
+    with reg["lock"]:
+
+        if len(reg["data"]) > 5000:
+            reg["data"] = {
+                k: v for k, v in reg["data"].items()
+                if v["until"] > now or v["count"] > 0
+            }
+
+        entry = reg["data"].setdefault(
+            key,
+            {"count": 0, "until": 0, "last": now}
+        )
+
+        # forget old failures after the lock window
+        if now - entry["last"] > SP_LOCK_SECONDS:
+            entry["count"] = 0
+
+        entry["count"] += 1
+        entry["last"] = now
+
+        if entry["count"] >= SP_MAX_FAILS:
+            entry["until"] = now + SP_LOCK_SECONDS
+            entry["count"] = 0
+
+
+def sp_clear_failures(username):
+
+    reg = sp_attempt_registry()
+
+    with reg["lock"]:
+        reg["data"].pop(username[:64], None)
+
+
+# =====================================================
+# LOGIN / SESSION
+# =====================================================
+
+SP_DUMMY_RECORD = None
+
+
+def sp_try_login(username, password):
+    """Return (ok, message)."""
+
+    global SP_DUMMY_RECORD
+
+    username = (username or "").strip().lower()
+
+    if not username or not password:
+        return False, "Enter your username and password."
+
+    wait = sp_lock_remaining(username)
+
+    if wait:
+        return False, (
+            f"Too many failed attempts. "
+            f"Try again in {max(1, wait // 60 + 1)} minute(s)."
+        )
+
+    users = sp_users_cached() or {}
+    record = users.get(username)
+
+    if record is None:
+        # same work as a real check -> no timing clues
+        if SP_DUMMY_RECORD is None:
+            SP_DUMMY_RECORD = sp_hash_password("not-a-real-password")
+        sp_verify_password(password, SP_DUMMY_RECORD)
+        ok = False
+    else:
+        ok = sp_verify_password(password, record) \
+            and bool(record.get("active"))
+
+    if not ok:
+        sp_register_failure(username)
+        return False, (
+            "Invalid username or password, "
+            "or the account is deactivated."
+        )
+
+    sp_clear_failures(username)
+
+    st.session_state["sp_auth"] = {
+        "username": username,
+        "last_seen": _time.time()
+    }
+
+    return True, ""
+
+
+def sp_logout(message=""):
+
+    st.session_state.clear()
+
+    if message:
+        st.session_state["sp_flash_login"] = message
+
+    st.rerun()
+
+
+def sp_current_user():
+    """Validated user for this session, or None."""
+
+    auth = st.session_state.get("sp_auth")
+
+    if not auth:
+        return None
+
+    now = _time.time()
+
+    if now - auth.get("last_seen", 0) > sp_idle_minutes() * 60:
+        st.session_state.clear()
+        st.session_state["sp_flash_login"] = (
+            "You were signed out after a period of inactivity."
+        )
+        return None
+
+    record = (sp_users_cached() or {}).get(auth["username"])
+
+    if not record or not record.get("active"):
+        st.session_state.clear()
+        st.session_state["sp_flash_login"] = (
+            "Your account is no longer active."
+        )
+        return None
+
+    auth["last_seen"] = now
+
+    return {
+        "username": auth["username"],
+        "full_name": record.get("full_name", ""),
+        "role": record.get("role", "user"),
+        "must_change": bool(record.get("must_change"))
+    }
+
+
+# =====================================================
+# LOGIN PAGE
+# =====================================================
+
+def sp_auth_css():
+
+    st.markdown("""
+    <style>
+    .sp-login-title{
+        text-align:center;color:#006747;font-size:26px;
+        font-weight:800;margin:6px 0 0 0;
+        font-family:Segoe UI,Arial,sans-serif;
+    }
+    .sp-login-sub{
+        text-align:center;color:#6B7280;font-size:12px;
+        letter-spacing:1.4px;font-weight:700;margin-bottom:12px;
+    }
+    .sp-login-note{
+        text-align:center;color:#6B7280;font-size:11px;margin-top:10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def sp_render_login():
+
+    sp_auth_css()
+
+    left, mid, right = st.columns([1, 1.25, 1])
+
+    with mid:
+
+        st.markdown("<div style='height:40px'></div>",
+                    unsafe_allow_html=True)
+
+        if os.path.exists("smartpay_logo/smartpay_logo.png"):
+            st.image("smartpay_logo/smartpay_logo.png", width=220)
+
+        st.markdown(
+            "<div class='sp-login-title'>🏦 SmartPay Dashboard</div>"
+            "<div class='sp-login-sub'>SECURE SIGN IN</div>",
+            unsafe_allow_html=True
+        )
+
+        flash = st.session_state.pop("sp_flash_login", "")
+
+        if flash:
+            st.info(flash)
+
+        with st.form("sp_login_form", clear_on_submit=True):
+
+            username = st.text_input(
+                "Username",
+                key="sp_login_user",
+                autocomplete="username"
+            )
+
+            password = st.text_input(
+                "Password",
+                type="password",
+                key="sp_login_pw",
+                autocomplete="current-password"
+            )
+
+            submitted = st.form_submit_button(
+                "Sign in",
+                use_container_width=True
+            )
+
+        if submitted:
+
+            ok, message = sp_try_login(username, password)
+
+            if ok:
+                st.rerun()
+            else:
+                st.error(message)
+
+        st.markdown(
+            "<div class='sp-login-note'>Authorised NBP users only. "
+            "Contact the dashboard administrator for access.</div>",
+            unsafe_allow_html=True
+        )
+
+
+def sp_render_force_change(user):
+
+    sp_auth_css()
+
+    left, mid, right = st.columns([1, 1.25, 1])
+
+    with mid:
+
+        st.markdown(
+            "<div style='height:40px'></div>"
+            "<div class='sp-login-title'>🔑 Set a new password</div>"
+            "<div class='sp-login-sub'>REQUIRED BEFORE CONTINUING</div>",
+            unsafe_allow_html=True
+        )
+
+        sp_password_change_form(user, "sp_force", forced=True)
+
+        if st.button("Sign out", key="sp_force_logout"):
+            sp_logout()
+
+
+def sp_password_change_form(user, key, forced=False):
+
+    with st.form(f"{key}_form", clear_on_submit=True):
+
+        current = st.text_input(
+            "Current password",
+            type="password",
+            key=f"{key}_cur"
+        )
+
+        new1 = st.text_input(
+            "New password (min 10 characters, letters + numbers)",
+            type="password",
+            key=f"{key}_new1"
+        )
+
+        new2 = st.text_input(
+            "Confirm new password",
+            type="password",
+            key=f"{key}_new2"
+        )
+
+        go = st.form_submit_button(
+            "Update password",
+            use_container_width=True
+        )
+
+    if not go:
+        return
+
+    users = sp_users_cached() or {}
+    record = users.get(user["username"])
+
+    if not record or not sp_verify_password(current, record):
+        st.error("Current password is incorrect.")
+        return
+
+    if new1 != new2:
+        st.error("The new passwords do not match.")
+        return
+
+    if new1 == current:
+        st.error("The new password must be different.")
+        return
+
+    problem = sp_password_problem(new1, user["username"])
+
+    if problem:
+        st.error(problem)
+        return
+
+    def change(all_users):
+
+        rec = all_users.get(user["username"])
+
+        if not rec:
+            raise ValueError("Account not found.")
+
+        rec.update(sp_hash_password(new1))
+        rec["must_change"] = False
+        rec["updated"] = sp_now_iso()
+
+    try:
+        sp_mutate_users(change)
+    except (ValueError, SPStoreError) as e:
+        st.error(str(e))
+        return
+
+    st.success("Password updated.")
+
+    if forced:
+        st.rerun()
+
+
+# =====================================================
+# GATE - call once, before any data is loaded
+# =====================================================
+
+def sp_require_login():
+
+    # Running with plain `python dashboard.py` cannot work - explain clearly
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        if get_script_run_ctx() is None:
+            print("\nThis is a Streamlit app. Start it with:\n"
+                  "    streamlit run dashboard.py\n")
+            raise SystemExit(1)
+    except ImportError:
+        pass
+
+    try:
+        sp_ensure_admin()
+
+    except SPSetupError as e:
+
+        sp_auth_css()
+        st.error("🔒 Login is not configured yet.")
+        st.markdown(
+            f"{e}\n\nAdd these to **Settings → Secrets** "
+            "(or `.streamlit/secrets.toml`):\n"
+            "```toml\n"
+            "ADMIN_USERNAME = \"admin\"\n"
+            "ADMIN_PASSWORD = \"choose-a-strong-password-123\"\n"
+            "```"
+        )
+        st.stop()
+
+    except SPStoreError as e:
+
+        st.error(
+            "🔒 The user store is temporarily unavailable, "
+            "so sign-in is disabled for safety. "
+            f"Please try again shortly. ({e})"
+        )
+        st.stop()
+
+    user = sp_current_user()
+
+    if user is None:
+        sp_render_login()
+        st.stop()
+
+    if user["must_change"]:
+        sp_render_force_change(user)
+        st.stop()
+
+    return user
+
+
+# =====================================================
+# ACCOUNT MENU  -  the round badge in the header of every page
+# =====================================================
+
+def sp_initials(user):
+
+    if user["role"] == "admin":
+        return "ADM"
+
+    words = (user["full_name"] or user["username"]).replace(".", " ") \
+        .replace("_", " ").replace("-", " ").split()
+
+    letters = "".join(w[0] for w in words[:2]).upper()
+
+    return letters or "U"
+
+
+SP_ACCT_RENDERED = False      # reset on every script run
+
+
+def sp_render_account_menu(user, gap="0.9rem"):
+    """Invisible popover laid exactly over the header's round badge."""
+
+    global SP_ACCT_RENDERED
+
+    if SP_ACCT_RENDERED:          # header may be drawn twice in one run
+        return
+
+    SP_ACCT_RENDERED = True
+
+    st.html(
+        "<style>"
+        ".st-key-sp_acct{position:relative;height:0;overflow:visible;"
+        "z-index:60;}"
+        ".st-key-sp_acct [data-testid='stPopover']{position:absolute;"
+        f"right:23px;top:calc({gap} + 17px);width:34px;}}"
+        ".st-key-sp_acct [data-testid='stPopover'] button{width:34px;"
+        "height:34px;min-height:34px;padding:0;border-radius:50%;"
+        "opacity:0;cursor:pointer;}"
+        "</style>"
+    )
+
+    with st.container(key="sp_acct"):
+
+        with st.popover("👤"):
+
+            role_text = (
+                "Administrator" if user["role"] == "admin" else "User"
+            )
+
+            st.markdown(
+                f"**{_html.escape(user['full_name'] or user['username'])}**"
+                f"  \n{role_text} · `{user['username']}`"
+            )
+
+            with st.expander("🔑 Change my password"):
+                sp_password_change_form(user, "sp_self")
+
+            if st.button(
+                "🚪 Sign out",
+                key="sp_signout",
+                use_container_width=True
+            ):
+                sp_logout()
+
+
+# =====================================================================
+# PROJECT DATE LOGIC (shared by Calendar page and AI Assistant)
+# =====================================================================
+
+SP_DONE = {"LIVE", "BAU"}                          # no deadline pending
+SP_UAT_OR_LATER = {"UAT", "IS REVIEW", "CMC", "LIVE", "BAU"}
+SP_COMPLETED = {"LIVE"}                            # counted as "completed"
+
+SP_ADDED_NAMES = (
+    "date", "date added", "added date", "created date", "created",
+    "start date", "received date", "request date"
+)
+SP_LIVE_NAMES = (
+    "live date", "go live date", "go-live date", "golive date",
+    "production date", "deployment date", "planned live date"
+)
+
+
+def sp_to_dt(series):
+
+    try:
+        out = pd.to_datetime(series, errors="coerce", format="mixed")
+    except (TypeError, ValueError):
+        out = pd.to_datetime(series, errors="coerce")
+
+    return out.dt.normalize()
+
+
+def sp_split_members(value):
+
+    parts = _re.split(r"[,/&;+\n]|\band\b", str(value), flags=_re.I)
+
+    skip = {"", "nan", "none", "-", "n/a", "na", "tbd", "nat"}
+
+    return [
+        x.strip() for x in parts
+        if x.strip().lower() not in skip
+    ]
+
+
+def sp_project_frame(df):
+    """Normalised copy of the project data with parsed dates."""
+
+    p = df.copy().reset_index(drop=True)
+
+    for col in ("Mandate", "Allocation", "Category", "Status", "Update"):
+
+        if col not in p.columns:
+            p[col] = ""
+
+        p[col] = (
+            p[col].fillna("").astype(str).str.strip()
+            .replace({"nan": "", "NaT": "", "None": ""})
+        )
+
+    p["_status"] = p["Status"].str.upper()
+
+    names = {str(c): str(c).strip().lower() for c in p.columns}
+
+    added = next(
+        (c for c, n in names.items() if n in SP_ADDED_NAMES), None
+    )
+
+    live = next(
+        (c for c, n in names.items() if n in SP_LIVE_NAMES), None
+    ) or next(
+        (c for c, n in names.items() if "live" in n and "date" in n),
+        None
+    )
+
+    uat = next(
+        (c for c, n in names.items() if "uat" in n and "date" in n),
+        None
+    )
+
+    empty = pd.Series(pd.NaT, index=p.index, dtype="datetime64[ns]")
+
+    p["_added"] = sp_to_dt(p[added]) if added else empty
+    p["_live"] = sp_to_dt(p[live]) if live else empty
+    p["_uat"] = sp_to_dt(p[uat]) if uat else empty
+
+    p["_members"] = p["Allocation"].apply(sp_split_members)
+
+    p.attrs["has_uat"] = uat is not None
+    p.attrs["uat_col"] = uat
+    p.attrs["live_col"] = live
+    p.attrs["added_col"] = added
+
+    return p
+
+
+def sp_filter_member(p, member):
+
+    if not member:
+        return p
+
+    m = member.strip().lower()
+
+    mask = p["_members"].apply(
+        lambda names: any(n.lower() == m for n in names)
+    )
+
+    return p[mask]
+
+
+def sp_fmt_date(value):
+
+    if pd.isna(value):
+        return ""
+
+    return value.strftime("%d %b %Y")
+
+
+def sp_view(p, extra=None):
+    """Display table for a set of projects."""
+
+    out = pd.DataFrame({
+        "Project": p["Mandate"],
+        "Team Member": p["Allocation"],
+        "Category": p["Category"],
+        "Status": p["Status"],
+        "Added": p["_added"].apply(sp_fmt_date),
+        "UAT Date": p["_uat"].apply(sp_fmt_date),
+        "Live Date": p["_live"].apply(sp_fmt_date),
+    })
+
+    if not p.attrs.get("has_uat", True) and "UAT Date" in out:
+        out = out.drop(columns=["UAT Date"])
+
+    if extra:
+        for name, series in extra.items():
+            out[name] = series
+
+    return out.reset_index(drop=True)
+
+
+def sp_pending(p):
+
+    return p[~p["_status"].isin(SP_DONE)]
+
+
+def sp_upcoming_uat(p, today, days):
+
+    if not p.attrs.get("has_uat", False):
+        return p.iloc[0:0]
+
+    end = today + pd.Timedelta(days=days)
+    pend = sp_pending(p)
+
+    m = pend[
+        pend["_uat"].notna()
+        & (pend["_uat"] >= today)
+        & (pend["_uat"] <= end)
+    ]
+
+    return m.sort_values("_uat")
+
+
+def sp_upcoming_live(p, today, days):
+
+    end = today + pd.Timedelta(days=days)
+    pend = sp_pending(p)
+
+    m = pend[
+        pend["_live"].notna()
+        & (pend["_live"] >= today)
+        & (pend["_live"] <= end)
+    ]
+
+    return m.sort_values("_live")
+
+
+def sp_overdue(p, today):
+    """Rows: one per overdue milestone."""
+
+    pend = sp_pending(p)
+    rows = []
+
+    late_live = pend[pend["_live"].notna() & (pend["_live"] < today)]
+
+    for _, r in late_live.iterrows():
+        rows.append({
+            "Project": r["Mandate"],
+            "Team Member": r["Allocation"],
+            "Status": r["Status"],
+            "Overdue Milestone": "Production go-live",
+            "Due Date": sp_fmt_date(r["_live"]),
+            "Days Overdue": int((today - r["_live"]).days)
+        })
+
+    if p.attrs.get("has_uat", False):
+
+        late_uat = pend[
+            pend["_uat"].notna()
+            & (pend["_uat"] < today)
+            & ~pend["_status"].isin(SP_UAT_OR_LATER)
+        ]
+
+        for _, r in late_uat.iterrows():
+            rows.append({
+                "Project": r["Mandate"],
+                "Team Member": r["Allocation"],
+                "Status": r["Status"],
+                "Overdue Milestone": "UAT start",
+                "Due Date": sp_fmt_date(r["_uat"]),
+                "Days Overdue": int((today - r["_uat"]).days)
+            })
+
+    cols = [
+        "Project", "Team Member", "Status",
+        "Overdue Milestone", "Due Date", "Days Overdue"
+    ]
+
+    out = pd.DataFrame(rows, columns=cols)
+
+    return out.sort_values(
+        "Days Overdue", ascending=False
+    ).reset_index(drop=True)
+
+
+def sp_in_month(series, y, m):
+
+    return series.notna() & (series.dt.year == y) & (series.dt.month == m)
+
+
+def sp_completed_in_month(p, y, m):
+
+    done = p[p["_status"].isin(SP_COMPLETED)]
+
+    return done[sp_in_month(done["_live"], y, m)].sort_values("_live")
+
+
+def sp_added_in_month(p, y, m):
+
+    return p[sp_in_month(p["_added"], y, m)].sort_values("_added")
+
+
+def sp_month_series(p, today, months=12):
+
+    rows = []
+
+    for i in range(months - 1, -1, -1):
+
+        ts = today - pd.DateOffset(months=i)
+
+        rows.append({
+            "Month": ts.strftime("%b %Y"),
+            "Completed (LIVE)": len(
+                sp_completed_in_month(p, ts.year, ts.month)
+            ),
+            "New Projects": len(
+                sp_added_in_month(p, ts.year, ts.month)
+            ),
+        })
+
+    return pd.DataFrame(rows)
+
+
+def sp_month_events(p, y, m, today):
+    """{day: [(kind, label, full_name)]} for the calendar grid."""
+
+    events = {}
+
+    def add(day, kind, label, full):
+        events.setdefault(int(day), []).append((kind, label, full))
+
+    for _, r in p.iterrows():
+
+        name = r["Mandate"]
+
+        if pd.notna(r["_added"]) and r["_added"].year == y \
+                and r["_added"].month == m:
+            add(r["_added"].day, "new", name, f"New: {name}")
+
+        if pd.notna(r["_uat"]) and r["_uat"].year == y \
+                and r["_uat"].month == m \
+                and r["_status"] not in SP_DONE:
+            add(r["_uat"].day, "uat", name, f"UAT: {name}")
+
+        if pd.notna(r["_live"]) and r["_live"].year == y \
+                and r["_live"].month == m:
+
+            if r["_status"] in SP_COMPLETED:
+                add(r["_live"].day, "done", name, f"Went LIVE: {name}")
+
+            elif r["_status"] not in SP_DONE:
+
+                if r["_live"] < today:
+                    add(r["_live"].day, "late", name,
+                        f"OVERDUE go-live: {name}")
+                else:
+                    add(r["_live"].day, "live", name,
+                        f"Planned go-live: {name}")
+
+    return events
+
+
+def sp_month_summary_text(p, y, m, today):
+
+    month_label = f"{_pycal.month_name[m]} {y}"
+
+    done = sp_completed_in_month(p, y, m)
+    new = sp_added_in_month(p, y, m)
+
+    planned = p[
+        sp_in_month(p["_live"], y, m)
+        & ~p["_status"].isin(SP_DONE)
+    ]
+
+    uat = p[
+        sp_in_month(p["_uat"], y, m) & ~p["_status"].isin(SP_DONE)
+    ] if p.attrs.get("has_uat") else p.iloc[0:0]
+
+    late = sp_overdue(p, today)
+
+    counts = p["Status"].replace("", "Unspecified").value_counts()
+
+    def names(frame, date_col):
+        if frame.empty:
+            return "  - None"
+        return "\n".join(
+            f"  - {r['Mandate']} ({r['Allocation'] or 'unassigned'}) "
+            f"- {sp_fmt_date(r[date_col])}"
+            for _, r in frame.iterrows()
+        )
+
+    lines = [
+        f"SMARTPAY PROJECT SUMMARY - {month_label}",
+        f"Prepared: {sp_fmt_date(today)}",
+        "",
+        f"Portfolio now: {len(p)} projects",
+        "  " + " | ".join(f"{k}: {v}" for k, v in counts.items()),
+        "",
+        f"Completed (went LIVE) in {month_label}: {len(done)}",
+        names(done, "_live"),
+        "",
+        f"New projects added in {month_label}: {len(new)}",
+        names(new, "_added"),
+        "",
+        f"Planned go-lives still pending in {month_label}: {len(planned)}",
+        names(planned, "_live"),
+    ]
+
+    if p.attrs.get("has_uat"):
+        lines += [
+            "",
+            f"UAT scheduled in {month_label}: {len(uat)}",
+            names(uat, "_uat"),
+        ]
+
+    lines += [
+        "",
+        f"Overdue milestones as of today: {len(late)}",
+    ]
+
+    if late.empty:
+        lines.append("  - None")
+    else:
+        for _, r in late.head(10).iterrows():
+            lines.append(
+                f"  - {r['Project']} ({r['Team Member'] or 'unassigned'})"
+                f" - {r['Overdue Milestone']} was due {r['Due Date']} "
+                f"({r['Days Overdue']} days late)"
+            )
+
+    return "\n".join(lines)
+
+
+
+
+# =====================================================================
+# CALENDAR PAGE  (simple, card based)
+# =====================================================================
+
+SP_CHIP = {
+    "uat":  ("#FEF3C7", "#92400E", "🟡 UAT starts"),
+    "live": ("#DCFCE7", "#166534", "🟢 Go-live"),
+    "done": ("#006747", "#FFFFFF", "✅ Went LIVE"),
+    "new":  ("#DBEAFE", "#1E40AF", "🆕 New project"),
+    "late": ("#FEE2E2", "#B91C1C", "🔴 Overdue"),
+}
+
+SP_FONT = "font-family:Segoe UI,Arial,sans-serif;"
+
+
+def sp_esc(value):
+
+    return _html.escape(str(value), quote=True)
+
+
+def sp_rel_days(d, today):
+
+    n = int((d - today).days)
+
+    if n == 0:
+        return "Today"
+    if n == 1:
+        return "Tomorrow"
+    if n > 1:
+        return f"in {n} days"
+    if n == -1:
+        return "1 day late"
+
+    return f"{-n} days late"
+
+
+def sp_event_cards(items, today, empty_text):
+    """items: list of dict(kind, date, project, member, status)."""
+
+    if not items:
+        return (
+            f"<div style='{SP_FONT}background:#F0FDF4;border:1px dashed "
+            f"#86EFAC;border-radius:12px;padding:14px;color:#166534;"
+            f"font-size:14px;'>{sp_esc(empty_text)}</div>"
+        )
+
+    html = f"<div style='{SP_FONT}'>"
+
+    for it in items:
+
+        bg, fg, label = SP_CHIP[it["kind"]]
+        d = it["date"]
+
+        rel_color = "#B91C1C" if d < today and it["kind"] == "late" \
+            else "#6B7280"
+
+        html += (
+            "<div style='display:flex;align-items:center;gap:14px;"
+            "background:#FFFFFF;border:1px solid #DDE5E1;"
+            "border-radius:14px;padding:10px 14px;margin-bottom:8px;"
+            "box-shadow:0 2px 8px rgba(0,103,71,.05);'>"
+
+            "<div style='min-width:54px;text-align:center;"
+            "background:#E8F5EF;border-radius:10px;padding:5px 0;'>"
+            f"<div style='font-size:21px;font-weight:800;color:#006747;"
+            f"line-height:1;'>{d.day}</div>"
+            f"<div style='font-size:10px;font-weight:700;color:#6B7280;"
+            f"letter-spacing:.8px;'>{d.strftime('%b').upper()}</div></div>"
+
+            "<div style='flex:1;min-width:0;'>"
+            f"<div style='font-size:15px;font-weight:700;color:#0F2A22;"
+            f"white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"
+            f"{sp_esc(it['project'])}</div>"
+            f"<div style='font-size:12px;color:#6B7280;margin-top:2px;'>"
+            f"👤 {sp_esc(it['member'] or 'Unassigned')}"
+            f" &nbsp;•&nbsp; {sp_esc(it['status'] or 'No status')}</div>"
+            "</div>"
+
+            "<div style='text-align:right;'>"
+            f"<div style='background:{bg};color:{fg};font-size:12px;"
+            f"font-weight:700;border-radius:20px;padding:3px 11px;"
+            f"display:inline-block;'>{label}</div>"
+            f"<div style='font-size:12px;font-weight:600;"
+            f"color:{rel_color};margin-top:3px;'>"
+            f"{sp_rel_days(d, today)}</div></div>"
+            "</div>"
+        )
+
+    return html + "</div>"
+
+
+def sp_collect_events(p, today):
+    """Every future / overdue milestone of projects that are not finished."""
+
+    items = []
+
+    for _, r in sp_pending(p).iterrows():
+
+        base = {
+            "project": r["Mandate"],
+            "member": r["Allocation"],
+            "status": r["Status"],
+        }
+
+        if p.attrs.get("has_uat") and pd.notna(r["_uat"]) \
+                and r["_status"] not in SP_UAT_OR_LATER:
+            kind = "late" if r["_uat"] < today else "uat"
+            items.append({**base, "kind": kind, "date": r["_uat"],
+                          "what": "UAT"})
+
+        elif p.attrs.get("has_uat") and pd.notna(r["_uat"]) \
+                and r["_uat"] >= today:
+            items.append({**base, "kind": "uat", "date": r["_uat"],
+                          "what": "UAT"})
+
+        if pd.notna(r["_live"]):
+            kind = "late" if r["_live"] < today else "live"
+            items.append({**base, "kind": kind, "date": r["_live"],
+                          "what": "Go-live"})
+
+    items.sort(key=lambda x: x["date"])
+
+    return items
+
+
+def sp_month_event_list(p, y, m, today):
+
+    events = sp_month_events(p, y, m, today)
+    out = []
+
+    # rebuild with full details
+    for _, r in p.iterrows():
+
+        base = {"project": r["Mandate"], "member": r["Allocation"],
+                "status": r["Status"]}
+
+        def inside(d):
+            return pd.notna(d) and d.year == y and d.month == m
+
+        if inside(r["_added"]):
+            out.append({**base, "kind": "new", "date": r["_added"]})
+
+        if inside(r["_uat"]) and r["_status"] not in SP_DONE:
+            out.append({**base, "kind": "uat", "date": r["_uat"]})
+
+        if inside(r["_live"]):
+            if r["_status"] in SP_COMPLETED:
+                out.append({**base, "kind": "done", "date": r["_live"]})
+            elif r["_status"] not in SP_DONE:
+                out.append({
+                    **base,
+                    "kind": "late" if r["_live"] < today else "live",
+                    "date": r["_live"]
+                })
+
+    out.sort(key=lambda x: x["date"])
+
+    return out, events
+
+
+def sp_calendar_html(events, y, m, today):
+
+    weeks = _pycal.Calendar(firstweekday=0).monthdayscalendar(y, m)
+
+    head = "".join(
+        f"<th style='padding:8px 4px;background:#006747;color:#fff;"
+        f"font-size:12px;letter-spacing:.8px;'>{d}</th>"
+        for d in ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+    )
+
+    body = ""
+
+    for week in weeks:
+
+        body += "<tr>"
+
+        for idx, day in enumerate(week):
+
+            if day == 0:
+                body += (
+                    "<td style='background:#F3F4F6;border:1px solid "
+                    "#E5E7EB;height:104px;'></td>"
+                )
+                continue
+
+            is_today = (
+                today.year == y and today.month == m and today.day == day
+            )
+
+            bg = "#FFFBEB" if is_today else (
+                "#F8FAFC" if idx >= 5 else "#FFFFFF"
+            )
+
+            border = "2px solid #F5B300" if is_today \
+                else "1px solid #E5E7EB"
+
+            num_style = (
+                "background:#006747;color:#fff;" if is_today
+                else "color:#374151;"
+            )
+
+            cell = (
+                f"<div style='display:inline-block;min-width:22px;"
+                f"text-align:center;border-radius:11px;font-size:12px;"
+                f"font-weight:800;padding:1px 4px;margin-bottom:3px;"
+                f"{num_style}'>{day}</div>"
+            )
+
+            items = events.get(day, [])
+
+            for kind, label, full in items[:3]:
+
+                bgc, fg, tag = SP_CHIP[kind]
+                short = sp_esc(
+                    label if len(label) <= 17 else label[:16] + "…"
+                )
+
+                cell += (
+                    f"<div title='{sp_esc(full)}' "
+                    f"style='background:{bgc};color:{fg};font-size:11px;"
+                    f"font-weight:600;border-radius:6px;padding:2px 5px;"
+                    f"margin-bottom:2px;white-space:nowrap;"
+                    f"overflow:hidden;text-overflow:ellipsis;'>"
+                    f"{short}</div>"
+                )
+
+            if len(items) > 3:
+                cell += (
+                    f"<div style='font-size:11px;color:#6B7280;"
+                    f"font-weight:600;'>+{len(items) - 3} more</div>"
+                )
+
+            body += (
+                f"<td style='vertical-align:top;border:{border};"
+                f"background:{bg};height:104px;padding:4px;'>{cell}</td>"
+            )
+
+        body += "</tr>"
+
+    return (
+        f"<div style='overflow-x:auto;{SP_FONT}'>"
+        "<table style='border-collapse:separate;border-spacing:0;"
+        "width:100%;min-width:700px;table-layout:fixed;"
+        "border-radius:12px;overflow:hidden;'>"
+        f"<tr>{head}</tr>{body}</table></div>"
+    )
+
+
+def sp_legend_html():
+
+    chips = "".join(
+        f"<span style='background:{bg};color:{fg};font-size:12px;"
+        f"font-weight:700;border-radius:20px;padding:3px 11px;"
+        f"margin:0 6px 6px 0;display:inline-block;'>{label}</span>"
+        for bg, fg, label in SP_CHIP.values()
+    )
+
+    return f"<div style='{SP_FONT}margin:2px 0 10px 0;'>{chips}</div>"
+
+
+def sp_kpi(label, value, color="#006747", sub="", icon=""):
+
+    return (
+        f"<div style='background:#FFFFFF;border-radius:16px;"
+        f"padding:12px 14px;border:1px solid #DDE5E1;"
+        f"border-left:6px solid {color};{SP_FONT}"
+        f"box-shadow:0 4px 12px rgba(0,103,71,.07);'>"
+        f"<div style='color:#6B7280;font-size:12px;font-weight:700;"
+        f"letter-spacing:.4px;'>{icon} {sp_esc(label)}</div>"
+        f"<div style='color:{color};font-size:32px;font-weight:800;"
+        f"line-height:1.15;'>{value}</div>"
+        f"<div style='color:#6B7280;font-size:12px;'>{sp_esc(sub)}</div>"
+        "</div>"
+    )
+
+
+def sp_section(title, hint="", color="#006747"):
+
+    st.html(
+        f"<div style='{SP_FONT}margin-top:8px;'>"
+        f"<div style='color:{color};font-size:20px;font-weight:800;'>"
+        f"{title}</div>"
+        + (f"<div style='color:#6B7280;font-size:13px;'>{sp_esc(hint)}</div>"
+           if hint else "")
+        + "</div>"
+    )
+
+
+def sp_month_picker(prefix, today, years):
+    """◀ Month Year ▶  + Today. Returns (year, month)."""
+
+    key = f"{prefix}_ym"
+
+    if key not in st.session_state:
+        st.session_state[key] = (today.year, today.month)
+
+    y, m = st.session_state[key]
+
+    c1, c2, c3, c4 = st.columns([1, 4, 1, 2])
+
+    with c1:
+        if st.button("◀", key=f"{prefix}_prev", use_container_width=True):
+            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
+
+    with c3:
+        if st.button("▶", key=f"{prefix}_next", use_container_width=True):
+            y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+
+    with c4:
+        if st.button("📍 This month", key=f"{prefix}_today",
+                     use_container_width=True):
+            y, m = today.year, today.month
+
+    st.session_state[key] = (y, m)
+
+    with c2:
+        st.html(
+            f"<div style='{SP_FONT}text-align:center;font-size:24px;"
+            f"font-weight:800;color:#006747;padding-top:2px;'>"
+            f"{_pycal.month_name[m]} {y}</div>"
+        )
+
+    return y, m
+
+
+def sp_render_calendar_page(projects_df):
+
+    render_header(
+        'SMARTPAY PROJECT MANAGEMENT',
+        '📅 Project Calendar',
+        'See what is due, what is late, and what happened each month.',
+        'CALENDAR'
+    )
+
+    p = sp_project_frame(projects_df)
+    today = sp_today()
+
+    overdue = sp_overdue(p, today)
+    due7 = len(sp_upcoming_live(p, today, 7)) \
+        + len(sp_upcoming_uat(p, today, 7))
+    uat30 = len(sp_upcoming_uat(p, today, 30))
+    live30 = len(sp_upcoming_live(p, today, 30))
+
+    k1, k2, k3, k4 = st.columns(4)
+
+    with k1:
+        st.html(sp_kpi("OVERDUE", len(overdue), "#DC2626",
+                       "need attention now", "🔴"))
+    with k2:
+        st.html(sp_kpi("THIS WEEK", due7, "#F59E0B",
+                       "due in next 7 days", "⏰"))
+    with k3:
+        st.html(sp_kpi(
+            "UAT SOON",
+            uat30 if p.attrs.get("has_uat") else "–",
+            "#2563EB",
+            "next 30 days" if p.attrs.get("has_uat")
+            else "add 'UAT Date' column", "🟡"))
+    with k4:
+        st.html(sp_kpi("GO-LIVE SOON", live30, "#006747",
+                       "next 30 days", "🟢"))
+
+    if not p.attrs.get("has_uat"):
+        st.info(
+            "💡 UAT dates are not in your project sheet yet. Add a column "
+            "named **UAT Date** in projects.xlsx and UAT dates will appear "
+            "here automatically."
+        )
+
+    years = sorted({
+        int(y) for y in pd.concat([
+            p["_added"], p["_live"], p["_uat"]
+        ]).dropna().dt.year.unique()
+    } | {today.year})
+
+    tab_due, tab_cal, tab_rep = st.tabs([
+        "📌 What's due", "📅 Month view", "📊 Monthly report"
+    ])
+
+    # ------------------------------------------------------------
+    # WHAT'S DUE
+    # ------------------------------------------------------------
+
+    with tab_due:
+
+        c1, c2 = st.columns([3, 2])
+
+        with c1:
+            show = st.radio(
+                "Show",
+                ["Everything", "Overdue", "UAT", "Go-live"],
+                horizontal=True,
+                key="sp_due_show"
+            )
+
+        with c2:
+            window = st.selectbox(
+                "Look ahead",
+                [7, 14, 30, 60, 90],
+                index=2,
+                format_func=lambda d: f"Next {d} days",
+                key="sp_due_window"
+            )
+
+        end = today + pd.Timedelta(days=window)
+        items = sp_collect_events(p, today)
+
+        late_items = [i for i in items if i["kind"] == "late"]
+        soon = [i for i in items
+                if i["kind"] in ("uat", "live") and i["date"] <= end]
+
+        if show == "UAT":
+            late_items = [i for i in late_items if i.get("what") == "UAT"]
+            soon = [i for i in soon if i["kind"] == "uat"]
+        elif show == "Go-live":
+            late_items = [i for i in late_items
+                          if i.get("what") == "Go-live"]
+            soon = [i for i in soon if i["kind"] == "live"]
+        elif show == "Overdue":
+            soon = []
+
+        if show in ("Everything", "Overdue", "UAT", "Go-live"):
+            sp_section(
+                f"🔴 Overdue ({len(late_items)})",
+                "These dates have passed and the project is not LIVE yet.",
+                "#DC2626"
+            )
+            st.html(sp_event_cards(
+                late_items[:40], today,
+                "🎉 Nothing is overdue."
+            ))
+
+        if show != "Overdue":
+            sp_section(
+                f"🗓️ Coming up in the next {window} days ({len(soon)})",
+                "Earliest first.", "#006747"
+            )
+            st.html(sp_event_cards(
+                soon[:60], today,
+                f"Nothing scheduled in the next {window} days."
+            ))
+
+    # ------------------------------------------------------------
+    # MONTH VIEW
+    # ------------------------------------------------------------
+
+    with tab_cal:
+
+        year, month = sp_month_picker("sp_cal", today, years)
+
+        st.html(sp_legend_html())
+
+        month_items, events = sp_month_event_list(p, year, month, today)
+
+        st.html(sp_calendar_html(events, year, month, today))
+
+        sp_section(
+            f"📋 Everything in {_pycal.month_name[month]} {year} "
+            f"({len(month_items)})",
+            "Same events as the calendar, in a readable list."
+        )
+
+        st.html(sp_event_cards(
+            month_items, today, "No events in this month."
+        ))
+
+    # ------------------------------------------------------------
+    # MONTHLY REPORT
+    # ------------------------------------------------------------
+
+    with tab_rep:
+
+        s_year, s_month = sp_month_picker("sp_rep", today, years)
+
+        done = sp_completed_in_month(p, s_year, s_month)
+        new = sp_added_in_month(p, s_year, s_month)
+        planned = p[
+            sp_in_month(p["_live"], s_year, s_month)
+            & ~p["_status"].isin(SP_DONE)
+        ]
+
+        a, b, c = st.columns(3)
+
+        with a:
+            st.html(sp_kpi("COMPLETED", len(done), "#006747",
+                           "projects that went LIVE", "✅"))
+        with b:
+            st.html(sp_kpi("NEW PROJECTS", len(new), "#2563EB",
+                           "added this month", "🆕"))
+        with c:
+            st.html(sp_kpi("STILL PENDING", len(planned), "#F59E0B",
+                           "planned this month, not live", "⏳"))
+
+        sp_section("✅ Projects completed")
+
+        st.html(sp_event_cards(
+            [{"kind": "done", "date": r["_live"], "project": r["Mandate"],
+              "member": r["Allocation"], "status": r["Status"]}
+             for _, r in done.iterrows()],
+            today, "No project went LIVE in this month."
+        ))
+
+        sp_section("🆕 New projects added")
+
+        st.html(sp_event_cards(
+            [{"kind": "new", "date": r["_added"], "project": r["Mandate"],
+              "member": r["Allocation"], "status": r["Status"]}
+             for _, r in new.iterrows()],
+            today, "No new project was added in this month."
+        ))
+
+        sp_section("📈 Last 12 months", "Completed vs new projects.")
+
+        series = sp_month_series(p, today, 12)
+
+        fig = px.bar(
+            series,
+            x="Month",
+            y=["Completed (LIVE)", "New Projects"],
+            barmode="group",
+            color_discrete_sequence=["#006747", "#2563EB"]
+        )
+
+        fig.update_layout(
+            height=300,
+            margin=dict(l=10, r=10, t=10, b=10),
+            legend_title_text="",
+            yaxis_title="Projects",
+            xaxis_title=""
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        sp_section(
+            "📝 Ready-to-send status update",
+            "Copy this into an email, or download it."
+        )
+
+        summary = sp_month_summary_text(p, s_year, s_month, today)
+
+        st.code(summary, language=None)
+
+        st.download_button(
+            "⬇ Download summary (.txt)",
+            summary,
+            f"SmartPay_Summary_{s_year}_{s_month:02d}.txt",
+            "text/plain",
+            width="stretch"
+        )
+
+
+# =====================================================================
+# AI ASSISTANT  -  free, runs entirely on the dashboard's own data
+# =====================================================================
+#  * Default engine: rule-based language understanding + pandas.
+#    No API, no subscription, and no data leaves the server.
+#  * Optional: add GROQ_API_KEY to secrets to let a free external LLM
+#    answer open-ended questions (OFF by default - see page toggle).
+# =====================================================================
+
+SP_FILLER = set("""
+a an the of for to in on at is are was were be been do does did me my show
+give tell what whats which who whom how many much list all any about with
+and or please can you could i we us our their them it this that there from
+by as into than then also pls get need want know have has having currently
+current now today status update details detail info information
+""".split())
+
+SP_DOMAIN = set("""
+project projects team member members workload assigned assign allocation
+summary summarise summarize report overview total count number data
+dashboard issue issues crpl paysys smartpay uat live bau scoping
+development sit cmc review
+""".split())
+
+SP_MONTH_LOOKUP = {}
+
+for _i in range(1, 13):
+    SP_MONTH_LOOKUP[_pycal.month_name[_i].lower()] = _i
+    SP_MONTH_LOOKUP[_pycal.month_abbr[_i].lower()] = _i
+
+SP_MONTH_LOOKUP["sept"] = 9
+
+
+# -------------------------------------------------
+# generic helpers
+# -------------------------------------------------
+
+def sp_norm(text):
+
+    t = _re.sub(r"[^a-z0-9/&\-\s\.']", " ", str(text).lower())
+
+    return _re.sub(r"\s+", " ", t).strip()
+
+
+def sp_has(q, *phrases):
+
+    return any(
+        _re.search(r"(?<![a-z0-9])" + _re.escape(ph) + r"(?![a-z0-9])", q)
+        for ph in phrases
+    )
+
+
+def sp_md_table(frame, max_rows=25):
+
+    if frame is None or len(frame) == 0:
+        return "_No records._"
+
+    f = frame.head(max_rows).fillna("").astype(str)
+    cols = list(f.columns)
+
+    def cell(v):
+        v = str(v).replace("|", "/").replace("\n", " ").replace("$", "\\$")
+        return v if len(v) <= 90 else v[:89] + "…"
+
+    lines = [
+        "| " + " | ".join(cols) + " |",
+        "|" + "|".join(["---"] * len(cols)) + "|"
+    ]
+
+    for _, r in f.iterrows():
+        lines.append("| " + " | ".join(cell(v) for v in r) + " |")
+
+    if len(frame) > max_rows:
+        lines.append(f"\n_Showing {max_rows} of {len(frame)} records._")
+
+    return "\n".join(lines)
+
+
+def sp_counts_table(series, label):
+
+    c = series.replace("", "Unspecified").value_counts()
+
+    return pd.DataFrame({label: c.index, "Count": c.values})
+
+
+def sp_parse_month(q, today):
+    """Return (year, month) if the question names a month, else None."""
+
+    if sp_has(q, "last month", "previous month"):
+        ts = today - pd.DateOffset(months=1)
+        return ts.year, ts.month
+
+    if sp_has(q, "next month"):
+        ts = today + pd.DateOffset(months=1)
+        return ts.year, ts.month
+
+    if sp_has(q, "this month", "current month", "month to date"):
+        return today.year, today.month
+
+    m = _re.search(
+        r"(?<![a-z])(" + "|".join(SP_MONTH_LOOKUP) + r")(?![a-z])"
+        r"(?:\s+(20\d\d))?",
+        q
+    )
+
+    if m:
+        return (
+            int(m.group(2)) if m.group(2) else today.year,
+            SP_MONTH_LOOKUP[m.group(1)]
+        )
+
+    return None
+
+
+# -------------------------------------------------
+# data loaders for the other sheets (cached)
+# -------------------------------------------------
+
+def sp_read_sheet(path, sheet, needs):
+
+    raw = pd.read_excel(path, sheet_name=sheet, header=None)
+
+    header_row = None
+
+    for i in range(min(20, len(raw))):
+
+        row = " ".join(
+            str(x).lower() for x in raw.iloc[i] if pd.notna(x)
+        )
+
+        if all(n in row for n in needs):
+            header_row = i
+            break
+
+    if header_row is None:
+        return pd.DataFrame()
+
+    out = pd.read_excel(path, sheet_name=sheet, header=header_row)
+    out.columns = [str(c).strip() for c in out.columns]
+
+    return out.dropna(how="all").reset_index(drop=True).fillna("")
+
+
+def sp_data_path(name):
+
+    return os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "data", name
+    )
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def sp_load_crpl():
+
+    try:
+        return sp_read_sheet(
+            sp_data_path("CRPL_All_Data_Exactly_20.xlsx"),
+            "CRPL", ["crf no", "crf name"]
+        )
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def sp_load_paysys():
+
+    try:
+        path = sp_data_path(
+            "PAYSYS_Weekly_Project_Update_04-Sep-2026.xlsx"
+        )
+        sheet = pd.ExcelFile(path).sheet_names[0]
+        return sp_read_sheet(path, sheet, ["uat/live", "paysys response"])
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def sp_load_is():
+
+    try:
+        out = sp_read_sheet(
+            sp_data_path("IS Issues.xlsx"),
+            pd.ExcelFile(sp_data_path("IS Issues.xlsx")).sheet_names[0],
+            ["application name", "severity", "issues description"]
+        )
+
+        for col in ("Application Name", "Severity",
+                    "Issues Description", "Status of Issue"):
+            if col not in out.columns:
+                out[col] = ""
+            out[col] = (
+                out[col].astype(str).str.replace(r"\s+", " ", regex=True)
+                .str.strip()
+            )
+
+        out["Severity"] = out["Severity"].str.upper()
+
+        out["Status of Issue"] = out["Status of Issue"].replace({
+            "FIXED": "Fixed",
+            "UNDER REVALIDATION": "Under Revalidation",
+            "UNDER RE-VALIDATION": "Under Revalidation",
+            "FIXATION IN PROGRESS": "Fixation in Progress"
+        })
+
+        return out
+
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def sp_load_daily():
+
+    try:
+        return load_daily_issues_from_github()
+    except Exception:
+        return pd.DataFrame()
+
+
+# -------------------------------------------------
+# context + entity detection
+# -------------------------------------------------
+
+def sp_build_ctx(projects_df):
+
+    p = sp_project_frame(projects_df)
+
+    members = sorted({m for names in p["_members"] for m in names})
+
+    return {
+        "p": p,
+        "today": sp_today(),
+        "members": members,
+        "statuses": sorted(
+            {s for s in p["_status"] if s}
+        )
+    }
+
+
+def sp_detect_members(q, members):
+
+    found = []
+
+    for name in members:
+
+        low = name.lower()
+        first = low.split()[0] if low.split() else low
+
+        if sp_has(q, low):
+            found.append(name)
+            continue
+
+        if len(first) >= 3 and sp_has(q, first):
+            found.append(name)
+
+    if found:
+        return found[:4]
+
+    # typo tolerance on first names
+    words = [
+        w for w in _re.findall(r"[a-z]{4,}", q)
+        if w not in SP_FILLER and w not in SP_DOMAIN
+        and w not in SP_MONTH_LOOKUP
+    ]
+
+    for name in members:
+
+        first = name.lower().split()[0] if name.split() else ""
+
+        if len(first) < 4:
+            continue
+
+        for w in words:
+            if fuzz.ratio(w, first) >= 86:
+                found.append(name)
+                break
+
+    return found[:4]
+
+
+def sp_detect_statuses(q, statuses):
+
+    wanted = []
+
+    alias = {
+        "scoping": ["SCOPING", "UNDER SCOPING"],
+        "development": ["UNDER DEVELOPMENT", "DEVELOPMENT"],
+        "developing": ["UNDER DEVELOPMENT", "DEVELOPMENT"],
+        "in process": ["IN PROCESS", "INPROCESS"],
+        "in progress": ["IN PROCESS", "INPROCESS"],
+        "is review": ["IS REVIEW"],
+        "review": ["IS REVIEW"],
+    }
+
+    for s in statuses:
+        if sp_has(q, s.lower()):
+            wanted.append(s)
+
+    for key, vals in alias.items():
+        if sp_has(q, key):
+            wanted += [v for v in vals if v in statuses]
+
+    return list(dict.fromkeys(wanted))
+
+
+# -------------------------------------------------
+# answer builders
+# -------------------------------------------------
+
+def sp_active(p):
+
+    return p[~p["_status"].isin(SP_DONE)]
+
+
+def sp_ans_overview(ctx):
+
+    p, today = ctx["p"], ctx["today"]
+
+    counts = p["_status"].value_counts()
+
+    def n(s):
+        return int(counts.get(s, 0))
+
+    lines = [
+        f"### SmartPay portfolio - {sp_fmt_date(today)}",
+        f"- **Total projects:** {len(p)}",
+        f"- **Active (not LIVE / BAU):** {len(sp_active(p))}",
+        f"- **LIVE:** {n('LIVE')}  |  **UAT:** {n('UAT')}  |  **BAU:** {n('BAU')}",
+        "",
+        sp_md_table(sp_counts_table(p["Status"], "Status"))
+    ]
+
+    cats = sp_counts_table(p["Category"], "Category")
+
+    if len(cats) > 1:
+        lines += ["", "**By category**", sp_md_table(cats, 12)]
+
+    return "\n".join(lines)
+
+
+def sp_ans_status(ctx, wanted, member_names=None):
+
+    p = ctx["p"]
+
+    sub = p[p["_status"].isin(wanted)]
+
+    if member_names:
+        sub = sub[sub["_members"].apply(
+            lambda ns: any(n in ns for n in member_names)
+        )]
+
+    out = [f"**{len(sub)} project(s) with status {' / '.join(wanted)}**"]
+
+    if member_names:
+        out[0] += f" for {', '.join(member_names)}"
+
+    if len(sub):
+        view = sp_view(sub)
+        keep = [c for c in ("Project", "Team Member", "Category",
+                            "Status", "Live Date") if c in view.columns]
+        out += ["", sp_md_table(view[keep], 30)]
+
+    return "\n".join(out)
+
+
+def sp_workload_table(p, today):
+
+    rows = []
+
+    members = sorted({m for ns in p["_members"] for m in ns})
+
+    late = sp_overdue(p, today)
+
+    for m in members:
+
+        mine = sp_filter_member(p, m)
+
+        rows.append({
+            "Team Member": m,
+            "Total": len(mine),
+            "Active": len(sp_active(mine)),
+            "UAT": int((mine["_status"] == "UAT").sum()),
+            "LIVE": int((mine["_status"] == "LIVE").sum()),
+            "BAU": int((mine["_status"] == "BAU").sum()),
+            "Overdue": int(late["Team Member"].apply(
+                lambda s: m in sp_split_members(s)
+            ).sum()) if len(late) else 0
+        })
+
+    out = pd.DataFrame(rows)
+
+    if out.empty:
+        return out
+
+    return out.sort_values(
+        ["Active", "Total"], ascending=False
+    ).reset_index(drop=True)
+
+
+def sp_ans_workload(ctx):
+
+    p, today = ctx["p"], ctx["today"]
+
+    table = sp_workload_table(p, today)
+
+    if table.empty:
+        return "No team allocation data is available."
+
+    avg = table["Active"].mean()
+    top = table.iloc[0]
+
+    return (
+        f"### Team workload\n"
+        f"**{top['Team Member']}** carries the most active projects "
+        f"({top['Active']}). Team average is **{avg:.1f}** active "
+        f"projects per member.\n\n{sp_md_table(table, 30)}"
+    )
+
+
+def sp_ans_member(ctx, name, wanted=None):
+
+    p, today = ctx["p"], ctx["today"]
+
+    mine = sp_filter_member(p, name)
+
+    if wanted:
+        mine = mine[mine["_status"].isin(wanted)]
+
+    table = sp_workload_table(p, today)
+    row = table[table["Team Member"] == name]
+
+    lines = [f"### {name}"]
+
+    if not row.empty:
+
+        r = row.iloc[0]
+        rank = int(row.index[0]) + 1
+        avg = table["Active"].mean()
+
+        verdict = (
+            "above" if r["Active"] > avg
+            else "below" if r["Active"] < avg else "at"
+        )
+
+        lines += [
+            f"- **Assigned projects:** {r['Total']}  "
+            f"(**active:** {r['Active']}, UAT: {r['UAT']}, "
+            f"LIVE: {r['LIVE']}, BAU: {r['BAU']})",
+            f"- **Workload:** {verdict} the team average "
+            f"({avg:.1f} active); rank {rank} of {len(table)} by active load.",
+            f"- **Overdue milestones:** {r['Overdue']}",
+        ]
+
+    if mine.empty:
+        lines.append("\nNo matching projects.")
+    else:
+        view = sp_view(mine)
+        keep = [c for c in ("Project", "Category", "Status", "Live Date")
+                if c in view.columns]
+        lines += ["", sp_md_table(view[keep], 30)]
+
+    return "\n".join(lines)
+
+
+def sp_ans_project(ctx, matches):
+
+    p = ctx["p"]
+    out = []
+
+    for idx in matches[:3]:
+
+        r = p.iloc[idx]
+
+        out.append(
+            f"### {r['Mandate']}\n"
+            f"- **Status:** {r['Status'] or 'n/a'}\n"
+            f"- **Team member:** {r['Allocation'] or 'unassigned'}\n"
+            f"- **Category:** {r['Category'] or 'n/a'}\n"
+            f"- **Added:** {sp_fmt_date(r['_added']) or 'n/a'}\n"
+            + (f"- **UAT date:** {sp_fmt_date(r['_uat']) or 'n/a'}\n"
+               if p.attrs.get("has_uat") else "")
+            + f"- **Go-live date:** {sp_fmt_date(r['_live']) or 'TBD / BAU'}\n"
+            f"- **Latest update:** {r['Update'] or 'No update recorded'}"
+        )
+
+    return "\n\n".join(out)
+
+
+def sp_ans_overdue(ctx, member_names=None):
+
+    p, today = ctx["p"], ctx["today"]
+
+    late = sp_overdue(p, today)
+
+    if member_names and len(late):
+        late = late[late["Team Member"].apply(
+            lambda s: any(n in sp_split_members(s) for n in member_names)
+        )]
+
+    if late.empty:
+        return "✅ No overdue projects" + (
+            f" for {', '.join(member_names)}." if member_names else "."
+        )
+
+    return (
+        f"### 🔴 {len(late)} overdue milestone(s) "
+        f"(as of {sp_fmt_date(today)})\n\n{sp_md_table(late, 30)}"
+    )
+
+
+def sp_ans_upcoming(ctx, q, member_names=None):
+
+    p, today = ctx["p"], ctx["today"]
+
+    days = 30
+
+    m = _re.search(r"(\d+)\s*(day|days|week|weeks)", q)
+
+    if m:
+        days = int(m.group(1)) * (7 if m.group(2).startswith("week") else 1)
+    elif sp_has(q, "next week", "this week"):
+        days = 7
+    elif sp_has(q, "this month"):
+        days = max(1, (today + pd.offsets.MonthEnd(0) - today).days)
+
+    if member_names:
+        p = p[p["_members"].apply(
+            lambda ns: any(n in ns for n in member_names)
+        )]
+        p.attrs.update(ctx["p"].attrs)
+
+    want_uat = sp_has(q, "uat")
+    want_live = sp_has(q, "deploy", "deployment", "deployments",
+                       "production", "go live", "golive", "go-live",
+                       "go lives", "go-lives", "golives", "live")
+
+    show_uat = want_uat or not want_live
+    show_live = want_live or not want_uat
+
+    out = [f"### Upcoming deadlines - next {days} days"]
+
+    if show_uat:
+
+        if not ctx["p"].attrs.get("has_uat"):
+            out.append(
+                "**UAT dates:** the project sheet has no *UAT Date* "
+                "column yet - add one to projects.xlsx to enable this."
+            )
+        else:
+            u = sp_upcoming_uat(p, today, days)
+            out += [f"\n**UAT ({len(u)})**", sp_md_table(sp_view(u), 20)]
+
+    if show_live:
+        lv = sp_upcoming_live(p, today, days)
+        out += [
+            f"\n**Planned production deployments ({len(lv)})**",
+            sp_md_table(sp_view(lv), 20)
+        ]
+
+    return "\n".join(out)
+
+
+def sp_ans_month(ctx, y, m, what):
+
+    p, today = ctx["p"], ctx["today"]
+    label = f"{_pycal.month_name[m]} {y}"
+
+    if what == "done":
+        d = sp_completed_in_month(p, y, m)
+        return (
+            f"### ✅ Completed in {label}: {len(d)}\n\n"
+            f"{sp_md_table(sp_view(d), 30)}"
+        )
+
+    if what == "new":
+        d = sp_added_in_month(p, y, m)
+        return (
+            f"### 🆕 Added in {label}: {len(d)}\n\n"
+            f"{sp_md_table(sp_view(d), 30)}"
+        )
+
+    return "```\n" + sp_month_summary_text(p, y, m, today) + "\n```"
+
+
+def sp_ans_is(ctx, q):
+
+    d = sp_load_is()
+
+    if d.empty:
+        return "IS Issues data could not be loaded (data/IS Issues.xlsx)."
+
+    sev = [s for s in ("CRITICAL", "HIGH", "MEDIUM", "LOW")
+           if sp_has(q, s.lower())]
+
+    stat = [s for s in ("Fixed", "Under Revalidation",
+                        "Fixation in Progress")
+            if sp_has(q, s.lower(), s.lower().replace("under ", "under re-"))]
+
+    sub = d
+
+    if sev:
+        sub = sub[sub["Severity"].isin(sev)]
+
+    if stat:
+        sub = sub[sub["Status of Issue"].isin(stat)]
+
+    if sp_has(q, "open", "pending", "unresolved", "outstanding"):
+        sub = sub[sub["Status of Issue"] != "Fixed"]
+
+    out = [
+        f"### 🔐 IS Issues - {len(sub)} of {len(d)} records",
+        "**By severity**",
+        sp_md_table(sp_counts_table(sub["Severity"], "Severity")),
+        "",
+        "**By status**",
+        sp_md_table(sp_counts_table(sub["Status of Issue"], "Status")),
+    ]
+
+    if sev or stat or sp_has(q, "open", "pending", "list", "show"):
+        out += ["", sp_md_table(
+            sub[["Application Name", "Severity", "Status of Issue",
+                 "Issues Description"]], 15
+        )]
+
+    return "\n".join(out)
+
+
+def sp_ans_crpl(ctx, q):
+
+    d = sp_load_crpl()
+
+    if d.empty:
+        return "CRPL data could not be loaded."
+
+    out = [
+        f"### CRPL - {len(d)} records",
+        sp_md_table(sp_counts_table(d["Stage"], "Stage"))
+        if "Stage" in d.columns else ""
+    ]
+
+    qq = " ".join(
+        w for w in q.split()
+        if w not in SP_FILLER and w not in SP_DOMAIN
+    )
+
+    if qq and "CRF Name" in d.columns:
+
+        hits = process.extract(
+            qq, d["CRF Name"].astype(str).tolist(),
+            scorer=fuzz.token_set_ratio, score_cutoff=80, limit=5
+        )
+
+        if hits:
+            idx = [h[2] for h in hits]
+            cols = [c for c in ("CRF No", "CRF Name", "Stage",
+                                "CRPL Remarks", "NBP Remarks")
+                    if c in d.columns]
+            out += ["", "**Matching CRFs**", sp_md_table(d.iloc[idx][cols])]
+
+    return "\n".join(x for x in out if x != "")
+
+
+def sp_ans_paysys(ctx, q):
+
+    d = sp_load_paysys()
+
+    if d.empty:
+        return "PAYSYS data could not be loaded."
+
+    out = [
+        f"### PAYSYS - {len(d)} records",
+        sp_md_table(sp_counts_table(d["UAT/Live"], "UAT / Live"))
+        if "UAT/Live" in d.columns else ""
+    ]
+
+    qq = " ".join(
+        w for w in q.split()
+        if w not in SP_FILLER and w not in SP_DOMAIN
+    )
+
+    if qq and "Project / Issue" in d.columns:
+
+        hits = process.extract(
+            qq, d["Project / Issue"].astype(str).tolist(),
+            scorer=fuzz.token_set_ratio, score_cutoff=80, limit=5
+        )
+
+        if hits:
+            idx = [h[2] for h in hits]
+            cols = [c for c in ("Project / Issue", "UAT/Live",
+                                "PAYSYS Response",
+                                "NBP Remarks / Action Required",
+                                "Last Update Date") if c in d.columns]
+            out += ["", "**Matching items**",
+                    sp_md_table(d.iloc[idx][cols])]
+
+    return "\n".join(x for x in out if x != "")
+
+
+def sp_ans_daily(ctx):
+
+    d = sp_load_daily()
+
+    if d is None or d.empty:
+        return "No Daily Issues are available."
+
+    active = d[d["Status"] == "Active"]
+
+    return (
+        f"### Daily Issues - {len(active)} active, "
+        f"{len(d) - len(active)} closed\n\n"
+        f"{sp_md_table(active[['Issue', 'Team Member', 'End / Pending With']], 20)}"
+    )
+
+
+def sp_management_update(ctx):
+
+    p, today = ctx["p"], ctx["today"]
+
+    counts = p["_status"].value_counts()
+    late = sp_overdue(p, today)
+    table = sp_workload_table(p, today)
+
+    done = sp_completed_in_month(p, today.year, today.month)
+    new = sp_added_in_month(p, today.year, today.month)
+    live30 = sp_upcoming_live(p, today, 30)
+
+    lines = [
+        f"## 📋 Management Update - {sp_fmt_date(today)}",
+        "",
+        "**Portfolio**",
+        f"- {len(p)} projects in total; {len(sp_active(p))} active, "
+        f"{int(counts.get('LIVE', 0))} LIVE, "
+        f"{int(counts.get('UAT', 0))} in UAT, "
+        f"{int(counts.get('BAU', 0))} BAU.",
+        "",
+        sp_md_table(sp_counts_table(p["Status"], "Status")),
+        "",
+        "**This month**",
+        f"- Completed (LIVE): {len(done)}"
+        + (": " + ", ".join(done["Mandate"].head(5)) if len(done) else ""),
+        f"- New projects: {len(new)}"
+        + (": " + ", ".join(new["Mandate"].head(5)) if len(new) else ""),
+        f"- Go-lives planned in the next 30 days: {len(live30)}"
+        + (": " + ", ".join(live30["Mandate"].head(5))
+           if len(live30) else ""),
+        "",
+        "**Attention required**",
+    ]
+
+    if late.empty:
+        lines.append("- No overdue milestones.")
+    else:
+        lines.append(f"- {len(late)} overdue milestone(s):")
+        for _, r in late.head(5).iterrows():
+            lines.append(
+                f"  - {r['Project']} ({r['Team Member'] or 'unassigned'})"
+                f" - {r['Overdue Milestone']}, {r['Days Overdue']} days late"
+            )
+
+    if not table.empty:
+        top = table.head(3)
+        lines += ["", "**Highest workload**"] + [
+            f"- {r['Team Member']}: {r['Active']} active "
+            f"({r['Total']} total)" for _, r in top.iterrows()
+        ]
+
+    is_df = sp_load_is()
+
+    if not is_df.empty:
+        open_hi = is_df[
+            (is_df["Status of Issue"] != "Fixed")
+            & is_df["Severity"].isin(["CRITICAL", "HIGH"])
+        ]
+        lines += [
+            "", "**Information security**",
+            f"- {len(is_df)} IS issues logged; "
+            f"{int((is_df['Status of Issue'] != 'Fixed').sum())} not yet "
+            f"fixed ({len(open_hi)} Critical/High)."
+        ]
+
+    crpl, pay = sp_load_crpl(), sp_load_paysys()
+
+    if not crpl.empty or not pay.empty:
+        lines += [
+            "", "**Vendors**",
+            f"- CRPL: {len(crpl)} records  |  PAYSYS: {len(pay)} records."
+        ]
+
+    return "\n".join(lines)
+
+
+SP_GREETING = (
+    "Hi! 👋 I'm your **SmartPay Assistant**. Ask me about projects, "
+    "team workload, deadlines, CRPL, PAYSYS or IS issues - or anything else."
+)
+
+SP_HELP = """### 🤖 What you can ask me
+- **Counts & status** - "How many projects are LIVE?", "Show UAT projects", "BAU projects"
+- **Team** - "What is Ali working on?", "Who has the highest workload?"
+- **Deadlines** - "Overdue projects", "Upcoming UAT", "Go-lives next 30 days"
+- **Calendar** - "Projects completed in October", "New projects this month"
+- **Vendors & security** - "CRPL summary", "PAYSYS status", "Open critical IS issues"
+- **Reports** - "Management update", "Summary for last month"
+- **Any project** - type its name for the full details
+
+I answer from the live dashboard data, so numbers always match the pages."""
+
+
+# -------------------------------------------------
+# the router
+# -------------------------------------------------
+
+def sp_answer(question, ctx, history=None):
+
+    q = sp_norm(question)
+    p, today = ctx["p"], ctx["today"]
+
+    if not q:
+        return SP_HELP
+
+    if sp_has(q, "help", "hello", "hi", "hey", "what can you do",
+              "how to use", "commands"):
+        return SP_HELP
+
+    # general-knowledge / writing requests go straight to the AI model
+    if sp_llm_provider() and (
+        sp_has(q, "explain", "meaning of", "what does", "define",
+               "difference between", "how to", "how do i", "write",
+               "draft", "email", "translate", "tell me a", "joke",
+               "who was", "capital of")
+        or len(q.split()) > 18
+    ):
+        ans = sp_llm_answer(question, ctx, history)
+        if ans:
+            return ans
+
+    # a project named in full always wins over keyword intents
+    named = [
+        i for i, name in enumerate(p["Mandate"])
+        if len(name) >= 5 and sp_has(q, sp_norm(name))
+    ]
+
+    if named:
+        return sp_ans_project(ctx, named)
+
+    members = sp_detect_members(q, ctx["members"])
+    statuses = sp_detect_statuses(q, ctx["statuses"])
+    month = sp_parse_month(q, today)
+
+    # ---- reports & summaries ------------------------------------
+    if sp_has(q, "management update", "management summary",
+              "executive summary", "weekly update", "status report",
+              "management report", "brief", "overall summary"):
+        return sp_management_update(ctx)
+
+    # ---- deadlines ----------------------------------------------
+    if sp_has(q, "overdue", "delayed", "late", "behind schedule",
+              "missed deadline", "past due"):
+        return sp_ans_overdue(ctx, members)
+
+    if sp_has(q, "completed", "complete", "delivered", "went live",
+              "finished", "done", "closed out", "gone live"):
+        y, m = month or (today.year, today.month)
+        return sp_ans_month(ctx, y, m, "done")
+
+    if sp_has(q, "new", "newly", "added", "recently added") \
+            and "issue" not in q:
+        y, m = month or (today.year, today.month)
+        return sp_ans_month(ctx, y, m, "new")
+
+    if sp_has(q, "upcoming", "deadline", "deadlines", "due", "next week",
+              "coming up", "schedule", "scheduled", "planned",
+              "uat date", "uat dates", "deployment", "deployments", "deploy",
+              "go live", "go-live", "golive", "go lives", "go-lives",
+              "golives", "production date", "production dates") \
+            or _re.search(r"next \d+ (day|days|week|weeks)", q):
+        return sp_ans_upcoming(ctx, q, members)
+
+    if month and sp_has(q, "summary", "summarise", "summarize", "report",
+                        "update", "status", "month", "calendar"):
+        return sp_ans_month(ctx, month[0], month[1], "summary")
+
+    # ---- other data sources -------------------------------------
+    if sp_has(q, "is issue", "is issues", "information security",
+              "infosec", "security issue", "security issues",
+              "severity", "critical", "vulnerability", "vulnerabilities") \
+            and not sp_has(q, "is review"):
+        return sp_ans_is(ctx, q)
+
+    if sp_has(q, "crpl", "crf"):
+        return sp_ans_crpl(ctx, q)
+
+    if sp_has(q, "paysys"):
+        return sp_ans_paysys(ctx, q)
+
+    if sp_has(q, "daily issue", "daily issues"):
+        return sp_ans_daily(ctx)
+
+    # ---- team ----------------------------------------------------
+    if members:
+        return "\n\n---\n\n".join(
+            sp_ans_member(ctx, m, statuses or None) for m in members[:3]
+        )
+
+    if sp_has(q, "workload", "busiest", "most projects", "highest workload",
+              "who has", "who is working", "team members", "team",
+              "allocation", "ranking", "capacity", "overloaded"):
+        return sp_ans_workload(ctx)
+
+    # ---- statuses & totals --------------------------------------
+    if statuses:
+        return sp_ans_status(ctx, statuses)
+
+    if sp_has(q, "total", "how many", "count", "number of", "overview",
+              "summary", "summarise", "summarize", "portfolio",
+              "all projects", "dashboard"):
+        return sp_ans_overview(ctx)
+
+    # ---- project lookup -----------------------------------------
+    qq = " ".join(
+        w for w in q.split()
+        if w not in SP_FILLER and w not in SP_DOMAIN
+    )
+
+    if len(qq) >= 3:
+
+        hits = process.extract(
+            qq, p["Mandate"].tolist(),
+            scorer=fuzz.token_set_ratio, score_cutoff=82, limit=3
+        )
+
+        if hits:
+            return sp_ans_project(ctx, [h[2] for h in hits])
+
+        # ---- keyword search over every text column --------------
+        tokens = [w for w in qq.split() if len(w) >= 3]
+
+        if tokens:
+
+            blob = (
+                p["Mandate"] + " " + p["Allocation"] + " "
+                + p["Category"] + " " + p["Status"] + " " + p["Update"]
+            ).str.lower()
+
+            score = sum(
+                blob.str.contains(_re.escape(t), regex=True).astype(int)
+                for t in tokens
+            )
+
+            found = p[score == len(tokens)]
+
+            if found.empty:
+                found = p[score > 0].assign(_s=score[score > 0]) \
+                    .sort_values("_s", ascending=False).head(10)
+
+            if not found.empty:
+                return (
+                    f"I found **{len(found)}** project(s) mentioning "
+                    f"*{qq}*:\n\n{sp_md_table(sp_view(found), 15)}"
+                )
+
+    # ---- last resort: the AI model (if a free key is configured) ---
+    ans = sp_llm_answer(question, ctx, history)
+
+    if ans:
+        return ans
+
+    hint = "" if sp_llm_provider() else (
+        "\n\n_Tip: ask your administrator to connect the free AI key "
+        "so I can answer any kind of question._"
+    )
+
+    return (
+        "I couldn't find anything matching that in the dashboard data. "
+        "Try a project name, a team member, a status (LIVE, UAT, BAU), "
+        "or ask for a *management update*." + hint
+    )
+
+
+# =====================================================================
+# AI MODEL (optional free key)  -  lets the assistant answer ANYTHING
+# =====================================================================
+#  Add ONE of these to Streamlit secrets (both have free tiers):
+#      GROQ_API_KEY   = "gsk_..."      (console.groq.com)
+#      GEMINI_API_KEY = "AIza..."      (aistudio.google.com)
+#  Optional:  GROQ_MODEL / GEMINI_MODEL   - if a model name is retired
+#             AI_SEND_DATA = "true"       - also let the AI read project data
+# =====================================================================
+
+def sp_llm_provider():
+
+    if sp_secret("GROQ_API_KEY"):
+        return "groq"
+
+    if sp_secret("GEMINI_API_KEY"):
+        return "gemini"
+
+    return ""
+
+
+def sp_llm_system_prompt(ctx):
+
+    text = (
+        "You are 'SmartPay Assistant', a friendly and knowledgeable AI "
+        "assistant inside the National Bank of Pakistan SmartPay Project "
+        "Dashboard. You can help with ANY topic: general knowledge, "
+        "explanations, writing and emails, translation, banking, "
+        "payments, coding and more. Reply in the same language the user "
+        "writes in (English, Urdu or Roman Urdu). Be concise and clear. "
+        "Never invent facts about the bank's projects."
+    )
+
+    if sp_secret("AI_SEND_DATA").lower() in ("1", "true", "yes"):
+
+        p = ctx["p"]
+        rows = sp_view(p)
+        rows["Update"] = p["Update"].str.slice(0, 120)
+
+        text += (
+            f"\n\nDASHBOARD DATA (today is {sp_fmt_date(ctx['today'])}; "
+            f"{len(p)} projects; status counts "
+            f"{p['_status'].value_counts().to_dict()}). Use it for any "
+            "question about projects:\n" + rows.head(200).to_csv(index=False)
+        )
+
+    else:
+        text += (
+            " You do NOT have access to the dashboard's project data; if "
+            "asked about specific projects, say the dashboard search can "
+            "answer that."
+        )
+
+    return text
+
+
+def sp_llm_answer(question, ctx, history=None):
+    """Return the model's answer, an error text starting with ⚠️, or None."""
+
+    provider = sp_llm_provider()
+
+    if not provider:
+        return None
+
+    turns = []
+
+    for m in (history or [])[-8:]:
+        content = str(m["content"])[:900]
+        turns.append((m["role"], content))
+
+    # the current question is already the last history item
+    if not turns or turns[-1][0] != "user":
+        turns.append(("user", question))
+
+    system = sp_llm_system_prompt(ctx)
+
+    try:
+
+        if provider == "groq":
+
+            r = requests.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {sp_secret('GROQ_API_KEY')}"
+                },
+                json={
+                    "model": sp_secret(
+                        "GROQ_MODEL", "llama-3.3-70b-versatile"
+                    ),
+                    "temperature": 0.4,
+                    "max_tokens": 900,
+                    "messages": [{"role": "system", "content": system}] + [
+                        {"role": role, "content": content}
+                        for role, content in turns
+                    ]
+                },
+                timeout=40
+            )
+
+            if r.status_code == 200:
+                return r.json()["choices"][0]["message"]["content"].strip()
+
+        else:
+
+            model = sp_secret("GEMINI_MODEL", "gemini-2.0-flash")
+
+            r = requests.post(
+                "https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{model}:generateContent",
+                headers={"x-goog-api-key": sp_secret("GEMINI_API_KEY")},
+                json={
+                    "system_instruction": {"parts": [{"text": system}]},
+                    "contents": [
+                        {
+                            "role": "user" if role == "user" else "model",
+                            "parts": [{"text": content}]
+                        } for role, content in turns
+                    ],
+                    "generationConfig": {
+                        "temperature": 0.4,
+                        "maxOutputTokens": 900
+                    }
+                },
+                timeout=40
+            )
+
+            if r.status_code == 200:
+                parts = r.json()["candidates"][0]["content"]["parts"]
+                return "".join(x.get("text", "") for x in parts).strip()
+
+        reasons = {
+            400: "the request was rejected - the model name may be outdated "
+                 "(set GROQ_MODEL / GEMINI_MODEL in secrets)",
+            401: "the API key is not valid",
+            403: "the API key is not allowed to use this model",
+            404: "the model name was not found (set GROQ_MODEL / "
+                 "GEMINI_MODEL in secrets)",
+            429: "the free usage limit was reached - try again in a minute",
+        }
+
+        return (
+            "⚠️ The AI service could not answer: "
+            + reasons.get(r.status_code, f"error {r.status_code}")
+        )
+
+    except Exception:
+        return (
+            "⚠️ I couldn't reach the AI service right now "
+            "(network problem). Please try again."
+        )
+
+
+# =====================================================================
+# FLOATING CARTOON ASSISTANT  (bottom-right of every page)
+# =====================================================================
+
+SP_BOT_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+    "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+    "<stop offset='0' stop-color='#34D399'/>"
+    "<stop offset='1' stop-color='#006747'/></linearGradient></defs>"
+    "<circle cx='50' cy='50' r='50' fill='url(#g)'/>"
+    "<line x1='50' y1='15' x2='50' y2='26' stroke='#fff' stroke-width='3' "
+    "stroke-linecap='round'/>"
+    "<circle cx='50' cy='11' r='5' fill='#FFD700'/>"
+    "<circle cx='19' cy='52' r='6' fill='#fff'/>"
+    "<circle cx='81' cy='52' r='6' fill='#fff'/>"
+    "<rect x='22' y='27' width='56' height='48' rx='20' fill='#fff'/>"
+    "<ellipse cx='39' cy='48' rx='6' ry='7' fill='#013D2B'>"
+    "<animate attributeName='ry' values='7;7;1;7;7' "
+    "keyTimes='0;0.9;0.93;0.96;1' dur='4s' repeatCount='indefinite'/>"
+    "</ellipse>"
+    "<ellipse cx='61' cy='48' rx='6' ry='7' fill='#013D2B'>"
+    "<animate attributeName='ry' values='7;7;1;7;7' "
+    "keyTimes='0;0.9;0.93;0.96;1' dur='4s' repeatCount='indefinite'/>"
+    "</ellipse>"
+    "<circle cx='41' cy='45' r='2' fill='#fff'/>"
+    "<circle cx='63' cy='45' r='2' fill='#fff'/>"
+    "<circle cx='31' cy='60' r='4' fill='#FDA4AF' opacity='.85'/>"
+    "<circle cx='69' cy='60' r='4' fill='#FDA4AF' opacity='.85'/>"
+    "<path d='M41 62 Q50 71 59 62' stroke='#013D2B' stroke-width='3.2' "
+    "fill='none' stroke-linecap='round'/>"
+    "</svg>"
+)
+
+
+def sp_inject_global_css():
+
+    bot = "data:image/svg+xml;utf8," + _urlq.quote(SP_BOT_SVG)
+
+    st.html(f"""
+<style>
+/* ---------- floating assistant ---------- */
+.st-key-sp_bot{{position:fixed !important;right:22px;bottom:22px;
+  width:66px;height:66px;z-index:99990;}}
+.st-key-sp_bot::before{{content:"Hi! Ask me anything 👋";position:absolute;
+  right:78px;bottom:16px;background:#fff;color:#006747;font:700 12px "Segoe UI",Arial,sans-serif;
+  padding:8px 12px;border-radius:14px 14px 4px 14px;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.18);animation:spFade 9s forwards;
+  pointer-events:none;}}
+@keyframes spFade{{0%,80%{{opacity:1}}100%{{opacity:0;visibility:hidden}}}}
+@keyframes spBob{{0%,100%{{transform:translateY(0)}}50%{{transform:translateY(-4px)}}}}
+.st-key-sp_bot [data-testid="stPopover"]{{width:66px;}}
+.st-key-sp_bot [data-testid="stPopover"] button{{width:66px !important;height:66px !important;
+  min-height:66px !important;padding:0 !important;border-radius:50% !important;
+  border:3px solid #fff !important;background:url("{bot}") center/cover no-repeat !important;
+  box-shadow:0 8px 22px rgba(0,60,40,.45) !important;animation:spBob 3s ease-in-out infinite;}}
+.st-key-sp_bot [data-testid="stPopover"] button *{{opacity:0 !important;}}
+.st-key-sp_bot [data-testid="stPopover"] button:hover{{transform:scale(1.07);}}
+
+/* hide (x) button - only visible while the mouse is over the assistant */
+.st-key-sp_bot_x{{position:absolute !important;top:-10px;right:-10px;z-index:5;
+  opacity:0;transition:opacity .15s;width:24px;}}
+.st-key-sp_bot:hover .st-key-sp_bot_x,.st-key-sp_bot_x:hover{{opacity:1;}}
+@media (hover:none){{.st-key-sp_bot_x{{opacity:.85;}}}}
+.st-key-sp_bot_x button{{width:24px !important;height:24px !important;min-height:24px !important;
+  padding:0 !important;border-radius:50% !important;background:#fff !important;
+  border:1px solid #D1D5DB !important;box-shadow:0 2px 6px rgba(0,0,0,.25) !important;}}
+.st-key-sp_bot_x button p{{font-size:12px !important;line-height:1 !important;color:#374151 !important;margin:0 !important;}}
+
+/* small tab that brings the assistant back */
+.st-key-sp_bot_show{{position:fixed !important;right:0;bottom:90px;z-index:99990;width:34px;}}
+.st-key-sp_bot_show button{{width:34px !important;min-height:38px !important;height:38px !important;
+  padding:0 !important;border-radius:12px 0 0 12px !important;background:#006747 !important;
+  border:none !important;opacity:.75;box-shadow:0 3px 10px rgba(0,0,0,.3) !important;}}
+.st-key-sp_bot_show button:hover{{opacity:1;}}
+
+/* chat window */
+[data-testid="stPopoverBody"]:has(.sp-botmark){{width:420px;max-width:92vw;border-radius:18px;}}
+.sp-bothead{{background:linear-gradient(135deg,#006747,#10B981);color:#fff;border-radius:14px;
+  padding:10px 14px;font:700 15px "Segoe UI",Arial,sans-serif;display:flex;align-items:center;gap:8px;}}
+.sp-bothead small{{display:block;font-weight:500;font-size:11px;opacity:.9;}}
+.sp-bothead .dot{{width:9px;height:9px;border-radius:50%;background:#A7F3D0;box-shadow:0 0 0 3px rgba(255,255,255,.25);}}
+
+/* ---------- compact sidebar menu (fits every screen) ---------- */
+section[data-testid="stSidebar"] div[role="radiogroup"] label{{
+  padding:4px 12px !important;margin-bottom:2px !important;min-height:26px !important;}}
+section[data-testid="stSidebar"] div[role="radiogroup"] label p{{
+  font-size:13px !important;line-height:1.15 !important;margin:0 !important;}}
+section[data-testid="stSidebar"] div[role="radiogroup"]{{padding:3px !important;}}
+</style>
+""")
+
+
+@st.fragment
+def sp_chat_fragment(projects_df):
+    """The chat window. Reruns on its own, so the popover stays open."""
+
+    ctx = sp_build_ctx(projects_df)
+    history = st.session_state.setdefault("sp_chat", [])
+
+    st.markdown(
+        "<div class='sp-botmark'></div>"
+        "<div class='sp-bothead'><span class='dot'></span><div>"
+        "SmartPay Assistant<small>Online · ask me anything</small>"
+        "</div></div>",
+        unsafe_allow_html=True
+    )
+
+    box = st.container(height=330, border=False)
+
+    chips = {
+        "📋 Management update": "Management update",
+        "🔴 Overdue": "Overdue projects",
+        "👥 Workload": "Who has the highest workload?",
+        "❓ What can I ask?": "help",
+    }
+
+    if not history:
+        cols = st.columns(2)
+        for i, (label, prompt) in enumerate(chips.items()):
+            with cols[i % 2]:
+                if st.button(label, key=f"sp_chip_{i}",
+                             use_container_width=True):
+                    st.session_state["sp_pending_q"] = prompt
+
+    with st.form("sp_chat_form", clear_on_submit=True):
+
+        c1, c2 = st.columns([5, 1])
+
+        with c1:
+            typed = st.text_input(
+                "Message",
+                placeholder="Type your question…",
+                label_visibility="collapsed"
+            )
+
+        with c2:
+            sent = st.form_submit_button("➤")
+
+    question = (typed.strip() if sent and typed else "") \
+        or st.session_state.pop("sp_pending_q", "")
+
+    if question:
+
+        history.append({"role": "user", "content": question})
+
+        with box:
+            with st.spinner("Thinking…"):
+                try:
+                    answer = sp_answer(question, ctx, history)
+                except Exception as e:
+                    answer = (
+                        "Sorry, something went wrong. Please rephrase "
+                        f"and try again. ({type(e).__name__})"
+                    )
+
+        history.append({"role": "assistant", "content": answer})
+        del history[:-40]
+
+    with box:
+
+        if not history:
+            with st.chat_message("assistant", avatar="🤖"):
+                st.markdown(SP_GREETING)
+
+        for msg in history:
+            with st.chat_message(
+                msg["role"],
+                avatar="🤖" if msg["role"] == "assistant" else "🧑"
+            ):
+                st.markdown(msg["content"])
+
+    if history and st.button("🧹 New chat", key="sp_clear_chat"):
+        st.session_state["sp_chat"] = []
+        st.rerun(scope="fragment")
+
+
+def sp_render_floating_bot(projects_df):
+
+    sp_inject_global_css()
+
+    if st.session_state.get("sp_bot_hidden"):
+
+        with st.container(key="sp_bot_show"):
+            if st.button("🤖", key="sp_bot_show_btn",
+                         help="Show assistant"):
+                st.session_state["sp_bot_hidden"] = False
+                st.rerun()
+
+        return
+
+    with st.container(key="sp_bot"):
+
+        with st.container(key="sp_bot_x"):
+            if st.button("✕", key="sp_bot_hide_btn",
+                         help="Hide assistant"):
+                st.session_state["sp_bot_hidden"] = True
+                st.rerun()
+
+        with st.popover("🤖"):
+            sp_chat_fragment(projects_df)
+
+
+# =====================================================================
+# USER MANAGEMENT PAGE (administrators only)
+# =====================================================================
+
+def sp_active_admin_count(users, excluding=None):
+
+    return sum(
+        1 for name, rec in users.items()
+        if name != excluding
+        and rec.get("role") == "admin"
+        and rec.get("active")
+    )
+
+
+def sp_render_user_admin(user):
+
+    # server-side check - the menu entry alone is not trusted
+    if user["role"] != "admin":
+        st.error("⛔ Administrator access required.")
+        st.stop()
+
+    render_header(
+        'SMARTPAY PROJECT MANAGEMENT',
+        '👥 User Management',
+        'Create accounts, reset passwords and deactivate users.',
+        'ADMINISTRATION'
+    )
+
+    users = sp_users_cached() or {}
+
+    # one-time display of a generated password
+    flash = st.session_state.pop("sp_flash_pw", None)
+
+    if flash:
+        st.success(flash["message"])
+
+        if flash.get("password"):
+            st.code(flash["password"], language=None)
+            st.caption(
+                "Copy this password now and share it privately. "
+                "It is not stored and cannot be shown again. "
+                "The user must change it at first sign-in."
+            )
+
+    if not get_github_token():
+        st.warning(
+            "No GITHUB_TOKEN found: users are saved to a local file, "
+            "which is erased when Streamlit Cloud restarts the app. "
+            "Add GITHUB_TOKEN to secrets for permanent storage."
+        )
+
+    tab_list, tab_add, tab_edit = st.tabs([
+        "📋 All Users", "➕ Add User", "✏️ Edit / Deactivate"
+    ])
+
+    # -------------------------------------------------
+    # LIST
+    # -------------------------------------------------
+
+    with tab_list:
+
+        rows = [{
+            "Username": name,
+            "Full Name": rec.get("full_name", ""),
+            "Role": "Admin" if rec.get("role") == "admin" else "User",
+            "Status": "Active" if rec.get("active") else "Deactivated",
+            "Must Change Password": "Yes" if rec.get("must_change") else "No",
+            "Created": rec.get("created", ""),
+            "Updated": rec.get("updated", ""),
+        } for name, rec in sorted(users.items())]
+
+        st.dataframe(
+            pd.DataFrame(rows), width="stretch", hide_index=True
+        )
+
+        st.caption(
+            f"{sum(1 for r in users.values() if r.get('active'))} active "
+            f"of {len(users)} accounts. Password hashes are never shown."
+        )
+
+    # -------------------------------------------------
+    # ADD
+    # -------------------------------------------------
+
+    with tab_add:
+
+        with st.form("sp_add_user_form", clear_on_submit=True):
+
+            c1, c2 = st.columns(2)
+
+            with c1:
+                new_name = st.text_input(
+                    "Username (3-32: letters, numbers . _ -)"
+                )
+                new_full = st.text_input("Full name")
+
+            with c2:
+                new_role = st.selectbox(
+                    "Role", ["user", "admin"],
+                    format_func=lambda r: (
+                        "User - dashboard access" if r == "user"
+                        else "Admin - can manage users"
+                    )
+                )
+                new_pw = st.text_input(
+                    "Temporary password (leave blank to auto-generate)",
+                    type="password"
+                )
+
+            create = st.form_submit_button(
+                "Create user", use_container_width=True
+            )
+
+        if create:
+
+            uname = new_name.strip().lower()
+            password = new_pw or sp_generate_password()
+            problem = sp_password_problem(password, uname)
+
+            if not SP_USERNAME_RE.match(uname):
+                st.error(
+                    "Username must be 3-32 characters: "
+                    "a-z, 0-9, dot, underscore or hyphen."
+                )
+            elif problem:
+                st.error(problem)
+            else:
+
+                def add(all_users):
+                    if uname in all_users:
+                        raise ValueError(
+                            f"The username '{uname}' already exists."
+                        )
+                    all_users[uname] = sp_make_user(
+                        new_full, password, new_role, True
+                    )
+
+                try:
+                    sp_mutate_users(add)
+                    st.session_state["sp_flash_pw"] = {
+                        "message": f"✅ User '{uname}' created.",
+                        "password": password
+                    }
+                    st.rerun()
+                except (ValueError, SPStoreError) as e:
+                    st.error(str(e))
+
+    # -------------------------------------------------
+    # EDIT / DEACTIVATE
+    # -------------------------------------------------
+
+    with tab_edit:
+
+        if not users:
+            st.info("No users yet.")
+        else:
+
+            target = st.selectbox(
+                "Select user",
+                sorted(users),
+                format_func=lambda n: (
+                    f"{n}  ({'active' if users[n].get('active') else 'deactivated'})"
+                ),
+                key="sp_edit_target"
+            )
+
+            rec = users[target]
+            is_self = target == user["username"]
+
+            with st.form(f"sp_edit_form_{target}"):
+
+                c1, c2 = st.columns(2)
+
+                with c1:
+                    e_full = st.text_input(
+                        "Full name", value=rec.get("full_name", "")
+                    )
+                    e_role = st.selectbox(
+                        "Role", ["user", "admin"],
+                        index=1 if rec.get("role") == "admin" else 0,
+                        disabled=is_self
+                    )
+
+                with c2:
+                    e_active = st.checkbox(
+                        "Account active",
+                        value=bool(rec.get("active")),
+                        disabled=is_self,
+                        help="Untick to deactivate. Deactivated users "
+                             "are blocked at their next action."
+                    )
+                    e_pw = st.text_input(
+                        "Reset password (blank = keep; type 'auto' to generate)",
+                        type="password"
+                    )
+
+                save = st.form_submit_button(
+                    "Save changes", use_container_width=True
+                )
+
+            if is_self:
+                st.caption(
+                    "You cannot change your own role or deactivate "
+                    "yourself. Use the account menu (top-right) to "
+                    "change your password."
+                )
+
+            if save:
+
+                new_pw = ""
+                error = ""
+
+                if e_pw.strip().lower() == "auto":
+                    new_pw = sp_generate_password()
+                elif e_pw:
+                    new_pw = e_pw
+                    error = sp_password_problem(new_pw, target)
+
+                if error:
+                    st.error(error)
+                else:
+
+                    def edit(all_users):
+
+                        r = all_users.get(target)
+
+                        if not r:
+                            raise ValueError("User not found.")
+
+                        role = "admin" if is_self else e_role
+                        active = True if is_self else bool(e_active)
+
+                        # never leave the system without an admin
+                        if (r.get("role") == "admin" and r.get("active")) \
+                                and not (role == "admin" and active) \
+                                and sp_active_admin_count(
+                                    all_users, excluding=target) == 0:
+                            raise ValueError(
+                                "At least one active admin must remain."
+                            )
+
+                        r["full_name"] = e_full.strip()[:60]
+                        r["role"] = role
+                        r["active"] = active
+                        r["updated"] = sp_now_iso()
+
+                        if new_pw:
+                            r.update(sp_hash_password(new_pw))
+                            r["must_change"] = True
+
+                    try:
+                        sp_mutate_users(edit)
+
+                        if e_pw.strip().lower() == "auto":
+                            st.session_state["sp_flash_pw"] = {
+                                "message": f"✅ New password set for '{target}'.",
+                                "password": new_pw
+                            }
+                        else:
+                            st.session_state["sp_flash_pw"] = {
+                                "message": f"✅ '{target}' updated.",
+                                "password": None
+                            } if not new_pw else {
+                                "message": f"✅ Password reset for '{target}'.",
+                                "password": None
+                            }
+
+                        st.rerun()
+
+                    except (ValueError, SPStoreError) as e:
+                        st.error(str(e))
+
+
+# =====================================================
+# LOGIN GATE - nothing below runs unless the user is signed in
+# =====================================================
+SP_USER = sp_require_login()
+
+
 # =====================================================
 # Load Data
 # =====================================================
@@ -1323,6 +4686,9 @@ df["Status"] = (
         "LIVE ": "LIVE"
     })
 )
+
+# Pristine copy of the project data for Calendar / AI Assistant
+SP_PROJECTS_DF = df.copy()
 
 # =====================================================
 # SIDEBAR - SMARTPAY PREMIUM GREEN THEME
@@ -1942,21 +5308,28 @@ if "navigate_to" in st.session_state:
     )
     del st.session_state["navigate_to"]
 
+SP_MENU = [
+    "Dashboard",
+    "Projects",
+    "IS Issues",
+    "SmartPay Data",
+    "Daily Issues",
+    "Project Timeline",
+    "Analytics",
+    "BAU Monitoring",
+    "CRPL",
+    "PAYSYS",
+    "Export",
+    "Calendar"
+]
+
+# User Management is added ONLY for administrators
+if SP_USER["role"] == "admin":
+    SP_MENU.append("User Management")
+
 page = st.sidebar.radio(
     "Menu",
-    [
-        "Dashboard",
-        "Projects",
-        "IS Issues",
-        "SmartPay Data",
-        "Daily Issues",
-        "Project Timeline",
-        "Analytics",
-        "BAU Monitoring",
-        "CRPL",
-        "PAYSYS",
-        "Export"
-    ],
+    SP_MENU,
     label_visibility="collapsed",
     key="page_navigation"
 )
@@ -2070,6 +5443,8 @@ if st.session_state.get("page_changed", False):
     scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
 def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
+    sp_render_account_menu(SP_USER, gap)
+    _sp_badge = sp_initials(SP_USER)
     _now = datetime.now(
         ZoneInfo("Asia/Karachi")
     ).strftime("%b %d, %Y  •  %I:%M %p")
@@ -2093,11 +5468,14 @@ def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
 <span style="font-size:15px;">🔔</span>
 <span style="position:absolute;top:5px;right:6px;width:7px;height:7px;background:#FF4D4D;border-radius:50%;border:1.5px solid #013D2B;"></span>
 </div>
-<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);">DBG</div>
+<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);cursor:pointer;" title="Account menu">{_sp_badge}</div>
 </div>
 </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Floating cartoon assistant (bottom-right of every page, can be hidden)
+sp_render_floating_bot(SP_PROJECTS_DF)
 
 # =====================================================
 # DASHBOARD
@@ -15574,6 +18952,19 @@ elif page == "Export":
         f"{len(crpl_export_df)} CRPL Records | "
         f"{len(paysys_export_df)} PAYSYS Records"
     )
+
+# =====================================================
+# NEW PAGES
+# =====================================================
+
+elif page == "Calendar":
+
+    sp_render_calendar_page(SP_PROJECTS_DF)
+
+elif page == "User Management":
+
+    sp_render_user_admin(SP_USER)
+
 
 # =====================================================
 # GLOBAL FOOTER (all pages)
