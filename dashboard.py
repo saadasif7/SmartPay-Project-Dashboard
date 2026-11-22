@@ -1844,6 +1844,11 @@ def sp_auth_css():
 
     st.markdown("""
     <style>
+/* ---------- hide Streamlit toolbar (Fork / GitHub / menu / Manage app) ---------- */
+[data-testid="stToolbar"],[data-testid="stAppDeployButton"],[data-testid="stMainMenu"],
+[data-testid="stDecoration"],[data-testid="manage-app-button"],.stAppDeployButton,
+#MainMenu,div[class*="viewerBadge"],a[href*="streamlit.io/cloud"]{display:none !important;visibility:hidden !important;}
+header[data-testid="stHeader"]{background:transparent !important;}
     .sp-login-title{
         text-align:center;color:#006747;font-size:26px;
         font-weight:800;margin:6px 0 0 0;
@@ -4229,6 +4234,11 @@ def sp_inject_global_css():
 
     st.html(f"""
 <style>
+/* ---------- hide Streamlit toolbar (Fork / GitHub / menu / Manage app) ---------- */
+[data-testid="stToolbar"],[data-testid="stAppDeployButton"],[data-testid="stMainMenu"],
+[data-testid="stDecoration"],[data-testid="manage-app-button"],.stAppDeployButton,
+#MainMenu,div[class*="viewerBadge"],a[href*="streamlit.io/cloud"]{{display:none !important;visibility:hidden !important;}}
+header[data-testid="stHeader"]{{background:transparent !important;}}
 /* ---------- floating assistant ---------- */
 .st-key-sp_bot{{position:fixed !important;right:22px;bottom:22px;
   width:66px;height:66px;z-index:99990;}}
