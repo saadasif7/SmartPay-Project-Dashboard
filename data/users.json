@@ -1,5 +1,16 @@
 {
   "users": {
+    "adnan.younis": {
+      "active": true,
+      "created": "2026-11-22 18:40",
+      "full_name": "Adnan Younis",
+      "hash": "2fe15b5960473983d88cc37c72fbf1f91c1094c75ea03fcc3636c27b53b2dc2f",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "bc7176a91350929d52f0fc994d213670",
+      "updated": "2026-11-22 18:40"
+    },
     "ainain.khalid": {
       "active": true,
       "created": "2026-11-22 18:36",
