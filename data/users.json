@@ -66,6 +66,17 @@
       "salt": "fceca488874beb32420bc1e72abf4584",
       "updated": "2026-11-22 18:34"
     },
+    "omair.imtiaz": {
+      "active": true,
+      "created": "2026-11-22 18:43",
+      "full_name": "Omair Imtiaz",
+      "hash": "e171cae35c6925ed840f203296cc0f19cc0a3891b930517d1bb6626fb8368f52",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "b5806c1a40cad3262241380252590901",
+      "updated": "2026-11-22 18:43"
+    },
     "re.muneeb": {
       "active": true,
       "created": "2026-11-22 18:42",
