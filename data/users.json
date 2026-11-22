@@ -1,5 +1,16 @@
 {
   "users": {
+    "ainain.khalid": {
+      "active": true,
+      "created": "2026-11-22 18:36",
+      "full_name": "Ainain khalid",
+      "hash": "071ef30ad3c99baa8c8286e246523e547213899e3264f846f1fbff182f4a61b7",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "87a62bab1e24d94b015026976f702b9a",
+      "updated": "2026-11-22 18:36"
+    },
     "muhammad.afzal": {
       "active": true,
       "created": "2026-11-22 18:34",
