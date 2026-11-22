@@ -11,6 +11,17 @@
       "salt": "87a62bab1e24d94b015026976f702b9a",
       "updated": "2026-11-22 18:36"
     },
+    "ayesha.khan": {
+      "active": true,
+      "created": "2026-11-22 18:38",
+      "full_name": "Ayesha Khan",
+      "hash": "e3d0c1c3eb8416ed9c5ba66acc6da8f9e069efd1619a4282ca015e0214052a2f",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "dbe3e40553e9d0e0e817315176aa35b9",
+      "updated": "2026-11-22 18:38"
+    },
     "bhawan.parkash": {
       "active": true,
       "created": "2026-11-22 18:37",
