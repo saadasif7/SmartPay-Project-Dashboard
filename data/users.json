@@ -22,6 +22,17 @@
       "salt": "138b86bd3a1896d4792585b19ab93bae",
       "updated": "2026-11-22 18:37"
     },
+    "mubashir.zafar": {
+      "active": true,
+      "created": "2026-11-22 18:37",
+      "full_name": "Mubashir Zafar",
+      "hash": "4c47a26e106d78b4037d0a46c356990ee5e52663bd802f65bcc61dd861949af7",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "db62564a79c1c002a19fdda2623d8228",
+      "updated": "2026-11-22 18:37"
+    },
     "muhammad.afzal": {
       "active": true,
       "created": "2026-11-22 18:34",
