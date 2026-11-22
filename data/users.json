@@ -11,6 +11,17 @@
       "salt": "87a62bab1e24d94b015026976f702b9a",
       "updated": "2026-11-22 18:36"
     },
+    "bhawan.parkash": {
+      "active": true,
+      "created": "2026-11-22 18:37",
+      "full_name": "Bhawan Parkash",
+      "hash": "8a297adcf5210fd74ae269495177923040192524bf2492a3afe1566468c9a06a",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "138b86bd3a1896d4792585b19ab93bae",
+      "updated": "2026-11-22 18:37"
+    },
     "muhammad.afzal": {
       "active": true,
       "created": "2026-11-22 18:34",
