@@ -66,6 +66,17 @@
       "salt": "fceca488874beb32420bc1e72abf4584",
       "updated": "2026-11-22 18:34"
     },
+    "re.muneeb": {
+      "active": true,
+      "created": "2026-11-22 18:42",
+      "full_name": "Muneeb ul Hassan",
+      "hash": "524acd1fafb3934cb820bd712ea489848c78c9c0f035c128ffa37178ddd3a8ef",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "857a23cef9153976c019f294094f8364",
+      "updated": "2026-11-22 18:42"
+    },
     "saad.asif": {
       "active": true,
       "created": "2026-11-18 22:03",
