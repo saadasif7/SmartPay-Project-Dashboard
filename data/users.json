@@ -76,6 +76,17 @@
       "role": "user",
       "salt": "f33558719165e7051c1fe49d3bef955e",
       "updated": "2026-11-22 18:39"
+    },
+    "zohaib.shahzad": {
+      "active": true,
+      "created": "2026-11-22 18:39",
+      "full_name": "Zohaib Shahzad",
+      "hash": "226f3df1f5cae5a165ce00f690bfc4ee87a11cfe4ba8a69f06864b994583bb59",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "58d35b0761b16b607a87938fb5eadd19",
+      "updated": "2026-11-22 18:39"
     }
   },
   "version": 1
