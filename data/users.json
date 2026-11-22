@@ -1,5 +1,16 @@
 {
   "users": {
+    "muhammad.afzal": {
+      "active": true,
+      "created": "2026-11-22 18:34",
+      "full_name": "Muhammad Afzal",
+      "hash": "b07f738934c878c144fe3156442e167868ba51bebf76ce813f1cdd5e3c936390",
+      "iters": 390000,
+      "must_change": true,
+      "role": "user",
+      "salt": "fceca488874beb32420bc1e72abf4584",
+      "updated": "2026-11-22 18:34"
+    },
     "saad.asif": {
       "active": true,
       "created": "2026-11-18 22:03",
