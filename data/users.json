@@ -59,12 +59,12 @@
       "active": true,
       "created": "2026-11-22 18:34",
       "full_name": "Muhammad Afzal",
-      "hash": "b07f738934c878c144fe3156442e167868ba51bebf76ce813f1cdd5e3c936390",
+      "hash": "1032f6e240dc993abad5e0622d130b75da4da04f4f77668f154347889de45a44",
       "iters": 390000,
-      "must_change": true,
+      "must_change": false,
       "role": "user",
-      "salt": "fceca488874beb32420bc1e72abf4584",
-      "updated": "2026-11-22 18:34"
+      "salt": "dfb59f159c609597861a12b904411678",
+      "updated": "2026-11-22 20:59"
     },
     "omair.imtiaz": {
       "active": true,
