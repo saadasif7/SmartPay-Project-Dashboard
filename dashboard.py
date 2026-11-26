@@ -2077,68 +2077,100 @@ def sp_require_login():
 
 
 # =====================================================
-# ACCOUNT MENU  -  the round badge in the header of every page
+# USER BAR  -  full-width top bar (name, role, password, logout)
 # =====================================================
 
 def sp_initials(user):
 
-    if user["role"] == "admin":
-        return "ADM"
-
     words = (user["full_name"] or user["username"]).replace(".", " ") \
         .replace("_", " ").replace("-", " ").split()
 
-    letters = "".join(w[0] for w in words[:2]).upper()
+    if len(words) >= 2:
+        return (words[0][0] + words[1][0]).upper()
 
-    return letters or "U"
-
-
-SP_ACCT_RENDERED = False      # reset on every script run
+    return (words[0][:2] if words else "U").upper()
 
 
-def sp_render_account_menu(user, gap="0.9rem"):
-    """Invisible popover laid exactly over the header's round badge."""
+def sp_render_user_bar(user):
 
-    global SP_ACCT_RENDERED
+    is_admin = user["role"] == "admin"
+    full = user["full_name"] or user["username"]
+    name = _html.escape(full)
+    first = _html.escape(full.split()[0]) if full.split() else name
+    role = "Administrator" if is_admin else "User"
+    chip_bg, chip_fg = ("#FFF1BF", "#7A5600") if is_admin \
+        else ("#DDF5E9", "#006747")
 
-    if SP_ACCT_RENDERED:          # header may be drawn twice in one run
-        return
+    st.html("""
+<style>
+/* full-width white bar: runs from the sidebar to the right edge and
+   stays at the top, so it never covers the cards underneath */
+.st-key-sp_userbar{position:fixed !important;top:0;left:0;right:0;height:60px;
+  z-index:99985;background:#FFFFFF;border-bottom:1px solid #D7E8DE;
+  box-shadow:0 2px 10px rgba(0,103,71,.08);
+  padding:0 28px 0 284px;display:flex !important;flex-direction:column;
+  justify-content:center;}
+.st-key-sp_userbar > div{width:100%;}
+.st-key-sp_userbar [data-testid="stHorizontalBlock"]{gap:.6rem !important;
+  flex-wrap:nowrap !important;align-items:center;}
+.st-key-sp_userbar [data-testid="stVerticalBlock"]{gap:0 !important;}
+.st-key-sp_userbar button{min-height:36px !important;height:36px !important;
+  border-radius:10px !important;border:1px solid #CFE6DA !important;
+  background:#F4FAF7 !important;padding:0 12px !important;}
+.st-key-sp_userbar button p{font-size:13px !important;font-weight:700 !important;
+  color:#006747 !important;margin:0 !important;line-height:1 !important;}
+.st-key-sp_userbar button:hover{background:#E3F3EA !important;border-color:#006747 !important;}
+.st-key-sp_signout button{background:#FEF2F2 !important;border-color:#FECACA !important;}
+.st-key-sp_signout button p{color:#B91C1C !important;}
+.st-key-sp_signout button:hover{background:#FEE2E2 !important;border-color:#DC2626 !important;}
+@media (max-width:900px){.st-key-sp_userbar{padding:0 12px 0 56px;}}
+</style>
+""")
 
-    SP_ACCT_RENDERED = True
+    with st.container(key="sp_userbar"):
 
-    st.html(
-        "<style>"
-        ".st-key-sp_acct{position:relative;height:0;overflow:visible;"
-        "z-index:60;}"
-        ".st-key-sp_acct [data-testid='stPopover']{position:absolute;"
-        f"right:23px;top:calc({gap} + 17px);width:34px;}}"
-        ".st-key-sp_acct [data-testid='stPopover'] button{width:34px;"
-        "height:34px;min-height:34px;padding:0;border-radius:50%;"
-        "opacity:0;cursor:pointer;}"
-        "</style>"
-    )
+        c0, c1, c2, c3 = st.columns(
+            [4.2, 3.4, 2.1, 1.8], vertical_alignment="center"
+        )
 
-    with st.container(key="sp_acct"):
-
-        with st.popover("👤"):
-
-            role_text = (
-                "Administrator" if user["role"] == "admin" else "User"
+        with c0:
+            st.html(
+                "<div style=\"font-family:'Segoe UI',Arial,sans-serif;"
+                "line-height:1.25;\">"
+                f"<div style=\"font-size:15px;font-weight:800;color:#006747;\">"
+                f"Welcome back, {first} 👋</div>"
+                "<div style=\"font-size:11px;color:#6B7280;font-weight:600;"
+                "letter-spacing:.5px;\">SMARTPAY PROJECT DASHBOARD</div></div>"
             )
 
-            st.markdown(
-                f"**{_html.escape(user['full_name'] or user['username'])}**"
-                f"  \n{role_text} · `{user['username']}`"
+        with c1:
+            st.html(
+                "<div style=\"display:flex;align-items:center;gap:10px;"
+                "font-family:'Segoe UI',Arial,sans-serif;justify-content:flex-end;\">"
+                "<div style=\"min-width:0;line-height:1.2;text-align:right;\">"
+                "<div style=\"font-size:14px;font-weight:800;color:#0F2A22;"
+                "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">"
+                f"{name}</div>"
+                f"<span style=\"background:{chip_bg};color:{chip_fg};"
+                "font-size:11px;font-weight:700;border-radius:20px;"
+                "padding:1px 9px;display:inline-block;margin-top:2px;\">"
+                f"{'👑 ' if is_admin else '👤 '}{role}</span></div>"
+                "<div style=\"width:38px;height:38px;border-radius:50%;"
+                "background:linear-gradient(135deg,#34D399,#006747);"
+                "color:#fff;font-weight:800;font-size:13px;display:flex;"
+                "align-items:center;justify-content:center;flex:none;"
+                "border:2px solid #fff;box-shadow:0 2px 6px rgba(0,103,71,.35);\">"
+                f"{_html.escape(sp_initials(user))}</div></div>"
             )
 
-            with st.expander("🔑 Change my password"):
+        with c2:
+            with st.popover("🔑 Password", use_container_width=True):
+                st.markdown("**Change my password**")
                 sp_password_change_form(user, "sp_self")
 
-            if st.button(
-                "🚪 Sign out",
-                key="sp_signout",
-                use_container_width=True
-            ):
+        with c3:
+            if st.button("🚪 Logout", key="sp_signout",
+                         use_container_width=True):
                 sp_logout()
 
 
@@ -3883,15 +3915,20 @@ def sp_answer(question, ctx, history=None):
     if not q:
         return SP_HELP
 
-    if sp_has(q, "help", "hello", "hi", "hey", "what can you do",
-              "how to use", "commands"):
+    if sp_has(q, "help", "what can you do", "how to use", "commands"):
         return SP_HELP
 
-    # general-knowledge / writing requests go straight to the AI model
+    if len(q.split()) <= 3 and sp_has(
+            q, "hello", "hi", "hey", "salam", "assalam o alaikum",
+            "good morning", "good evening", "thanks", "thank you"):
+        if not sp_llm_provider():
+            return SP_GREETING
+
+    # clear "general" requests go straight to the AI model
     if sp_llm_provider() and (
-        sp_has(q, "explain", "meaning of", "what does", "define",
+        sp_has(q, "explain", "meaning of", "define",
                "difference between", "how to", "how do i", "write",
-               "draft", "email", "translate", "tell me a", "joke",
+               "draft", "translate", "tell me a", "joke",
                "who was", "capital of")
         or len(q.split()) > 18
     ):
@@ -3911,6 +3948,34 @@ def sp_answer(question, ctx, history=None):
     members = sp_detect_members(q, ctx["members"])
     statuses = sp_detect_statuses(q, ctx["statuses"])
     month = sp_parse_month(q, today)
+
+    # anything that is not about the dashboard data -> AI model (if set up)
+    if sp_llm_provider() and not members and not statuses and not month:
+
+        data_words = {
+            "project", "projects", "status", "team", "workload", "uat",
+            "live", "bau", "crpl", "crf", "paysys", "issue", "issues",
+            "overdue", "deadline", "deadlines", "summary", "update",
+            "report", "calendar", "member", "members", "allocation",
+            "dashboard", "smartpay", "go-live", "golive", "deployment",
+            "scoping", "sit", "cmc", "upcoming", "delayed", "completed",
+            "assigned", "total", "count"
+        }
+
+        qq0 = " ".join(
+            w for w in q.split()
+            if w not in SP_FILLER and w not in SP_DOMAIN
+        )
+
+        hit = qq0 and process.extract(
+            qq0, p["Mandate"].tolist(), scorer=fuzz.token_set_ratio,
+            score_cutoff=82, limit=1
+        )
+
+        if not (set(q.split()) & data_words) and not hit:
+            ans = sp_llm_answer(question, ctx, history)
+            if ans:
+                return ans
 
     # ---- reports & summaries ------------------------------------
     if sp_has(q, "management update", "management summary",
@@ -4282,6 +4347,11 @@ def sp_inject_global_css():
 .sp-bothead .dot{{width:9px;height:9px;border-radius:50%;background:#A7F3D0;box-shadow:0 0 0 3px rgba(255,255,255,.25);}}
 
 /* ---------- compact sidebar menu (fits every screen) ---------- */
+section[data-testid="stSidebar"] > div:first-child:first-child{{overflow-y:auto !important;overflow-x:hidden !important;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.35) transparent;}}
+section[data-testid="stSidebar"] > div:first-child:first-child::-webkit-scrollbar{{width:5px;}}
+section[data-testid="stSidebar"] > div:first-child:first-child::-webkit-scrollbar-thumb{{background:rgba(255,255,255,.35);border-radius:4px;}}
+
 section[data-testid="stSidebar"] div[role="radiogroup"] label{{
   padding:4px 12px !important;margin-bottom:2px !important;min-height:26px !important;}}
 section[data-testid="stSidebar"] div[role="radiogroup"] label p{{
@@ -4298,10 +4368,15 @@ def sp_chat_fragment(projects_df):
     ctx = sp_build_ctx(projects_df)
     history = st.session_state.setdefault("sp_chat", [])
 
+    status = (
+        "AI connected · ask me anything" if sp_llm_provider()
+        else "Data mode · AI key not set (general questions off)"
+    )
+
     st.markdown(
         "<div class='sp-botmark'></div>"
         "<div class='sp-bothead'><span class='dot'></span><div>"
-        "SmartPay Assistant<small>Online · ask me anything</small>"
+        f"SmartPay Assistant<small>{status}</small>"
         "</div></div>",
         unsafe_allow_html=True
     )
@@ -5453,8 +5528,6 @@ if st.session_state.get("page_changed", False):
     scroll_main_to_top(f"{page}-{st.session_state['scroll_nonce']}")
 
 def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
-    sp_render_account_menu(SP_USER, gap)
-    _sp_badge = sp_initials(SP_USER)
     _now = datetime.now(
         ZoneInfo("Asia/Karachi")
     ).strftime("%b %d, %Y  •  %I:%M %p")
@@ -5478,11 +5551,14 @@ def render_header(eyebrow, title, subtitle, badge, gap="0.9rem"):
 <span style="font-size:15px;">🔔</span>
 <span style="position:absolute;top:5px;right:6px;width:7px;height:7px;background:#FF4D4D;border-radius:50%;border:1.5px solid #013D2B;"></span>
 </div>
-<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);cursor:pointer;" title="Account menu">{_sp_badge}</div>
+<div style="background:linear-gradient(135deg,#FFD700,#F5B300);color:#013D2B;font-weight:800;font-size:11px;letter-spacing:.3px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.4);">DBG</div>
 </div>
 </div>
 </div>
 """, unsafe_allow_html=True)
+
+# User bar (name / role / change password / logout) at the top of every page
+sp_render_user_bar(SP_USER)
 
 # Floating cartoon assistant (bottom-right of every page, can be hidden)
 sp_render_floating_bot(SP_PROJECTS_DF)
